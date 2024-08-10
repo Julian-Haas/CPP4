@@ -93,3 +93,5 @@ vcpkg.applocal.log
 
 # Temporary Logs
 *.tlog
+
+x64/Debug/*.tlog
