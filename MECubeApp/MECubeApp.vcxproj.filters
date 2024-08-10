@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="src\apptypes.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cubeapp.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cubeapp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{406937ef-c8a1-4835-a427-2c96337c12b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{784c189e-fb69-4b1d-88d7-d1d337e0bb1d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="assets\Terrain.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\Mesh.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\MeshUnlit.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\ShaderCommon.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\DepthOfFieldPostEffect.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="assets\FinalPostEffect.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{1f483ee7-935a-490d-b379-5f61ed900091}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\xtktextureloader">
+      <UniqueIdentifier>{e7cb0f1c-f3b8-4bab-b845-ea823d7fadba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\tinyobjloader">
+      <UniqueIdentifier>{03b310cf-188d-4dfe-a4de-d7c1fccd2b17}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\d3d11util.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d11vertexshader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entity.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d11buffer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d11device.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d11pixelshader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d11texture2d.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\window.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshrenderercomponent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mesh.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vertex.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\material.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\color.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d11samplerstate.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cameracomponent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitivemeshes.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memath.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\firstpersoncontrollercomponent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\directorywatcher.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventbus.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entitymanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transformcomponent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\componentstorer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\xtktextureloader\WICTextureLoader.cpp">
+      <Filter>src\xtktextureloader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenenode.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libraries.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systemmanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lightcomponent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\posteffect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\MicroEngine\component.h" />
+    <ClInclude Include="inc\MicroEngine\comptr.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11buffer.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11device.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11pixelshader.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11texture2d.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11util.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11vertexshader.h" />
+    <ClInclude Include="inc\MicroEngine\entity.h" />
+    <ClInclude Include="inc\MicroEngine\util.h" />
+    <ClInclude Include="inc\MicroEngine\window.h" />
+    <ClInclude Include="inc\MicroEngine\windowsinc.h" />
+    <ClInclude Include="src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\MicroEngine\color.h" />
+    <ClInclude Include="inc\MicroEngine\meshrenderercomponent.h" />
+    <ClInclude Include="inc\MicroEngine\mesh.h" />
+    <ClInclude Include="inc\MicroEngine\vertex.h" />
+    <ClInclude Include="inc\MicroEngine\material.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11samplerstate.h" />
+    <ClInclude Include="inc\MicroEngine\cameracomponent.h" />
+    <ClInclude Include="inc\MicroEngine\primitivemeshes.h" />
+    <ClInclude Include="inc\MicroEngine\memath.h" />
+    <ClInclude Include="inc\MicroEngine\input.h" />
+    <ClInclude Include="inc\MicroEngine\firstpersoncontrollercomponent.h" />
+    <ClInclude Include="inc\MicroEngine\directorywatcher.h" />
+    <ClInclude Include="inc\MicroEngine\eventbus.h" />
+    <ClInclude Include="inc\MicroEngine\entitymanager.h" />
+    <ClInclude Include="inc\MicroEngine\transformcomponent.h" />
+    <ClInclude Include="inc\MicroEngine\componentstorer.h" />
+    <ClInclude Include="inc\MicroEngine\renderer.h" />
+    <ClInclude Include="src\xtktextureloader\DirectXHelpers.h">
+      <Filter>src\xtktextureloader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\xtktextureloader\pch.h">
+      <Filter>src\xtktextureloader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\xtktextureloader\PlatformHelpers.h">
+      <Filter>src\xtktextureloader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\xtktextureloader\WICTextureLoader.h">
+      <Filter>src\xtktextureloader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyobjloader\tiny_obj_loader.h">
+      <Filter>src\tinyobjloader</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\MicroEngine\scenenode.h" />
+    <ClInclude Include="inc\MicroEngine\renderercomponent.h" />
+    <ClInclude Include="inc\MicroEngine\libraries.h" />
+    <ClInclude Include="inc\MicroEngine\me_interface.h" />
+    <ClInclude Include="inc\MicroEngine\system.h" />
+    <ClInclude Include="inc\MicroEngine\systemmanager.h" />
+    <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
+    <ClInclude Include="inc\MicroEngine\posteffect.h" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Retail|x64">
+      <Configuration>Retail</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cameracomponent.cpp" />
+    <ClCompile Include="src\color.cpp" />
+    <ClCompile Include="src\componentstorer.cpp" />
+    <ClCompile Include="src\d3d11buffer.cpp" />
+    <ClCompile Include="src\d3d11device.cpp" />
+    <ClCompile Include="src\d3d11pixelshader.cpp" />
+    <ClCompile Include="src\d3d11samplerstate.cpp" />
+    <ClCompile Include="src\d3d11texture2d.cpp" />
+    <ClCompile Include="src\d3d11util.cpp" />
+    <ClCompile Include="src\d3d11vertexshader.cpp" />
+    <ClCompile Include="src\directorywatcher.cpp" />
+    <ClCompile Include="src\entity.cpp" />
+    <ClCompile Include="src\entitymanager.cpp" />
+    <ClCompile Include="src\eventbus.cpp" />
+    <ClCompile Include="src\firstpersoncontrollercomponent.cpp" />
+    <ClCompile Include="src\input.cpp" />
+    <ClCompile Include="src\libraries.cpp" />
+    <ClCompile Include="src\lightcomponent.cpp" />
+    <ClCompile Include="src\material.cpp" />
+    <ClCompile Include="src\memath.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\meshrenderercomponent.cpp" />
+    <ClCompile Include="src\posteffect.cpp" />
+    <ClCompile Include="src\primitivemeshes.cpp" />
+    <ClCompile Include="src\renderer.cpp" />
+    <ClCompile Include="src\scenenode.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\systemmanager.cpp" />
+    <ClCompile Include="src\transformcomponent.cpp" />
+    <ClCompile Include="src\util.cpp" />
+    <ClCompile Include="src\vertex.cpp" />
+    <ClCompile Include="src\window.cpp" />
+    <ClCompile Include="src\xtktextureloader\WICTextureLoader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\MicroEngine\cameracomponent.h" />
+    <ClInclude Include="inc\MicroEngine\color.h" />
+    <ClInclude Include="inc\MicroEngine\component.h" />
+    <ClInclude Include="inc\MicroEngine\componentstorer.h" />
+    <ClInclude Include="inc\MicroEngine\comptr.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11buffer.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11device.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11pixelshader.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11samplerstate.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11texture2d.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11util.h" />
+    <ClInclude Include="inc\MicroEngine\d3d11vertexshader.h" />
+    <ClInclude Include="inc\MicroEngine\directorywatcher.h" />
+    <ClInclude Include="inc\MicroEngine\entity.h" />
+    <ClInclude Include="inc\MicroEngine\entitymanager.h" />
+    <ClInclude Include="inc\MicroEngine\eventbus.h" />
+    <ClInclude Include="inc\MicroEngine\firstpersoncontrollercomponent.h" />
+    <ClInclude Include="inc\MicroEngine\input.h" />
+    <ClInclude Include="inc\MicroEngine\libraries.h" />
+    <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
+    <ClInclude Include="inc\MicroEngine\material.h" />
+    <ClInclude Include="inc\MicroEngine\memath.h" />
+    <ClInclude Include="inc\MicroEngine\mesh.h" />
+    <ClInclude Include="inc\MicroEngine\meshrenderercomponent.h" />
+    <ClInclude Include="inc\MicroEngine\me_interface.h" />
+    <ClInclude Include="inc\MicroEngine\posteffect.h" />
+    <ClInclude Include="inc\MicroEngine\primitivemeshes.h" />
+    <ClInclude Include="inc\MicroEngine\renderercomponent.h" />
+    <ClInclude Include="inc\MicroEngine\renderer.h" />
+    <ClInclude Include="inc\MicroEngine\scenenode.h" />
+    <ClInclude Include="inc\MicroEngine\system.h" />
+    <ClInclude Include="inc\MicroEngine\systemmanager.h" />
+    <ClInclude Include="inc\MicroEngine\transformcomponent.h" />
+    <ClInclude Include="inc\MicroEngine\util.h" />
+    <ClInclude Include="inc\MicroEngine\vertex.h" />
+    <ClInclude Include="inc\MicroEngine\window.h" />
+    <ClInclude Include="inc\MicroEngine\windowsinc.h" />
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="src\xtktextureloader\DirectXHelpers.h" />
+    <ClInclude Include="src\xtktextureloader\pch.h" />
+    <ClInclude Include="src\xtktextureloader\PlatformHelpers.h" />
+    <ClInclude Include="src\xtktextureloader\WICTextureLoader.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8F3DCF35-377D-40DC-82E8-C85795BD7283}</ProjectGuid>
+    <RootNamespace>MicroEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tools\PropertySheets\DebugDll.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tools\PropertySheets\ReleaseDll.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tools\PropertySheets\RetailLib.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link />
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <ClCompile>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
