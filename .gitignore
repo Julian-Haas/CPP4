@@ -73,3 +73,11 @@ Thumbs.db
 
 # Visual Studio local settings and caches
 .vs/
+
+# Additional Build directories
+x64/
+x86/
+
+# Temporary files
+*.log
+*.tmp
