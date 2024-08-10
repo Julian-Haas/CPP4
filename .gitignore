@@ -60,7 +60,6 @@ Thumbs.db
 *.a
 
 # Executables
-*.exe
 *.out
 *.app
 
