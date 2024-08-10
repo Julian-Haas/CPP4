@@ -20,7 +20,6 @@
 
 # Dependency directories
 node_modules/
-lib/
 vendor/
 
 # Build directories
@@ -59,7 +58,6 @@ Thumbs.db
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
