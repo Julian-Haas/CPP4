@@ -9,11 +9,9 @@
 
 # Compiled Libraries and Binaries
 *.a
-*.lib
 *.so
 *.dll
 *.dylib
-*.exe
 *.out
 
 # Debugging files
