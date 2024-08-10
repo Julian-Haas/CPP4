@@ -7,6 +7,43 @@
 *.o
 *.obj
 
+# Compiled Libraries and Binaries
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+
+# Debugging files
+*.dSYM/
+*.pdb
+
+# Dependency directories
+node_modules/
+lib/
+vendor/
+
+# Build directories
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# IDE and editor specific files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# MacOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
 # Precompiled Headers
 *.gch
 *.pch
