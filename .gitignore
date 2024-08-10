@@ -81,3 +81,15 @@ x86/
 # Temporary files
 *.log
 *.tmp
+
+# Intermediate Files
+*.ilk
+*.idb
+*.recipe
+*.FileListAbsolute.txt
+
+# Vcpkg Logs
+vcpkg.applocal.log
+
+# Temporary Logs
+*.tlog
