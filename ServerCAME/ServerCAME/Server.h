@@ -4,7 +4,7 @@
 #include <iostream>
 #include<vector>
 #include <string>
-
+#include <map>
 struct Position
 {
 public:
@@ -26,13 +26,13 @@ class Server
 {
 private:
 	char request[4096];
-
+	std::map<int, Position> playerData; 
 	//member functions: 
 	void SendToClient(SOCKET i, std::string msg);
 	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
-	void RegisterNewPlayer(Position pos);
+	void RegisterNewPlayer();
 
-	void UpdatePlayerPosition(int playerID, Position pos);
+	void UpdatePlayerPosition();
 
 	void PrepareMessage(Position pos);
 	void PrepareMessage();

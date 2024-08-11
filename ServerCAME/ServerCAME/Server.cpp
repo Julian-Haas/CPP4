@@ -29,19 +29,30 @@ void Server::SendToClient(SOCKET i, std::string msg)
 	char formatedAnswer[4096];
 	memcpy(formatedAnswer, msg.data(), msg.size());
 	formatedAnswer[msg.size()] = '\0';
-	send(i, formatedAnswer, msg.size() + 1, 0); // Übergeben Sie die tatsächlich kopierte Datenlänge
+	send(i, formatedAnswer, msg.size() + 1, 0);
 }
 
 void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i) 
 {
-
+	switch(request[0])
+	{
+	case '101':
+		RegisterNewPlayer(); 
+		break; 
+	case '102': 
+		UpdatePlayerPosition(); 
+		break; 
+	default: 
+		printf("Unhandelt request"); 
+		break; 
+	}
 }
 
-void Server::RegisterNewPlayer(Position pos)
+void Server::RegisterNewPlayer()
 {
 }
 
-void Server::UpdatePlayerPosition(int playerID, Position pos)
+void Server::UpdatePlayerPosition()
 {
 }
 
