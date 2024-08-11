@@ -45,11 +45,11 @@ void Server::UpdatePlayerPosition(int playerID, Position pos)
 {
 }
 
-void Server::FormatMessage(Position pos)
+void Server::PrepareMessage(Position pos)
 {
 }
 
-void Server::FormatMessage()
+void Server::PrepareMessage()
 {
 }
 
