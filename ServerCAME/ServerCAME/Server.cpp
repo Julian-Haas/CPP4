@@ -16,17 +16,12 @@ Server::Server()
 }
 enum Server::protocol
 {
-	CheckUsernameForExistance_Client = 1,
-	CheckPasswordForCorrectness_Client = 2,
-	DisplayHistoryOfUser_Client = 3,
-	PostAMessage_Client = 4,
-	RegisterUser_Client = 5,
-	CheckUsernameForExistance_Server = 101,
-	CheckPasswordForCorrectness_Server = 102,
-	DisplayHistoryOfUser_Server = 103,
-	PostAMessage_Server = 104,
-	RegisterUser_Server = 105,
-	InvalidUserName_Server = 106
+	JoinAwnserSucessful = 1,
+	JoinAwnserFailed = 2,
+	ProceedData = 3,
+	JoinRequest = 101,
+	SendPosition = 102,
+
 };
 
 void Server::SendToClient(SOCKET i, std::string msg)
@@ -40,6 +35,22 @@ void Server::SendToClient(SOCKET i, std::string msg)
 void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i) 
 {
 
+}
+
+void Server::RegisterNewPlayer(Position pos)
+{
+}
+
+void Server::UpdatePlayerPosition(int playerID, Position pos)
+{
+}
+
+void Server::FormatMessage(Position pos)
+{
+}
+
+void Server::FormatMessage()
+{
 }
 
 int Server::InitServer(int argc, char* argv[])
