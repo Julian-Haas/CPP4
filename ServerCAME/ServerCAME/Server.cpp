@@ -10,8 +10,13 @@
 #include <iostream>
 #include<chrono>
 #include "Server.h"
-
+#include <optional>
+#include "CAServerUttilitys.h"
 Server::Server()
+	: startPosOffset(1000243.3F)
+	, playerData{ {0, Position(100, 400000000, 32422420)} } // Verwende eine Initialisierungsliste für `std::map`
+	, playerCount(0)
+	, currentPlayerID(0)
 {
 }
 enum Server::protocol
@@ -34,13 +39,15 @@ void Server::SendToClient(SOCKET i, std::string msg)
 
 void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i) 
 {
-	switch(request[0])
+	int msgCode;
+	memcpy(&msgCode, request, sizeof(msgCode));
+	switch(msgCode)
 	{
-	case '101':
-		RegisterNewPlayer(); 
+	case 101:
+		RegisterNewPlayer(i); 
 		break; 
 	case '102': 
-		UpdatePlayerPosition(); 
+		UpdatePlayerPosition(i); 
 		break; 
 	default: 
 		printf("Unhandelt request"); 
@@ -48,24 +55,74 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 	}
 }
 
+void Server::ReadMessage(char* message)
+{
+	int msgCode;
+	memcpy(&msgCode, &message[0], sizeof(msgCode));
+
+	int PlayerId;
+	memcpy(&PlayerId, &message[4], sizeof(PlayerId));
+	float PosX, PosY, PosZ;
+	memcpy(&PosX, &message[8], sizeof(PosX));
+	memcpy(&PosY, &message[12], sizeof(PosY));
+	memcpy(&PosZ, &message[16], sizeof(PosZ));
+	std::cout << "Message Code: " << msgCode << std::endl;
+	std::cout << "Player ID: " << PlayerId << std::endl;
+	std::cout << "Position X: " << PosX << std::endl;
+	std::cout << "Position Y: " << PosY << std::endl;
+	std::cout << "Position Z: " << PosZ << std::endl;
+}
+
+void Server::RegisterNewPlayer(SOCKET i)
+{
+	playerData.insert(std::make_pair(playerCount, Position(startPosOffset, startPosOffset, startPosOffset)));
+	int msgCode = (int)JoinAwnserSucessful; 
+	std::string msg = std::to_string(msgCode)
+	+ std::to_string(playerCount)
+	+ ServerUttilitys::FloatToString(playerData[playerCount].x)
+	+ ServerUttilitys::FloatToString(playerData[playerCount].y) 
+	+ ServerUttilitys::FloatToString(playerData[playerCount].z);
+	startPosOffset += 10;
+	playerCount++;
+	SendToClient(i, msg); 
+}
+
 void Server::RegisterNewPlayer()
 {
+	// '/' => end of parameter, '|' => end of message
+	playerData.insert(std::make_pair(playerCount, Position(startPosOffset, startPosOffset, startPosOffset)));
+	playerCount++;
+}
+void Server::UpdatePlayerPosition(SOCKET i)
+{
+
 }
 
-void Server::UpdatePlayerPosition()
-{
-}
 
-void Server::PrepareMessage(Position pos)
+std::string Server::PrepareMessage(protocol protocolCode)
 {
-}
+	char message[20];
 
-void Server::PrepareMessage()
-{
+	int code = static_cast<int>(protocolCode);
+	memcpy(&message[0], &code, sizeof(code));
+
+	int playerId = currentPlayerID;
+	memcpy(&message[4], &playerId, sizeof(playerId));
+
+	float posX = playerData[currentPlayerID].x;
+	float posY = playerData[currentPlayerID].y;
+	float posZ = playerData[currentPlayerID].z;
+
+	memcpy(&message[8], &posX, sizeof(posX)); 
+	memcpy(&message[12], &posY, sizeof(posY));
+	memcpy(&message[16], &posZ, sizeof(posZ));
+	
+	return (std::string)message;
 }
 
 int Server::InitServer(int argc, char* argv[])
 {
+	ReadMessage();  
 	WSAData d;
 	bool readingRequest = false;
 	if (WSAStartup(MAKEWORD(2, 2), &d))

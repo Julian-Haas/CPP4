@@ -11,7 +11,7 @@ public:
 	float x;
 	float y;
 	float z;
-
+	Position() {}
 	Position(float xPos, float yPos, float zPos)
 		: x(xPos)
 		, y(yPos)
@@ -25,20 +25,25 @@ public:
 class Server
 {
 private:
+	//protocol enum 
+	enum protocol;
 	char request[4096];
 	std::map<int, Position> playerData; 
+	float startPosOffset; 
+	int playerCount; 
+	int currentPlayerID; 
 	//member functions: 
 	void SendToClient(SOCKET i, std::string msg);
 	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
+	void ReadMessage(char* message);
+	void RegisterNewPlayer(SOCKET i);
 	void RegisterNewPlayer();
 
-	void UpdatePlayerPosition();
+	void UpdatePlayerPosition(SOCKET i);
 
-	void PrepareMessage(Position pos);
-	void PrepareMessage();
+	std::string PrepareMessage(protocol msgCode);
 	
-	//protocol enum 
-	enum protocol;
+
 
 public:
 	Server();
