@@ -14,11 +14,15 @@
 #include "CAServerUttilitys.h"
 Server::Server()
 	: startPosOffset(1000243.3F)
-	, playerData{ {0, Position(100, 400000000, 32422420)} } // Verwende eine Initialisierungsliste für `std::map`
+	, playerData{ {0, Position(0, 0, 0)} }
 	, playerCount(0)
 	, currentPlayerID(0)
+	, requestCode(0)
+	, answerCode(0)
+
 {
 }
+
 enum Server::protocol
 {
 	JoinAwnserSucessful = 1,
@@ -29,81 +33,118 @@ enum Server::protocol
 
 };
 
-void Server::SendToClient(SOCKET i, std::string msg)
+void Server::SendToClient(SOCKET i, const char* msg)
 {
-	char formatedAnswer[4096];
-	memcpy(formatedAnswer, msg.data(), msg.size());
-	formatedAnswer[msg.size()] = '\0';
-	send(i, formatedAnswer, msg.size() + 1, 0);
+	send(i, msg, 20, 0);
 }
 
 void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i) 
 {
+
+	ReadMessage(request);
 	int msgCode;
 	memcpy(&msgCode, request, sizeof(msgCode));
 	switch(msgCode)
 	{
 	case 101:
-		RegisterNewPlayer(i); 
+		RegisterNewPlayer(); 
 		break; 
 	case '102': 
-		UpdatePlayerPosition(i); 
+		//maybe is irrelavnt UpdatePlayerPosition(); 
 		break; 
 	default: 
 		printf("Unhandelt request"); 
 		break; 
 	}
+	auto message  = PrepareMessage(); 
+
+	SOCKET n;
+	SOCKET maxSocket = listenerSocket; 
+	for (n = 0; n <= maxSocket; n++)
+	{
+		SendToClient(i, message.data()); 
+	}
 }
 
-void Server::ReadMessage(char* message)
+void Server::ReadMessage(const char* message)
 {
 	int msgCode;
-	memcpy(&msgCode, &message[0], sizeof(msgCode));
+	memcpy(&requestCode, &message[0], sizeof(requestCode));
 
 	int PlayerId;
-	memcpy(&PlayerId, &message[4], sizeof(PlayerId));
-	float PosX, PosY, PosZ;
-	memcpy(&PosX, &message[8], sizeof(PosX));
-	memcpy(&PosY, &message[12], sizeof(PosY));
-	memcpy(&PosZ, &message[16], sizeof(PosZ));
-	std::cout << "Message Code: " << msgCode << std::endl;
-	std::cout << "Player ID: " << PlayerId << std::endl;
-	std::cout << "Position X: " << PosX << std::endl;
-	std::cout << "Position Y: " << PosY << std::endl;
-	std::cout << "Position Z: " << PosZ << std::endl;
-}
+	memcpy(&currentPlayerID, &message[4], sizeof(currentPlayerID));
 
-void Server::RegisterNewPlayer(SOCKET i)
-{
-	playerData.insert(std::make_pair(playerCount, Position(startPosOffset, startPosOffset, startPosOffset)));
-	int msgCode = (int)JoinAwnserSucessful; 
-	std::string msg = std::to_string(msgCode)
-	+ std::to_string(playerCount)
-	+ ServerUttilitys::FloatToString(playerData[playerCount].x)
-	+ ServerUttilitys::FloatToString(playerData[playerCount].y) 
-	+ ServerUttilitys::FloatToString(playerData[playerCount].z);
-	startPosOffset += 10;
-	playerCount++;
-	SendToClient(i, msg); 
+	float PosX, PosY, PosZ;
+	memcpy(&playerData[currentPlayerID].x, &message[8], sizeof(playerData[currentPlayerID].x));
+	memcpy(&playerData[currentPlayerID].y, &message[12], sizeof(playerData[currentPlayerID].y));
+	memcpy(&playerData[currentPlayerID].z, &message[16], sizeof(playerData[currentPlayerID].z));
+
+	std::cout << "Message Code: " << requestCode << std::endl;
+	std::cout << "Player ID: " << currentPlayerID << std::endl;
+	std::cout << "Position X: " << playerData[currentPlayerID].x << std::endl;
+	std::cout << "Position Y: " << playerData[currentPlayerID].y << std::endl;
+	std::cout << "Position Z: " << playerData[currentPlayerID].z << std::endl;
 }
 
 void Server::RegisterNewPlayer()
 {
-	// '/' => end of parameter, '|' => end of message
+	if(currentPlayerID < playerCount || currentPlayerID > 0)
+	{
+		std::cout << "Join Request denied!\n"; 
+		answerCode = (int)JoinAwnserFailed; 
+		return; 
+	} 
 	playerData.insert(std::make_pair(playerCount, Position(startPosOffset, startPosOffset, startPosOffset)));
-	playerCount++;
+	answerCode = (int)JoinAwnserSucessful;
 }
-void Server::UpdatePlayerPosition(SOCKET i)
+
+void Server::UnregisterPlayer()
+{
+	for (int i = 0; i < 13; ++i)
+	{
+		playerData.insert(std::make_pair(i, Position(10, 10, 10)));
+	}
+
+	currentPlayerID = 4;
+	int indexToRemove = currentPlayerID;
+
+	auto it = playerData.begin();
+	playerData[0].x = -5; 
+	playerData[0].y = -5;
+	playerData[0].z = -5;
+	while (it != playerData.end())
+	{
+		if (it->first > indexToRemove)
+		{
+			int newKey = it->first - 1;
+			playerData[newKey] = it->second;
+			it = playerData.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	//Debuging ausgabe
+	for (auto it = playerData.begin(); it != playerData.end(); ++it)
+	{
+		std::cout << "Key: " << it->first << ", Value: (" << it->second.x << ", " << it->second.y << ", " << it->second.z << ")" << std::endl;
+	}
+	playerCount--;
+}
+
+void Server::UpdatePlayerPosition()
 {
 
 }
 
 
-std::string Server::PrepareMessage(protocol protocolCode)
+std::array<char, 20> Server::PrepareMessage()
 {
-	char message[20];
+	std::array<char, 20> message = {};  // Initialisiere mit 0
 
-	int code = static_cast<int>(protocolCode);
+	int code = answerCode;
 	memcpy(&message[0], &code, sizeof(code));
 
 	int playerId = currentPlayerID;
@@ -113,16 +154,17 @@ std::string Server::PrepareMessage(protocol protocolCode)
 	float posY = playerData[currentPlayerID].y;
 	float posZ = playerData[currentPlayerID].z;
 
-	memcpy(&message[8], &posX, sizeof(posX)); 
+	memcpy(&message[8], &posX, sizeof(posX));
 	memcpy(&message[12], &posY, sizeof(posY));
 	memcpy(&message[16], &posZ, sizeof(posZ));
-	
-	return (std::string)message;
+
+	ReadMessage(message.data()); // Verwende .data() um einen Zeiger zu erhalten
+	return message;
 }
 
 int Server::InitServer(int argc, char* argv[])
 {
-	ReadMessage();  
+	ReadMessage(request);  
 	WSAData d;
 	bool readingRequest = false;
 	if (WSAStartup(MAKEWORD(2, 2), &d))
@@ -139,7 +181,7 @@ int Server::InitServer(int argc, char* argv[])
 	addrinfo* bindAddress;
 	getaddrinfo(0, "8080", &hints, &bindAddress);
 	printf("Creating listener socket\n");
-	SOCKET listenerSocket;
+	listenerSocket;
 	listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
 	if (listenerSocket == INVALID_SOCKET)
 	{
@@ -206,12 +248,10 @@ int Server::InitServer(int argc, char* argv[])
 						HandleIncomingRequest(readingRequest, i);
 					}
 					else if (bytesReceived == 0) {
-						// Verbindung geschlossen
 						FD_CLR(i, &master);
 						closesocket(i);
 					}
 					else {
-						// Fehler beim Empfangen von Daten
 						fprintf(stderr, "recv() failed. (%d)\n", WSAGetLastError());
 						FD_CLR(i, &master);
 						closesocket(i);

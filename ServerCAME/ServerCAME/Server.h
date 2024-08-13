@@ -5,6 +5,7 @@
 #include<vector>
 #include <string>
 #include <map>
+#include<array>
 struct Position
 {
 public:
@@ -32,21 +33,24 @@ private:
 	float startPosOffset; 
 	int playerCount; 
 	int currentPlayerID; 
+	int requestCode; 
+	int answerCode; 
 	//member functions: 
-	void SendToClient(SOCKET i, std::string msg);
+	void SendToClient(SOCKET i, const char* msg);
 	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
-	void ReadMessage(char* message);
-	void RegisterNewPlayer(SOCKET i);
+	void ReadMessage(const char* message);
 	void RegisterNewPlayer();
 
-	void UpdatePlayerPosition(SOCKET i);
+	SOCKET listenerSocket; 
 
-	std::string PrepareMessage(protocol msgCode);
-	
+	void UpdatePlayerPosition();
+
+	std::array<char, 20> PrepareMessage();
 
 
 public:
 	Server();
+	void UnregisterPlayer();
 	int InitServer(int argc, char* argv[]);
 
 };
