@@ -21,9 +21,15 @@
     <ClCompile Include="Server.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CAServerUttilitys.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Server.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CAServerUttilitys.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,45 +4,53 @@
 #include <iostream>
 #include<vector>
 #include <string>
+#include <map>
+#include<array>
+struct Position
+{
+public:
+	float x;
+	float y;
+	float z;
+	Position() {}
+	Position(float xPos, float yPos, float zPos)
+		: x(xPos)
+		, y(yPos)
+		, z(zPos)
+	{}
+
+	~Position()
+	{}
+};
+
 class Server
 {
 private:
-	//speichern der nutzer 
-	std::vector<std::vector<std::string>> user;
-	std::vector<std::vector<int>> postTimes;
-	//speichern der tweets + nutzernamen 
-	std::vector<std::vector<std::string>> tweets;
-
-	//counter der nutzer
-	int index = 0;
-	std::string activeUser;
-	//id des nutzers der gerade angemeldet ist
-	int userIndex = 0;
-	int userTweetID = 0;
-	//tweet counter
-	int tweetCounter = 0;
-	char request[4096];
-
-	//member functions: 
-	std::string AddMessageLength(std::string msg, int length);
-	int GetStringLenght(int start);
-	void SendToClient(SOCKET i, std::string msg);
-	std::string GetPassword(int start, int lenght);
-	std::string ExtractTweet();
-	int CheckForUserName();
-	std::string GetUserPosts();
-	void DisplayUserHistory(SOCKET i);
-	void CheckUserNameForExistance(SOCKET i);
-	void CheckPasswordForCorrectness(SOCKET i);
-	int GetUserTweetID();
-	int PostUserMessage(SOCKET i);
-	void FinishRegistration(SOCKET i);
-	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
 	//protocol enum 
 	enum protocol;
+	char request[4096];
+	std::map<int, Position> playerData; 
+	float startPosOffset; 
+	int playerCount; 
+	int currentPlayerID; 
+	int requestCode; 
+	int answerCode; 
+	//member functions: 
+	void SendToClient(SOCKET i, const char* msg);
+	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
+	void ReadMessage(const char* message);
+	void RegisterNewPlayer();
+
+	SOCKET listenerSocket; 
+
+	void UpdatePlayerPosition();
+
+	std::array<char, 20> PrepareMessage();
+
 
 public:
-	Server(std::vector<std::vector<std::string>> nutzer);
+	Server();
+	void UnregisterPlayer();
 	int InitServer(int argc, char* argv[]);
 
 };
