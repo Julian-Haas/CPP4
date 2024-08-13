@@ -11,255 +11,69 @@
 
 #include "Messenger.h"
 
+int _position_x = 3;
+int _position_y = 4;
+int _position_z = 5;
+
+int _playerID = -1;
+
 enum Messenger::protocol
 {
-	CheckUsernameForExistance_Client = 1,
-	CheckPasswordForCorrectness_Client = 2,
-	DisplayHistoryOfUser_Client = 3,
-	PostAMessage_Client = 4,
-	RegisterUser_Client = 5,
-
-	CheckUsernameForExistance_Server = 101,
-	CheckPasswordForCorrectness_Server = 102,
-	DisplayHistoryOfUser_Server = 103,
-	PostAMessage_Server = 104,
-	RegisterUser_Server = 105
+	RequestJoin_Code = 101,
+	SendPosition_Code = 102,
+	SendLogOut_Code = 103
 };
 
-void Messenger::AddMessageLenght(std::string msg)
-{
-	int length = msg.length();
-
-	char val1;
-	char val2;
-	if (length > 255)
-	{
-		int rest = length - 255;
-		val1 = char(255);
-		val2 = char(rest);
-		serverRequest += val1;
-		serverRequest += val2;
-	}
-	else
-	{
-		val1 = char(length);
-		val2 = char(0);
-		serverRequest += val1;
-		serverRequest += val2;
+void Messenger::OpenMainMenu() {
+	while (true) {
+		std::cout << "Press 1 to log in." << std::endl;
+		WaitForServerResponse();
 	}
 }
 
-int GetStringLenght(char request[], int start)
-{
-	return request[start] + request[start + 1];
+void Messenger::Play() {
+	std::cout << "Press 2 to send your position to the Server. Please only do this while being logged in." << std::endl;
+	std::cout << "Press 3 to log out. Please only do this while being logged in." << std::endl;
 }
 
-void Messenger::SetRequestCode(int requestCode)
+void Messenger::SendToServer()
 {
-	serverRequest = char(requestCode);
+	memcpy(formattedRequest, unformattedRequest, sizeof(unformattedRequest));
+	send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 }
 
-void Messenger::ExtendRequest(std::string appendedParameter)
-{
-	AddMessageLenght(appendedParameter);
-	serverRequest.append(appendedParameter);
-}
-
-bool Messenger::CheckUsernameForExistance(std::string Username)
-//Programm war eine Zeile zu kurz, darum musste hier noch eine rein.
-{
-	SetRequestCode(CheckUsernameForExistance_Client);
-	ExtendRequest(Username);
+void Messenger::RequestJoin() {
+	SetProtocolCode(RequestJoin_Code);
+	AddPositionToRequest();
 	SendToServer();
-	return(WaitForServerResponse());
 }
 
-bool Messenger::CheckPasswordForCorrectness(std::string Username, std::string Password)
-{
-	SetRequestCode(CheckPasswordForCorrectness_Client);
-	ExtendRequest(Username);
-	ExtendRequest(Password);
+void Messenger::SendPosition() {
+	SetProtocolCode(SendPosition_Code);
+	AddPositionToRequest();
 	SendToServer();
-	return(WaitForServerResponse());
 }
 
-bool Messenger::RegisterOnServer(std::string Username, std::string Password)
-{
-	SetRequestCode(RegisterUser_Client);
-	ExtendRequest(Username);
-	ExtendRequest(Password);
+void Messenger::SendLogOut() {
+	SetProtocolCode(SendLogOut_Code);
+	AddPositionToRequest();
 	SendToServer();
-	return(WaitForServerResponse());
 }
 
-void Messenger::DisplayHistoryOfUser(std::string username)
-{
-	SetRequestCode(DisplayHistoryOfUser_Client);
-	ExtendRequest(username);
-	SendToServer();
-	WaitForServerResponse();
+void Messenger::AddPlayerID() {
+	unformattedRequest[1] = _playerID;
 }
 
-void Messenger::PostAMessage(std::string message)
-{
-	SetRequestCode(PostAMessage_Client);
-	ExtendRequest(nameOfActiveUser);
-	ExtendRequest(message);
-	SendToServer();
-	WaitForServerResponse();
+void Messenger::AddPositionToRequest() {
+	unformattedRequest[2] = _position_x;
+	unformattedRequest[3] = _position_y;
+	unformattedRequest[4] = _position_z;
 }
 
-void Messenger::ModePostAMessage()
-{
-	std::string message;
-	while (true)
-	{
-		std::cout << "Please enter a message with maximum 280 characters which you want to post.\n";
-		std::cin.ignore(10000, '\n');
-		std::getline(std::cin, message);
-		if (message.length() > 280)
-		{
-			std::cout << "Your message was too long.\n";
-			continue;
-		}
-		PostAMessage(message);
-		std::cout << "You posted this message: " << message << "\n";
-		break;
-	}
+void Messenger::SetProtocolCode(int code) {
+	unformattedRequest[0] = code;
 }
 
-void Messenger::ModeUserSearch()
-{
-	std::string username;
-	std::cout << "Please enter a username whose history you want to see.\n";
-	std::cin >> username;
-	std::cout << "You want to see the History of: \n" << username << "\n";
-	CheckUsernameForExistance(username);
-	bool doesUserExist = CheckUsernameForExistance(username);
-	if (doesUserExist)
-	{
-		DisplayHistoryOfUser(username);
-	}
-	else
-	{
-		std::cout << "Following user is unknown: " << username << "\n";
-		std::cout << "Going back to ModeAccountPage.\n";
-	}
-}
-
-void Messenger::ModeAccountPage(std::string username)
-{
-	std::string chosenOption;
-	bool correctInputFlag;
-	while (chosenOption != "4")
-	{
-		correctInputFlag = false;
-		std::cout << "Press 1 to show your own history, 2 to post a tweet, 3 to search for a user, or 4 to logout.\n";
-		std::cin >> chosenOption;
-		if (chosenOption.length() == 1)
-		{
-			switch (chosenOption[0])
-			{
-			case '1':
-				DisplayHistoryOfUser(username);
-				correctInputFlag = true;
-				break;
-			case '2':
-				ModePostAMessage();
-				correctInputFlag = true;
-				break;
-			case '3':
-				ModeUserSearch();
-				correctInputFlag = true;
-				break;
-			case '4':
-				correctInputFlag = true;
-				break;
-			default:
-				break;
-			}
-		}
-		if (!correctInputFlag)
-		{
-			std::cout << "Wrong Input.\n";
-		}
-	}
-	std::cout << "Logout was successful.\n";
-}
-
-void Messenger::Login()
-{
-	std::string enteredUsername;
-	std::string enteredPassword;
-	while (true)
-	{
-		while (true)
-		{
-			std::cout << "Please enter your username.\n";
-			std::getline(std::cin, enteredUsername);
-			if (!CheckUsernameForExistance(enteredUsername))
-			{
-				std::cout << "This Username does not exist.\n";
-				continue;
-			}
-			break;
-		}
-		std::cout << "Your username is " << enteredUsername << ".\n";
-		std::cout << "Please enter your password.\n";
-		std::getline(std::cin, enteredPassword);
-		if (CheckPasswordForCorrectness(enteredUsername, enteredPassword))
-		{
-			std::cout << "You logged in succesfully.\n";
-			nameOfActiveUser = enteredUsername;
-			ModeAccountPage(enteredUsername);
-			break;
-		}
-		else
-		{
-			std::cout << "Wrong password.\n";
-			break;
-		}
-	}
-}
-
-void Messenger::Register()
-{
-	std::string enteredUsername;
-	std::string enteredPassword;
-	while (true)
-	{
-		while (true)
-		{
-			std::cout << "Please enter a username.\n";
-			std::getline(std::cin, enteredUsername);
-			if (CheckUsernameForExistance(enteredUsername))
-			{
-				std::cout << "This Username is already in use.\n";
-				continue;
-			}
-			else
-			{
-				break;
-			}
-		}
-		std::cout << "Your chosen username is " << enteredUsername << ".\n";
-		std::cout << "Please enter a password.\n";
-		std::getline(std::cin, enteredPassword);
-		if (RegisterOnServer(enteredUsername, enteredPassword))
-		{
-			std::cout << "You registered succesfully.\n";
-			nameOfActiveUser = enteredUsername;
-			ModeAccountPage(enteredUsername);
-			break;
-		}
-		else
-		{
-			std::cout << "Registration failed\n";
-			break;
-		}
-		break;
-	}
-}
 
 void Messenger::StartMessenger(int argc, char* argv[])
 {
@@ -305,7 +119,7 @@ void Messenger::StartMessenger(int argc, char* argv[])
 	freeaddrinfo(server);
 	printf("Connected!\n");
 	printf("To send data, enter the text followed by enter \n");
-	MainMenu();
+	OpenMainMenu();
 }
 
 bool Messenger::WaitForServerResponse()
@@ -328,27 +142,23 @@ bool Messenger::WaitForServerResponse()
 		{
 			int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 			int val = 0;
-			switch (receivedMessage[0])
+			memcpy(receivedMessage, receivedMessageInInt, sizeof(receivedMessageInInt));
+			switch (receivedMessageInInt[0])
 			{
-			case 101:
-				val = receivedMessage[1];
-				return (val == 1);
+			case 1:
+				std::printf("You are now logged in and your player-id is %d\n", receivedMessageInInt[1]);
+				Play();
+				//val = receivedMessage[1];
+				//return (val == 1);
 				break;
-			case 102:
-				val = receivedMessage[1];
-				return (val == 1);
+			case 2:
+				std::printf("Login was not successful.");
+				//val = receivedMessage[1];
+				//return (val == 1);
 				break;
-			case 103:
-				DisplayReceivedHistory();
-				return true;
-				break;
-			case 104:
-				val = receivedMessage[1];
-				return (val == 1);
-				break;
-			case 105:
-				val = receivedMessage[1];
-				return (val == 1);
+			case 3:
+				std::printf("Player %d is at position %d / %d / %d \n", receivedMessageInInt[1], receivedMessageInInt[2], receivedMessageInInt[3], receivedMessageInInt[4]);
+				//return true;
 				break;
 			default:
 				break;
@@ -362,59 +172,67 @@ bool Messenger::WaitForServerResponse()
 	}
 }
 
-void Messenger::SendToServer()
-{
-	memcpy(formattedRequest, serverRequest.data(), serverRequest.size());
-	send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
-}
 
-void Messenger::MainMenu()
-{
-	std::string chosenOption = "";
-	while (true)
-	{
-		std::cout << "Please enter 1 to login or 2 to register.\n";
-		std::cin >> chosenOption;
-		std::cin.ignore(10000, '\n');
-		if (chosenOption == "1")
-		{
-			Login();
-		}
-		else if (chosenOption == "2")
-		{
-			Register();
-		}
-	}
-}
 
-void Messenger::DisplayReceivedHistory()
-{
-	int amountOfMessages = receivedMessage[1];
-	int positionToRead = 2;
-	int lengthOfUsername = GetStringLenght(receivedMessage, positionToRead);
-	positionToRead += 2;
-	std::string username = std::string(receivedMessage + positionToRead, lengthOfUsername);
-	positionToRead += lengthOfUsername;
-	std::cout << "Here is the History of the User \n" << username << "\n";
-	for (int i = 0; i < amountOfMessages; i++)
-	{
-		int timestamp = 0;
-		for (int j = 0; j < 4; j++)
-		{
-			timestamp += unsigned char(receivedMessage[positionToRead]) * std::pow(256, 3 - j);
-			positionToRead++;
-		}
-		std::time_t formattedTimestamp = static_cast<time_t>(timestamp);
-		std::tm timeinfo1;
-		localtime_s(&timeinfo1, &formattedTimestamp);
-		std::stringstream ss;
-		ss << std::put_time(&timeinfo1, "%d-%m-%Y %H:%M:%S");
-		std::string timeString = ss.str();
-		std::cout << "The following Message was posted at: " << timeString << std::endl;
-		int lengthOfMessage = GetStringLenght(receivedMessage, positionToRead);
-		positionToRead += 2;
-		std::string message = std::string(receivedMessage + positionToRead, lengthOfMessage);
-		positionToRead += lengthOfMessage;
-		std::cout << message << "\n";
-	}
-}
+//void Messenger::AddMessageLenght(std::string msg)
+//{
+//	int length = msg.length();
+//
+//	char val1;
+//	char val2;
+//	if (length > 255)
+//	{
+//		int rest = length - 255;
+//		val1 = char(255);
+//		val2 = char(rest);
+//		serverRequest += val1;
+//		serverRequest += val2;
+//	}
+//	else
+//	{
+//		val1 = char(length);
+//		val2 = char(0);
+//		serverRequest += val1;
+//		serverRequest += val2;
+//	}
+//}
+//
+//int GetStringLenght(char request[], int start)
+//{
+//	return request[start] + request[start + 1];
+//}
+//
+//void Messenger::SetRequestCode(int requestCode)
+//{
+//	serverRequest = char(requestCode);
+//}
+//
+//void Messenger::ExtendRequest(std::string appendedParameter)
+//{
+//	AddMessageLenght(appendedParameter);
+//	serverRequest.append(appendedParameter);
+//}
+
+//RequestJoin{
+//	SetRequestCode(RequestJoin_Code);
+//	AddPositionToRequest();
+//	SendToServer();
+//}
+//
+//SendPosition{
+//	SetRequestCode(SendPosition_Code);
+//	AddPositionToRequest();
+//	SendToServer();
+//}
+//
+//SendLogOut{
+//	SetRequestCode(SendLogOut_Code);
+//	AddPositionToRequest();
+//	SendToServer();
+//}
+//
+//AddPositionToRequest{
+//	ExtendRequest(_position_x);
+//	ExtendRequest(_position_y);
+//	ExtendRequest(_position_z);
+//}

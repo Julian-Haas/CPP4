@@ -128,6 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CPP4_Client.cpp" />
+    <ClCompile Include="Messenger.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Messenger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
