@@ -62,7 +62,7 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 	SOCKET maxSocket = listenerSocket; 
 	for (n = 0; n <= maxSocket; n++)
 	{
-		SendToClient(i, message.data()); 
+		SendToClient(n, message.data()); 
 	}
 }
 
