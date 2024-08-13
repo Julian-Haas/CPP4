@@ -16,6 +16,7 @@ private:
 	enum protocol;
 	bool WaitForServerResponse();
 	void OpenMainMenu();
+	void ClearInputBuffer();
 	void Play();
 	void SendToServer();
 	void RequestJoin();

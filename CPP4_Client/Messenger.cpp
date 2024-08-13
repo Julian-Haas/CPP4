@@ -25,9 +25,28 @@ enum Messenger::protocol
 };
 
 void Messenger::OpenMainMenu() {
+	char ch;
 	while (true) {
 		std::cout << "Press 1 to log in." << std::endl;
-		WaitForServerResponse();
+		ClearInputBuffer();
+		ch = _getch();
+		if (ch == '1') {
+			RequestJoin();
+			for (int i = 0; i <= 4; ++i) {
+				// Use printf to display each character
+				printf("%d", unformattedRequest[i]);
+				printf("\n");
+			}
+
+			WaitForServerResponse();
+			break;
+		}
+	}
+}
+
+void Messenger::ClearInputBuffer() {
+	while (_kbhit()) {
+		_getch();
 	}
 }
 
@@ -44,18 +63,21 @@ void Messenger::SendToServer()
 
 void Messenger::RequestJoin() {
 	SetProtocolCode(RequestJoin_Code);
+	AddPlayerID();
 	AddPositionToRequest();
 	SendToServer();
 }
 
 void Messenger::SendPosition() {
 	SetProtocolCode(SendPosition_Code);
+	AddPlayerID();
 	AddPositionToRequest();
 	SendToServer();
 }
 
 void Messenger::SendLogOut() {
 	SetProtocolCode(SendLogOut_Code);
+	AddPlayerID();
 	AddPositionToRequest();
 	SendToServer();
 }
@@ -147,6 +169,7 @@ bool Messenger::WaitForServerResponse()
 			{
 			case 1:
 				std::printf("You are now logged in and your player-id is %d\n", receivedMessageInInt[1]);
+				_playerID = receivedMessageInInt[1];
 				Play();
 				//val = receivedMessage[1];
 				//return (val == 1);
@@ -158,6 +181,7 @@ bool Messenger::WaitForServerResponse()
 				break;
 			case 3:
 				std::printf("Player %d is at position %d / %d / %d \n", receivedMessageInInt[1], receivedMessageInInt[2], receivedMessageInInt[3], receivedMessageInInt[4]);
+				// aktualisiere Spielerposition
 				//return true;
 				break;
 			default:
