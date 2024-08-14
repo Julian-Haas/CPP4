@@ -14,11 +14,12 @@
 #include "CAServerUttilitys.h"
 Server::Server()
 	: startPosOffset(1000243.3F)
-	, playerData{ {0, Position(0, 0, 0)} }
 	, playerCount(0)
 	, currentPlayerID(0)
+	, playerData{ {-1, Position(0, 0, 0)} }
 	, requestCode(0)
 	, answerCode(0)
+	, maxPlayerCount(2)
 
 {
 }
@@ -43,10 +44,22 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 	ReadMessage(request);
 	int msgCode;
 	memcpy(&msgCode, request, sizeof(msgCode));
+	SOCKET maxSocket = listenerSocket;
+	SOCKET n;
 	switch (msgCode)
 	{
 	case 101:
 		RegisterNewPlayer();
+		auto message = PrepareMessage();
+		SendToClient(i, message.data());
+		for (n = 0; n <= maxSocket; n++)
+		{
+			if (n != i)
+			{
+				msgCode = (int)ProceedData;
+				SendToClient(n, message.data());
+			}
+		}
 		break;
 	case '102':
 		//maybe is irrelavnt UpdatePlayerPosition(); 
@@ -54,14 +67,6 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 	default:
 		printf("Unhandelt request");
 		break;
-	}
-	auto message = PrepareMessage();
-
-	SOCKET n;
-	SOCKET maxSocket = listenerSocket;
-	for (n = 0; n <= maxSocket; n++)
-	{
-		SendToClient(i, message.data());
 	}
 }
 
@@ -87,17 +92,38 @@ void Server::ReadMessage(const char* message)
 
 void Server::RegisterNewPlayer()
 {
-	int maxAmountPlayers = 2; // member variable
-	if (playerCount + 1 > maxAmountPlayers)
+	if (playerCount >= maxPlayerCount)
 	{
-		std::cout << "Join Request denied!\n";
 		answerCode = (int)JoinAwnserFailed;
 		return;
 	}
+
+	if (playerData.size() > 0)
+	{
+		auto it = playerData.begin();
+		int i = 0;
+		while (it != playerData.end())
+		{
+			std::cout << "Vergleiche items\n";
+			if (it->first != i)
+			{
+				currentPlayerID = i;
+				break;
+			}
+			it++;
+			i++;
+		}
+	} else 
+	{
+		currentPlayerID = 0;
+		playerCount = 0; 
+	}
+
+	playerData.insert(std::make_pair(currentPlayerID, Position(startPosOffset, startPosOffset, startPosOffset)));
 	playerCount++;
-	playerData.insert(std::make_pair(playerCount, Position(startPosOffset, startPosOffset, startPosOffset)));
 	answerCode = (int)JoinAwnserSucessful;
 }
+
 
 void Server::UnregisterPlayer()
 {

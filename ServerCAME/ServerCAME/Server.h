@@ -35,6 +35,7 @@ private:
 	int currentPlayerID; 
 	int requestCode; 
 	int answerCode; 
+	int maxPlayerCount = 2; 
 	//member functions: 
 	void SendToClient(SOCKET i, const char* msg);
 	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
