@@ -235,58 +235,73 @@ int Server::InitServer(int argc, char* argv[])
 	FD_SET(listenerSocket, &master);
 	SOCKET maxSocket = listenerSocket;
 	//server loop
-	while (true)
-	{
-		fd_set reads = master;
-		if (select(maxSocket + 1, &reads, 0, 0, 0) < 0)
-		{
-			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-			return -1;
-		}
-		SOCKET i;
-		for (i = 0; i <= maxSocket; i++)
-		{
-			if (FD_ISSET(i, &reads))
-			{
-				if (i == listenerSocket)
-				{
-					sockaddr_storage client;
-					socklen_t clientLegth = sizeof(client);
-					SOCKET clientSocket = accept(listenerSocket, reinterpret_cast<sockaddr*>(&client), &clientLegth);
+while (true)
+{
+    fd_set reads = master;
 
-					if (clientSocket == INVALID_SOCKET)
-					{
-						fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-						return -1;
-					}
-					FD_SET(clientSocket, &master);
-					if (clientSocket > maxSocket)
-					{
-						maxSocket = clientSocket;
-					}
-					char adressBuffer[100];
-					getnameinfo(reinterpret_cast<sockaddr*>(&client), clientLegth, adressBuffer, sizeof(adressBuffer), 0, 0, NI_NUMERICHOST);
-					printf("New connection from: %s\n", adressBuffer);
-				}
-				else
-				{
-					int bytesReceived = recv(i, request, sizeof(request), 0);
-					if (bytesReceived > 0) {
-						HandleIncomingRequest(readingRequest, i);
-					}
-					else if (bytesReceived == 0) {
-						FD_CLR(i, &master);
-						closesocket(i);
-					}
-					else {
-						fprintf(stderr, "recv() failed. (%d)\n", WSAGetLastError());
-						FD_CLR(i, &master);
-						closesocket(i);
-					}
-				}
-			}
-		}
-	}
+    // Set a timeout value
+    struct timeval timeout;
+    timeout.tv_sec = 1;  // 1 second timeout
+    timeout.tv_usec = 0;
+
+    int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
+    
+    if (selectResult < 0)
+    {
+        fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
+        return -1;
+    }
+    else if (selectResult == 0)
+    {
+        // Timeout occurred, no activity detected
+        continue; // Continue the loop, handle other tasks here if needed
+    }
+
+    SOCKET i;
+    for (i = 0; i <= maxSocket; i++)
+    {
+        if (FD_ISSET(i, &reads))
+        {
+            if (i == listenerSocket)
+            {
+                sockaddr_storage client;
+                socklen_t clientLength = sizeof(client);
+                SOCKET clientSocket = accept(listenerSocket, reinterpret_cast<sockaddr*>(&client), &clientLength);
+
+                if (clientSocket == INVALID_SOCKET)
+                {
+                    fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
+                    return -1;
+                }
+                FD_SET(clientSocket, &master);
+                if (clientSocket > maxSocket)
+                {
+                    maxSocket = clientSocket;
+                }
+                char addressBuffer[100];
+                getnameinfo(reinterpret_cast<sockaddr*>(&client), clientLength, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
+                printf("New connection from: %s\n", addressBuffer);
+            }
+            else
+            {
+                int bytesReceived = recv(i, request, sizeof(request), 0);
+                if (bytesReceived > 0) {
+                    HandleIncomingRequest(readingRequest, i);
+                }
+                else if (bytesReceived == 0) {
+                    FD_CLR(i, &master);
+                    closesocket(i);
+                }
+                else {
+                    fprintf(stderr, "recv() failed. (%d)\n", WSAGetLastError());
+                    FD_CLR(i, &master);
+                    closesocket(i);
+                }
+            }
+        }
+    }
+}
+
 	closesocket(listenerSocket);
 	WSACleanup();
 	return 0;
