@@ -16,7 +16,6 @@ Server::Server()
 	: startPosOffset(1000243.3F)
 	, playerCount(0)
 	, currentPlayerID(0)
-	, playerData{ {-1, Position(0, 0, 0)} }
 	, requestCode(0)
 	, answerCode(0)
 	, maxPlayerCount(2)
@@ -46,7 +45,10 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 	memcpy(&msgCode, request, sizeof(msgCode));
 	SOCKET maxSocket = listenerSocket;
 	SOCKET n;
-	switch (msgCode)
+	fd_set master; 
+	FD_ZERO(&master);
+	FD_SET(listenerSocket, &master);
+	switch (sendedInts[0])
 	{
 	case 101:
 		RegisterNewPlayer();
@@ -54,12 +56,13 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 		SendToClient(i, message.data());
 		for (n = 0; n <= maxSocket; n++)
 		{
-			if (n != i)
+			if (n != i && FD_ISSET(n, &master)) 
 			{
 				msgCode = (int)ProceedData;
 				SendToClient(n, message.data());
 			}
 		}
+
 		break;
 	case '102':
 		//maybe is irrelavnt UpdatePlayerPosition(); 
@@ -73,51 +76,57 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 void Server::ReadMessage(const char* message)
 {
 	int msgCode;
-	memcpy(&requestCode, &message[0], sizeof(requestCode));
+	memcpy(sendedInts, message, sizeof(sendedInts));
+	memcpy(SendedPositions, message + 8, sizeof(SendedPositions));
 
-	int PlayerId;
-	memcpy(&currentPlayerID, &message[4], sizeof(currentPlayerID));
-
-	float PosX, PosY, PosZ;
-	memcpy(&playerData[currentPlayerID].x, &message[8], sizeof(playerData[currentPlayerID].x));
-	memcpy(&playerData[currentPlayerID].y, &message[12], sizeof(playerData[currentPlayerID].y));
-	memcpy(&playerData[currentPlayerID].z, &message[16], sizeof(playerData[currentPlayerID].z));
-
-	std::cout << "Message Code: " << requestCode << std::endl;
-	std::cout << "Player ID: " << currentPlayerID << std::endl;
-	std::cout << "Position X: " << playerData[currentPlayerID].x << std::endl;
-	std::cout << "Position Y: " << playerData[currentPlayerID].y << std::endl;
-	std::cout << "Position Z: " << playerData[currentPlayerID].z << std::endl;
+	std::cout << "Message Code: " << sendedInts[0] << std::endl;
+	std::cout << "Player ID: " << sendedInts[1] << std::endl;
+	std::cout << "Position X: " << SendedPositions[0] << std::endl;
+	std::cout << "Position Y: " << SendedPositions[1] << std::endl;
+	std::cout << "Position Z: " << SendedPositions[2] << std::endl;
 }
 
 void Server::RegisterNewPlayer()
 {
 	if (playerCount >= maxPlayerCount)
 	{
+		std::cout << "Player count to high" << playerCount << std::endl;
 		answerCode = (int)JoinAwnserFailed;
 		return;
 	}
 
-	if (playerData.size() > 0)
+	if (playerData.size() == 0)
+	{
+		std::cout << "PlayerData size = 0\n"; 
+		currentPlayerID = 0;
+	}
+	else
 	{
 		auto it = playerData.begin();
+		int newID = -1;
 		int i = 0;
+
 		while (it != playerData.end())
 		{
-			std::cout << "Vergleiche items\n";
 			if (it->first != i)
 			{
-				currentPlayerID = i;
+				newID = i;
+				std::cout << "Setze id at index: " << i << std::endl; 
 				break;
 			}
 			it++;
 			i++;
 		}
-	} else 
-	{
-		currentPlayerID = 0;
-		playerCount = 0; 
+
+		if (newID == -1)
+		{
+			auto lastKey = std::prev(playerData.end());
+			newID = lastKey->first + 1;
+		}
+
+		currentPlayerID = newID;
 	}
+
 
 	playerData.insert(std::make_pair(currentPlayerID, Position(startPosOffset, startPosOffset, startPosOffset)));
 	playerCount++;
@@ -235,72 +244,74 @@ int Server::InitServer(int argc, char* argv[])
 	FD_SET(listenerSocket, &master);
 	SOCKET maxSocket = listenerSocket;
 	//server loop
-while (true)
-{
-    fd_set reads = master;
+	while (true)
+	{
+		fd_set reads = master;
 
-    // Set a timeout value
-    struct timeval timeout;
-    timeout.tv_sec = 1;  // 1 second timeout
-    timeout.tv_usec = 0;
+		// Set a timeout value
+		struct timeval timeout;
+		timeout.tv_sec = 1;  // 1 second timeout
+		timeout.tv_usec = 0;
 
-    int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
-    
-    if (selectResult < 0)
-    {
-        fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-        return -1;
-    }
-    else if (selectResult == 0)
-    {
-        // Timeout occurred, no activity detected
-        continue; // Continue the loop, handle other tasks here if needed
-    }
+		int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
 
-    SOCKET i;
-    for (i = 0; i <= maxSocket; i++)
-    {
-        if (FD_ISSET(i, &reads))
-        {
-            if (i == listenerSocket)
-            {
-                sockaddr_storage client;
-                socklen_t clientLength = sizeof(client);
-                SOCKET clientSocket = accept(listenerSocket, reinterpret_cast<sockaddr*>(&client), &clientLength);
+		if (selectResult < 0)
+		{
+			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
+			continue;  // Fehler abfangen und Schleife fortsetzen, statt den Server zu beenden
+		}
+		else if (selectResult == 0)
+		{
+			// Timeout, keine Aktion notwendig, Schleife fortsetzen
+			continue;
+		}
 
-                if (clientSocket == INVALID_SOCKET)
-                {
-                    fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
-                    return -1;
-                }
-                FD_SET(clientSocket, &master);
-                if (clientSocket > maxSocket)
-                {
-                    maxSocket = clientSocket;
-                }
-                char addressBuffer[100];
-                getnameinfo(reinterpret_cast<sockaddr*>(&client), clientLength, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
-                printf("New connection from: %s\n", addressBuffer);
-            }
-            else
-            {
-                int bytesReceived = recv(i, request, sizeof(request), 0);
-                if (bytesReceived > 0) {
-                    HandleIncomingRequest(readingRequest, i);
-                }
-                else if (bytesReceived == 0) {
-                    FD_CLR(i, &master);
-                    closesocket(i);
-                }
-                else {
-                    fprintf(stderr, "recv() failed. (%d)\n", WSAGetLastError());
-                    FD_CLR(i, &master);
-                    closesocket(i);
-                }
-            }
-        }
-    }
-}
+		for (SOCKET i = 0; i <= maxSocket; i++)
+		{
+			if (FD_ISSET(i, &reads))
+			{
+				if (i == listenerSocket)
+				{
+					sockaddr_storage client;
+					socklen_t clientLength = sizeof(client);
+					SOCKET clientSocket = accept(listenerSocket, reinterpret_cast<sockaddr*>(&client), &clientLength);
+
+					if (clientSocket == INVALID_SOCKET)
+					{
+						fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
+						continue;  // Fehler abfangen und Schleife fortsetzen
+					}
+
+					FD_SET(clientSocket, &master);
+					if (clientSocket > maxSocket)
+					{
+						maxSocket = clientSocket;
+					}
+
+					char addressBuffer[100];
+					getnameinfo(reinterpret_cast<sockaddr*>(&client), clientLength, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
+					printf("New connection from: %s\n", addressBuffer);
+				}
+				else
+				{
+					int bytesReceived = recv(i, request, sizeof(request), 0);
+					if (bytesReceived > 0) {
+						HandleIncomingRequest(readingRequest, i);
+					}
+					else if (bytesReceived == 0) {
+						FD_CLR(i, &master);
+						closesocket(i);
+					}
+					else {
+						fprintf(stderr, "recv() failed. (%d)\n", WSAGetLastError());
+						FD_CLR(i, &master);
+						closesocket(i);
+					}
+				}
+			}
+		}
+	}
+
 
 	closesocket(listenerSocket);
 	WSACleanup();

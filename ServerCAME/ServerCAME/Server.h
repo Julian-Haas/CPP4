@@ -27,6 +27,8 @@ class Server
 {
 private:
 	//protocol enum 
+	int sendedInts[2]; 
+	float SendedPositions[3]; 
 	enum protocol;
 	char request[4096];
 	std::map<int, Position> playerData; 
