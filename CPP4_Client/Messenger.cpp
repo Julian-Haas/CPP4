@@ -164,7 +164,12 @@ bool Messenger::WaitForServerResponse()
 		{
 			int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 			int val = 0;
-			memcpy(receivedMessage, receivedMessageInInt, sizeof(receivedMessageInInt));
+			memcpy(receivedMessageInInt, receivedMessage, sizeof(receivedMessage));
+			std::cout << std::endl;
+			for (int number : receivedMessageInInt) {
+				std::cout << number << std::endl;
+			}
+			_getch();
 			switch (receivedMessageInInt[0])
 			{
 			case 1:

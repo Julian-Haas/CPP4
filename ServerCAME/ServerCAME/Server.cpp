@@ -38,31 +38,30 @@ void Server::SendToClient(SOCKET i, const char* msg)
 	send(i, msg, 20, 0);
 }
 
-void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i) 
+void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 {
-
 	ReadMessage(request);
 	int msgCode;
 	memcpy(&msgCode, request, sizeof(msgCode));
-	switch(msgCode)
+	switch (msgCode)
 	{
 	case 101:
-		RegisterNewPlayer(); 
-		break; 
-	case '102': 
+		RegisterNewPlayer();
+		break;
+	case '102':
 		//maybe is irrelavnt UpdatePlayerPosition(); 
-		break; 
-	default: 
-		printf("Unhandelt request"); 
-		break; 
+		break;
+	default:
+		printf("Unhandelt request");
+		break;
 	}
-	auto message  = PrepareMessage(); 
+	auto message = PrepareMessage();
 
 	SOCKET n;
-	SOCKET maxSocket = listenerSocket; 
+	SOCKET maxSocket = listenerSocket;
 	for (n = 0; n <= maxSocket; n++)
 	{
-		SendToClient(i, message.data()); 
+		SendToClient(i, message.data());
 	}
 }
 
@@ -88,12 +87,14 @@ void Server::ReadMessage(const char* message)
 
 void Server::RegisterNewPlayer()
 {
-	if(currentPlayerID < playerCount || currentPlayerID > 0)
+	int maxAmountPlayers = 2; // member variable
+	if (playerCount + 1 > maxAmountPlayers)
 	{
-		std::cout << "Join Request denied!\n"; 
-		answerCode = (int)JoinAwnserFailed; 
-		return; 
-	} 
+		std::cout << "Join Request denied!\n";
+		answerCode = (int)JoinAwnserFailed;
+		return;
+	}
+	playerCount++;
 	playerData.insert(std::make_pair(playerCount, Position(startPosOffset, startPosOffset, startPosOffset)));
 	answerCode = (int)JoinAwnserSucessful;
 }
@@ -109,7 +110,7 @@ void Server::UnregisterPlayer()
 	int indexToRemove = currentPlayerID;
 
 	auto it = playerData.begin();
-	playerData[0].x = -5; 
+	playerData[0].x = -5;
 	playerData[0].y = -5;
 	playerData[0].z = -5;
 	while (it != playerData.end())
@@ -164,7 +165,7 @@ std::array<char, 20> Server::PrepareMessage()
 
 int Server::InitServer(int argc, char* argv[])
 {
-	ReadMessage(request);  
+	ReadMessage(request);
 	WSAData d;
 	bool readingRequest = false;
 	if (WSAStartup(MAKEWORD(2, 2), &d))
