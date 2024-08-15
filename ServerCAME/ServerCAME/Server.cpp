@@ -59,6 +59,8 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 			if (n != i && FD_ISSET(n, &master)) 
 			{
 				msgCode = (int)ProceedData;
+				PrepareMessage(); 
+				std::cout << "sending to other clients...\n"; 
 				SendToClient(n, message.data());
 			}
 		}
