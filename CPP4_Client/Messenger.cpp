@@ -115,18 +115,7 @@ void Messenger::StartMessenger(int argc, char* argv[])
 		printf("usage tcp client [ip] [port]\n");
 		return;
 	}
-	printf("Configuring remote address\n");
-	sockaddr_in server;
-
-	server.sin_family = AF_INET;
-	server.sin_port = htons(5000);
-	server.sin_addr.s_addr = INADDR_ANY;//inet_addr("178.203.204.116");
-
-	// Hardcoded IP and port
-
-	const char* serverIP = "178.203.204.116";  // Chat-GPT: Use the public IP address
-	//const char* serverIP = "178.203.204.116";  // Chat-GPT: Use the public IP address
-	const char* serverPort = "5000";           // Chat-GPT: Use the port 5000
+	//printf("Configuring remote address\n");
 
 	printf("Creating socket...\n");
 	serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -135,10 +124,22 @@ void Messenger::StartMessenger(int argc, char* argv[])
 		fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 		return;
 	}
-	u_long mode = 1; // Set non-blocking mode
-	ioctlsocket(serverSocket, FIONBIO, &mode);  // Chat-GPT: Set the socket to non-blocking mode
+
+	sockaddr_in server;
+	server.sin_family = AF_INET;
+	server.sin_port = htons(5000);
+
+
+	if (inet_pton(AF_INET, "178.203.204.116", &server.sin_addr) <= 0) {
+		printf("Adress not valid.\n");
+		return;
+	}
+
+	//u_long mode = 1;
+	//ioctlsocket(serverSocket, FIONBIO, &mode);
+
 	printf("Connecting to server...\n");
-	int result = connect(serverSocket, );
+	int result = connect(serverSocket, (struct sockaddr*)&server, sizeof(server));
 	if (result == SOCKET_ERROR)
 	{
 		int error = WSAGetLastError();
@@ -175,7 +176,6 @@ void Messenger::StartMessenger(int argc, char* argv[])
 			return;
 		}
 	}
-	freeaddrinfo(server);
 	printf("Connected!\n");
 	printf("To send data, enter the text followed by enter \n");
 	OpenMainMenu();

@@ -206,9 +206,14 @@ int Server::InitServer(int argc, char* argv[])
 	}
 	printf("Configuring local ip address\n");
 	sockaddr_in service;
+	int opt = 1;
 	listenerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (listenerSocket == INVALID_SOCKET)
 	{
+		fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
+		return -1;
+	}
+	if (setsockopt(listenerSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt))) {
 		fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 		return -1;
 	}
@@ -272,7 +277,7 @@ int Server::InitServer(int argc, char* argv[])
 				if (i == listenerSocket)
 				{
 					// New connection
-					SOCKET clientSocket = accept(listenerSocket, 0, 0);
+					SOCKET clientSocket = accept(listenerSocket, NULL, NULL);
 					if (clientSocket == INVALID_SOCKET)
 					{
 						fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
