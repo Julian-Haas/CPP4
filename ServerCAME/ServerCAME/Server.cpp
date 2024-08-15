@@ -205,32 +205,32 @@ int Server::InitServer(int argc, char* argv[])
 		return -1;
 	}
 	printf("Configuring local ip address\n");
-	addrinfo hints;
-	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-	addrinfo* bindAddress;
-
-	// Bind to specific IP address and port 5000
-	getaddrinfo("192.168.178.24", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
-	printf("Creating listener socket\n");
-	//listenerSocket;
-	listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
+	sockaddr_in service;
+	listenerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (listenerSocket == INVALID_SOCKET)
 	{
 		fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 		return -1;
 	}
-	u_long mode = 1; // 
-	ioctlsocket(listenerSocket, FIONBIO, &mode); // Chat-GPT: Make socket non-blocking
+	service.sin_family = AF_INET;
+	service.sin_port = htons(5000);
+	service.sin_addr.s_addr = INADDR_ANY;//inet_addr("178.203.204.116");
+	//InetPton(AF_INET, __TEXT("178.203.204.116"), &service.sin_addr.s_addr);
+	printf("Creating listener socket\n");
+
+	//u_long mode = 1; // 
+	//ioctlsocket(listenerSocket, FIONBIO, &mode);
 	printf("Binding address to socket\n");
-	if (bind(listenerSocket, bindAddress->ai_addr, bindAddress->ai_addrlen))
+	int result = bind(listenerSocket, (SOCKADDR*)&service, sizeof(service));
+
+	if (result == SOCKET_ERROR)
 	{
 		fprintf(stderr, "bind() failed. (%d)\n", WSAGetLastError());
+		closesocket(listenerSocket);
+		WSACleanup();
 		return -1;
 	}
-	freeaddrinfo(bindAddress);
+
 	printf("Listening...\n");
 	if (listen(listenerSocket, 10) < 0)
 	{
@@ -282,19 +282,19 @@ int Server::InitServer(int argc, char* argv[])
 						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
 
 						// Check client IP and only accept if it matches
-						if (GetClientIP(clientSocket) == "178.203.204.116")  // Chat-GPT: Restrict to specific IP
+						//if (GetClientIP(clientSocket) == "0.0.0.0")  // Chat-GPT: Restrict to specific IP
+						//{
+						FD_SET(clientSocket, &master);
+						if (clientSocket > maxSocket)
 						{
-							FD_SET(clientSocket, &master);
-							if (clientSocket > maxSocket)
-							{
-								maxSocket = clientSocket;
-							}
+							maxSocket = clientSocket;
 						}
-						else
-						{
-							printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
-							closesocket(clientSocket);
-						}
+						//}
+						//else
+						//{
+						//	printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
+						//	closesocket(clientSocket);
+						//}
 					}
 				}
 				else
