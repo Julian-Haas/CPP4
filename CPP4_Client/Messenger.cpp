@@ -58,7 +58,13 @@ void Messenger::Play() {
 void Messenger::SendToServer()
 {
 	memcpy(formattedRequest, unformattedRequest, sizeof(unformattedRequest));
-	send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
+	int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
+	if (bytesSent == SOCKET_ERROR) {
+		int error = WSAGetLastError();
+		if (error != WSAEWOULDBLOCK) {
+			fprintf(stderr, "send() failed. (%d)\n", error);  // Chat-GPT: Handle send() errors
+		}
+	}
 }
 
 void Messenger::RequestJoin() {
@@ -96,7 +102,6 @@ void Messenger::SetProtocolCode(int code) {
 	unformattedRequest[0] = code;
 }
 
-
 void Messenger::StartMessenger(int argc, char* argv[])
 {
 	WSAData d;
@@ -121,22 +126,56 @@ void Messenger::StartMessenger(int argc, char* argv[])
 		fprintf(stderr, "getaddrinfo() failed. (%d)\n", WSAGetLastError());
 		return;
 	}
-	printf("Remote adress is :\n");
-	char adressBuffer[100];
-	getnameinfo(server->ai_addr, server->ai_addrlen, adressBuffer, sizeof(adressBuffer), 0, 0, NI_NUMERICHOST);
-	printf("%s\n", adressBuffer);
+	printf("Remote address is :\n");
+	char addressBuffer[100];
+	getnameinfo(server->ai_addr, server->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
+	printf("%s\n", addressBuffer);
 	printf("Creating socket...\n");
 	serverSocket = socket(server->ai_family, server->ai_socktype, server->ai_protocol);
 	if (serverSocket == INVALID_SOCKET)
 	{
-		fprintf(stderr, "socket(9 failed. %d)\n", WSAGetLastError());
+		fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 		return;
 	}
-	printf("Connection to server...\n");
-	if (connect(serverSocket, server->ai_addr, server->ai_addrlen))
+	u_long mode = 1; // Set non-blocking mode
+	ioctlsocket(serverSocket, FIONBIO, &mode);  // Chat-GPT: Set the socket to non-blocking mode
+	printf("Connecting to server...\n");
+	int result = connect(serverSocket, server->ai_addr, server->ai_addrlen);
+	if (result == SOCKET_ERROR)
 	{
-		fprintf(stderr, "connect() failed. (%d)\n", WSAGetLastError());
-		return;
+		int error = WSAGetLastError();
+		if (error == WSAEWOULDBLOCK)
+		{
+			// Use select() to wait for the connection to complete
+			fd_set writeSet;
+			FD_ZERO(&writeSet);
+			FD_SET(serverSocket, &writeSet);
+
+			timeval timeout;
+			timeout.tv_sec = 5;  // Chat-GPT: Timeout after 5 seconds
+			timeout.tv_usec = 0;
+
+			result = select(0, NULL, &writeSet, NULL, &timeout);
+			if (result > 0)
+			{
+				printf("Connected!\n");
+			}
+			else if (result == 0)
+			{
+				printf("Connection timed out.\n");
+				return;
+			}
+			else
+			{
+				fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
+				return;
+			}
+		}
+		else
+		{
+			fprintf(stderr, "connect() failed. (%d)\n", error);
+			return;
+		}
 	}
 	freeaddrinfo(server);
 	printf("Connected!\n");
@@ -153,115 +192,64 @@ bool Messenger::WaitForServerResponse()
 		FD_SET(serverSocket, &reads);
 		timeval timeout;
 		timeout.tv_sec = 0;
-		timeout.tv_usec = 100000;
-		if (select(serverSocket + 1, &reads, 0, 0, &timeout) < 0)
+		timeout.tv_usec = 100000; // Chat-GPT: 100 milliseconds
+
+		int selectResult = select(serverSocket + 1, &reads, 0, 0, &timeout);
+		if (selectResult < 0)
 		{
 			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
 			return false;
+		}
+		else if (selectResult == 0)
+		{
+			// Timeout, no action needed, loop continues
+			continue;
 		}
 
 		if (FD_ISSET(serverSocket, &reads))
 		{
 			int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
-			int val = 0;
-			memcpy(receivedMessageInInt, receivedMessage, sizeof(receivedMessage));
-			std::cout << std::endl;
-			for (int number : receivedMessageInInt) {
-				std::cout << number << std::endl;
-			}
-			_getch();
-			switch (receivedMessageInInt[0])
+			if (bytesReceived == SOCKET_ERROR)
 			{
-			case 1:
-				std::printf("You are now logged in and your player-id is %d\n", receivedMessageInInt[1]);
-				_playerID = receivedMessageInInt[1];
-				Play();
-				//val = receivedMessage[1];
-				//return (val == 1);
-				break;
-			case 2:
-				std::printf("Login was not successful.");
-				//val = receivedMessage[1];
-				//return (val == 1);
-				break;
-			case 3:
-				std::printf("Player %d is at position %d / %d / %d \n", receivedMessageInInt[1], receivedMessageInInt[2], receivedMessageInInt[3], receivedMessageInInt[4]);
-				// aktualisiere Spielerposition
-				//return true;
-				break;
-			default:
-				break;
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK)
+				{
+					fprintf(stderr, "recv() failed. (%d)\n", error);  // Chat-GPT: Handle recv() errors
+				}
+				return false;
 			}
-			if (bytesReceived < 1)
+			else if (bytesReceived == 0)
 			{
 				printf("Connection closed.\n");
 				return false;
 			}
+			else
+			{
+				// Process received data
+				int val = 0;
+				memcpy(receivedMessageInInt, receivedMessage, sizeof(receivedMessage));
+				std::cout << std::endl;
+				for (int number : receivedMessageInInt) {
+					std::cout << number << std::endl;
+				}
+				_getch();
+				switch (receivedMessageInInt[0])
+				{
+				case 1:
+					std::printf("You are now logged in and your player-id is %d\n", receivedMessageInInt[1]);
+					_playerID = receivedMessageInInt[1];
+					Play();
+					break;
+				case 2:
+					std::printf("Login was not successful.");
+					break;
+				case 3:
+					std::printf("Player %d is at position %d / %d / %d \n", receivedMessageInInt[1], receivedMessageInInt[2], receivedMessageInInt[3], receivedMessageInInt[4]);
+					break;
+				default:
+					break;
+				}
+			}
 		}
 	}
 }
-
-
-
-//void Messenger::AddMessageLenght(std::string msg)
-//{
-//	int length = msg.length();
-//
-//	char val1;
-//	char val2;
-//	if (length > 255)
-//	{
-//		int rest = length - 255;
-//		val1 = char(255);
-//		val2 = char(rest);
-//		serverRequest += val1;
-//		serverRequest += val2;
-//	}
-//	else
-//	{
-//		val1 = char(length);
-//		val2 = char(0);
-//		serverRequest += val1;
-//		serverRequest += val2;
-//	}
-//}
-//
-//int GetStringLenght(char request[], int start)
-//{
-//	return request[start] + request[start + 1];
-//}
-//
-//void Messenger::SetRequestCode(int requestCode)
-//{
-//	serverRequest = char(requestCode);
-//}
-//
-//void Messenger::ExtendRequest(std::string appendedParameter)
-//{
-//	AddMessageLenght(appendedParameter);
-//	serverRequest.append(appendedParameter);
-//}
-
-//RequestJoin{
-//	SetRequestCode(RequestJoin_Code);
-//	AddPositionToRequest();
-//	SendToServer();
-//}
-//
-//SendPosition{
-//	SetRequestCode(SendPosition_Code);
-//	AddPositionToRequest();
-//	SendToServer();
-//}
-//
-//SendLogOut{
-//	SetRequestCode(SendLogOut_Code);
-//	AddPositionToRequest();
-//	SendToServer();
-//}
-//
-//AddPositionToRequest{
-//	ExtendRequest(_position_x);
-//	ExtendRequest(_position_y);
-//	ExtendRequest(_position_z);
-//}
