@@ -27,6 +27,8 @@ class Server
 {
 private:
 	//protocol enum 
+	int sendedInts[2]; 
+	float SendedPositions[3]; 
 	enum protocol;
 	char request[4096];
 	std::map<int, Position> playerData; 
@@ -35,6 +37,7 @@ private:
 	int currentPlayerID; 
 	int requestCode; 
 	int answerCode; 
+	int maxPlayerCount = 2; 
 	//member functions: 
 	void SendToClient(SOCKET i, const char* msg);
 	void HandleIncomingRequest(bool& readingRequest, SOCKET i);
