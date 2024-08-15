@@ -8,10 +8,11 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include<chrono>
+#include <chrono>
 #include "Server.h"
 #include <optional>
 #include "CAServerUttilitys.h"
+
 Server::Server()
 	: startPosOffset(1000243.3F)
 	, playerCount(0)
@@ -19,7 +20,6 @@ Server::Server()
 	, requestCode(0)
 	, answerCode(0)
 	, maxPlayerCount(2)
-
 {
 }
 
@@ -30,7 +30,6 @@ enum Server::protocol
 	ProceedData = 3,
 	JoinRequest = 101,
 	SendPosition = 102,
-
 };
 
 void Server::SendToClient(SOCKET i, const char* msg)
@@ -45,9 +44,10 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 	memcpy(&msgCode, request, sizeof(msgCode));
 	SOCKET maxSocket = listenerSocket;
 	SOCKET n;
-	fd_set master; 
+	fd_set master;
 	FD_ZERO(&master);
 	FD_SET(listenerSocket, &master);
+
 	switch (sendedInts[0])
 	{
 	case 101:
@@ -56,19 +56,18 @@ void Server::HandleIncomingRequest(bool& readingRequest, SOCKET i)
 		SendToClient(i, message.data());
 		for (n = 0; n <= maxSocket; n++)
 		{
-			if (n != i && FD_ISSET(n, &master)) 
+			if (n != i && FD_ISSET(n, &master))
 			{
 				msgCode = (int)ProceedData;
 				SendToClient(n, message.data());
 			}
 		}
-
 		break;
-	case '102':
-		//maybe is irrelavnt UpdatePlayerPosition(); 
+	case 102:
+		// maybe is irrelevant UpdatePlayerPosition(); 
 		break;
 	default:
-		printf("Unhandelt request");
+		printf("Unhandled request");
 		break;
 	}
 }
@@ -90,14 +89,14 @@ void Server::RegisterNewPlayer()
 {
 	if (playerCount >= maxPlayerCount)
 	{
-		std::cout << "Player count to high" << playerCount << std::endl;
+		std::cout << "Player count too high" << playerCount << std::endl;
 		answerCode = (int)JoinAwnserFailed;
 		return;
 	}
 
 	if (playerData.size() == 0)
 	{
-		std::cout << "PlayerData size = 0\n"; 
+		std::cout << "PlayerData size = 0\n";
 		currentPlayerID = 0;
 	}
 	else
@@ -111,7 +110,7 @@ void Server::RegisterNewPlayer()
 			if (it->first != i)
 			{
 				newID = i;
-				std::cout << "Setze id at index: " << i << std::endl; 
+				std::cout << "Set id at index: " << i << std::endl;
 				break;
 			}
 			it++;
@@ -127,12 +126,10 @@ void Server::RegisterNewPlayer()
 		currentPlayerID = newID;
 	}
 
-
 	playerData.insert(std::make_pair(currentPlayerID, Position(startPosOffset, startPosOffset, startPosOffset)));
 	playerCount++;
 	answerCode = (int)JoinAwnserSucessful;
 }
-
 
 void Server::UnregisterPlayer()
 {
@@ -162,7 +159,7 @@ void Server::UnregisterPlayer()
 		}
 	}
 
-	//Debuging ausgabe
+	// Debug output
 	for (auto it = playerData.begin(); it != playerData.end(); ++it)
 	{
 		std::cout << "Key: " << it->first << ", Value: (" << it->second.x << ", " << it->second.y << ", " << it->second.z << ")" << std::endl;
@@ -172,13 +169,12 @@ void Server::UnregisterPlayer()
 
 void Server::UpdatePlayerPosition()
 {
-
+	// Implement as needed
 }
-
 
 std::array<char, 20> Server::PrepareMessage()
 {
-	std::array<char, 20> message = {};  // Initialisiere mit 0
+	std::array<char, 20> message = {};  // Initialize with 0
 
 	int code = answerCode;
 	memcpy(&message[0], &code, sizeof(code));
@@ -194,7 +190,7 @@ std::array<char, 20> Server::PrepareMessage()
 	memcpy(&message[12], &posY, sizeof(posY));
 	memcpy(&message[16], &posZ, sizeof(posZ));
 
-	ReadMessage(message.data()); // Verwende .data() um einen Zeiger zu erhalten
+	ReadMessage(message.data()); // Use .data() to get a pointer
 	return message;
 }
 
@@ -215,9 +211,11 @@ int Server::InitServer(int argc, char* argv[])
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	addrinfo* bindAddress;
-	getaddrinfo(0, "8080", &hints, &bindAddress);
+
+	// Bind to specific IP address and port 5000
+	getaddrinfo("192.168.178.24", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
 	printf("Creating listener socket\n");
-	listenerSocket;
+	//listenerSocket;
 	listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
 	if (listenerSocket == INVALID_SOCKET)
 	{
@@ -225,7 +223,7 @@ int Server::InitServer(int argc, char* argv[])
 		return -1;
 	}
 	u_long mode = 1; // 
-	ioctlsocket(listenerSocket, FIONBIO, &mode); // makro das den listener zu nicht blockierendem makro macht
+	ioctlsocket(listenerSocket, FIONBIO, &mode); // Chat-GPT: Make socket non-blocking
 	printf("Binding address to socket\n");
 	if (bind(listenerSocket, bindAddress->ai_addr, bindAddress->ai_addrlen))
 	{
@@ -243,7 +241,8 @@ int Server::InitServer(int argc, char* argv[])
 	FD_ZERO(&master);
 	FD_SET(listenerSocket, &master);
 	SOCKET maxSocket = listenerSocket;
-	//server loop
+
+	// Server loop
 	while (true)
 	{
 		fd_set reads = master;
@@ -258,11 +257,11 @@ int Server::InitServer(int argc, char* argv[])
 		if (selectResult < 0)
 		{
 			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-			continue;  // Fehler abfangen und Schleife fortsetzen, statt den Server zu beenden
+			continue;  // Handle error and continue loop
 		}
 		else if (selectResult == 0)
 		{
-			// Timeout, keine Aktion notwendig, Schleife fortsetzen
+			// Timeout, no action needed, continue loop
 			continue;
 		}
 
@@ -272,48 +271,53 @@ int Server::InitServer(int argc, char* argv[])
 			{
 				if (i == listenerSocket)
 				{
-					sockaddr_storage client;
-					socklen_t clientLength = sizeof(client);
-					SOCKET clientSocket = accept(listenerSocket, reinterpret_cast<sockaddr*>(&client), &clientLength);
-
+					// New connection
+					SOCKET clientSocket = accept(listenerSocket, 0, 0);
 					if (clientSocket == INVALID_SOCKET)
 					{
 						fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
-						continue;  // Fehler abfangen und Schleife fortsetzen
 					}
-
-					FD_SET(clientSocket, &master);
-					if (clientSocket > maxSocket)
+					else
 					{
-						maxSocket = clientSocket;
-					}
+						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
 
-					char addressBuffer[100];
-					getnameinfo(reinterpret_cast<sockaddr*>(&client), clientLength, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
-					printf("New connection from: %s\n", addressBuffer);
+						// Check client IP and only accept if it matches
+						if (GetClientIP(clientSocket) == "178.203.204.116")  // Chat-GPT: Restrict to specific IP
+						{
+							FD_SET(clientSocket, &master);
+							if (clientSocket > maxSocket)
+							{
+								maxSocket = clientSocket;
+							}
+						}
+						else
+						{
+							printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
+							closesocket(clientSocket);
+						}
+					}
 				}
 				else
 				{
-					int bytesReceived = recv(i, request, sizeof(request), 0);
-					if (bytesReceived > 0) {
-						HandleIncomingRequest(readingRequest, i);
-					}
-					else if (bytesReceived == 0) {
-						FD_CLR(i, &master);
-						closesocket(i);
-					}
-					else {
-						fprintf(stderr, "recv() failed. (%d)\n", WSAGetLastError());
-						FD_CLR(i, &master);
-						closesocket(i);
-					}
+					// Handle data from an existing client
+					HandleIncomingRequest(readingRequest, i);
 				}
 			}
 		}
 	}
 
-
-	closesocket(listenerSocket);
-	WSACleanup();
 	return 0;
+}
+
+std::string Server::GetClientIP(SOCKET clientSocket)
+{
+	sockaddr_in clientAddr;
+	int addrLen = sizeof(clientAddr);
+	if (getpeername(clientSocket, (sockaddr*)&clientAddr, &addrLen) == 0)
+	{
+		char ipStr[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &clientAddr.sin_addr, ipStr, sizeof(ipStr));
+		return std::string(ipStr);
+	}
+	return "";
 }

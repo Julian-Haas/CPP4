@@ -121,7 +121,14 @@ void Messenger::StartMessenger(int argc, char* argv[])
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	addrinfo* server;
-	if (getaddrinfo(argv[1], argv[2], &hints, &server))
+
+	// Hardcoded IP and port
+
+	const char* serverIP = "178.203.204.116";  // Chat-GPT: Use the public IP address
+	//const char* serverIP = "178.203.204.116";  // Chat-GPT: Use the public IP address
+	const char* serverPort = "5000";           // Chat-GPT: Use the port 5000
+
+	if (getaddrinfo(serverIP, serverPort, &hints, &server))  // Chat-GPT: Use hardcoded IP and port
 	{
 		fprintf(stderr, "getaddrinfo() failed. (%d)\n", WSAGetLastError());
 		return;
