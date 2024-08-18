@@ -124,7 +124,7 @@ void Messenger::StartMessenger(int argc, char* argv[])
 
 	// Hardcoded IP and port
 
-	const char* serverIP = "178.203.204.116";  // Chat-GPT: Use the public IP address
+	const char* serverIP = "192.168.178.24";  // Chat-GPT: Use the public IP address
 	//const char* serverIP = "178.203.204.116";  // Chat-GPT: Use the public IP address
 	const char* serverPort = "5000";           // Chat-GPT: Use the port 5000
 

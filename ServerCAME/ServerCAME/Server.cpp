@@ -282,7 +282,7 @@ int Server::InitServer(int argc, char* argv[])
 						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
 
 						// Check client IP and only accept if it matches
-						if (GetClientIP(clientSocket) == "178.203.204.116")  // Chat-GPT: Restrict to specific IP
+						if (GetClientIP(clientSocket) == "192.168.178.24")  // Chat-GPT: Restrict to specific IP
 						{
 							FD_SET(clientSocket, &master);
 							if (clientSocket > maxSocket)
