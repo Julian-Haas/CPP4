@@ -1,4 +1,4 @@
-#include "CAServerUttilitys.h"
+/*#include "MEServerHelper.h"
 
 std::string ServerUttilitys::FloatToString(float val) 
 {
@@ -15,4 +15,4 @@ char* ServerUttilitys::StringToCharArray(const std::string& txt)
     char* charArray = new char[txt.length() + 1];
     std::copy(txt.c_str(), txt.c_str() + txt.length() + 1, charArray);
     return charArray;
-}
+}*/

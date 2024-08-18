@@ -1,8 +1,8 @@
-#include "Server.h"
+#include "MEServer.h"
 #include <cstring>
 int main(int argc, char* argv[])
 {
 	Server server;
-	server.InitServer(argc, argv);
+	server.InitServer();
 	return 0;
 }

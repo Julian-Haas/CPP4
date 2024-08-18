@@ -1,4 +1,4 @@
-#pragma comment (lib, "ws2_32.lib")
+/*#pragma comment (lib, "ws2_32.lib")
 #pragma comment (lib, "iphlpapi.lib")
 
 #include <cstdio>
@@ -9,9 +9,9 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
-#include "Server.h"
+#include "MEServer.h"
 #include <optional>
-#include "CAServerUttilitys.h"
+#include "MEServerHelper.h"
 
 Server::Server()
 	: startPosOffset(1000243.3F)
@@ -213,7 +213,7 @@ int Server::InitServer(int argc, char* argv[])
 	addrinfo* bindAddress;
 
 	// Bind to specific IP address and port 5000
-	getaddrinfo("192.168.178.24", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
+	getaddrinfo("192.168.178.28", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
 	printf("Creating listener socket\n");
 	//listenerSocket;
 	listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
@@ -282,7 +282,7 @@ int Server::InitServer(int argc, char* argv[])
 						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
 
 						// Check client IP and only accept if it matches
-						if (GetClientIP(clientSocket) == "192.168.178.24")  // Chat-GPT: Restrict to specific IP
+						if (GetClientIP(clientSocket) == "192.168.178.28")  // Chat-GPT: Restrict to specific IP
 						{
 							FD_SET(clientSocket, &master);
 							if (clientSocket > maxSocket)
@@ -320,4 +320,4 @@ std::string Server::GetClientIP(SOCKET clientSocket)
 		return std::string(ipStr);
 	}
 	return "";
-}
+}*/
