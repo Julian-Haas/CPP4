@@ -42,7 +42,7 @@ namespace capp
 
 
 		SetupNetwork network;
-		network.CreateServer();
+		network.BeepBeep();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 

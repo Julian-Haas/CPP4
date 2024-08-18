@@ -9,7 +9,6 @@ namespace me {
 
 
 #include <windows.h>
-#include "server.h"
 //#include "setupnetwork.h"
 
 namespace me {
