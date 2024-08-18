@@ -111,6 +111,9 @@
     <ClCompile Include="src\posteffect.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\setupnetwork.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\MicroEngine\component.h" />
@@ -168,5 +171,6 @@
     <ClInclude Include="inc\MicroEngine\systemmanager.h" />
     <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
     <ClInclude Include="inc\MicroEngine\posteffect.h" />
+    <ClInclude Include="inc\MicroEngine\setupnetwork.h" />
   </ItemGroup>
 </Project>
