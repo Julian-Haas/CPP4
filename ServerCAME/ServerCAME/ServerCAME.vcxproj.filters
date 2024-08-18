@@ -18,18 +18,12 @@
     <ClCompile Include="Main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Server.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="CAServerUttilitys.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Server.h">
+    <ClInclude Include="MEServerHelper.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="CAServerUttilitys.h">
+    <ClInclude Include="MEServer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

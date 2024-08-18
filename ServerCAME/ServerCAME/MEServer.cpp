@@ -1,4 +1,4 @@
-#pragma comment (lib, "ws2_32.lib")
+/*#pragma comment (lib, "ws2_32.lib")
 #pragma comment (lib, "iphlpapi.lib")
 
 #include <cstdio>
@@ -9,9 +9,9 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
-#include "Server.h"
+#include "MEServer.h"
 #include <optional>
-#include "CAServerUttilitys.h"
+#include "MEServerHelper.h"
 
 Server::Server()
 	: startPosOffset(1000243.3F)
@@ -320,4 +320,4 @@ std::string Server::GetClientIP(SOCKET clientSocket)
 		return std::string(ipStr);
 	}
 	return "";
-}
+}*/
