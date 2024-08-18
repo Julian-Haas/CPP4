@@ -316,20 +316,20 @@ public:
 						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
 
 						// Check client IP and only accept if it matches
-						//if (GetClientIP(clientSocket) == "192.168.178.28")  // Chat-GPT: Restrict to specific IP
-						//{
+						if (GetClientIP(clientSocket) == "192.168.178.28")  // Chat-GPT: Restrict to specific IP
+						{
 						FD_SET(clientSocket, &master);
 						if (clientSocket > maxSocket)
 						{
 							maxSocket = clientSocket;
 						}
-						//}
-						//else
-						//{
-						//	printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
-						//	closesocket(clientSocket);
-						//}
-					}	//
+						}
+						else
+						{
+							printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
+							closesocket(clientSocket);
+						}
+					}	
 				}
 				else
 				{
