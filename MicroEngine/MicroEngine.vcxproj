@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="server.cpp" />
     <ClCompile Include="src\cameracomponent.cpp" />
     <ClCompile Include="src\color.cpp" />
     <ClCompile Include="src\componentstorer.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="inc\MicroEngine\vertex.h" />
     <ClInclude Include="inc\MicroEngine\window.h" />
     <ClInclude Include="inc\MicroEngine\windowsinc.h" />
+    <ClInclude Include="server.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="src\xtktextureloader\DirectXHelpers.h" />

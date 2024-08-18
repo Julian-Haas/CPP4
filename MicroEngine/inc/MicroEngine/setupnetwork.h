@@ -1,29 +1,26 @@
 namespace me {
 	class SetupNetwork {
 	public:
-		bool Connect();
-		void SetupNetwork::CreateServer() {
-			// Create server logic here
-			Beep(750, 300);
-		}
+		bool EstablishConnection();
+		//void SetupNetwork::CreateServer();
+		void SetupNetwork::BeepBeep();
 	};
 }
 
 
-
-//#include "stdafx.h"
 #include <windows.h>
+#include "server.h"
 //#include "setupnetwork.h"
 
 namespace me {
-	bool SetupNetwork::Connect() {
-		Beep(750, 300);
+	bool SetupNetwork::EstablishConnection() {
 		// Attempt to connect
+		// create server if no connection can be build
 		// Return if connection was successful
 		return false;
 	}
 
-	//void SetupNetwork::CreateServer() {
-	//	// Create server logic here
-	//}
+	void SetupNetwork::BeepBeep() {
+		Beep(750, 300);
+	}
 }
