@@ -40,7 +40,7 @@ namespace me {
 		}
 		void UpdateTheServer()
 		{
-			server.UpdateServer(); 
+			server.UpdateServer();
 		}
 		bool SetupNetwork::ReadData()
 		{
@@ -85,8 +85,11 @@ namespace me {
 		bool SetupNetwork::SearchForServer()
 		{
 			//magic numbers
-			const char* serverIP = "192.168.178.28";
+			const char* serverIP = "192.168.178.24";
 			const char* serverPort = "5000";
+
+			bool sucess = false;
+
 			WSAData d;
 			if (WSAStartup(MAKEWORD(2, 2), &d))
 			{
@@ -106,7 +109,7 @@ namespace me {
 			}
 			printf("Remote address is :\n");
 			PCHAR addressBuffer = nullptr;
- 			getnameinfo(server->ai_addr, (socklen_t)server->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
+			getnameinfo(server->ai_addr, (socklen_t)server->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
 			printf("%s\n", addressBuffer);
 			printf("Creating socket...\n");
 			serverSocket = socket(server->ai_family, server->ai_socktype, server->ai_protocol);
@@ -132,34 +135,31 @@ namespace me {
 					FD_SET(serverSocket, &writeSet);
 
 					timeval timeout;
-					timeout.tv_sec = 5;
+					timeout.tv_sec = 1;
 					timeout.tv_usec = 0;
 
 					result = select(0, NULL, &writeSet, NULL, &timeout);
 					if (result > 0)
 					{
 						printf("Connected!\n");
+						sucess = true;
 					}
 					else if (result == 0)
 					{
 						printf("Connection timed out.\n");
-						return false;
 					}
 					else
 					{
 						fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-						return false;
 					}
 				}
 				else
 				{
 					fprintf(stderr, "connect() failed. (%d)\n", error);
-					return false;
 				}
 			}
 			freeaddrinfo(server);
-			printf("Connected!\n");
-			return true;
+			return sucess;
 		}
 		void SetupNetwork::BeepBeep() {
 			Beep(750, 300);
@@ -180,16 +180,16 @@ namespace me {
 			}
 		}
 		void SetupNetwork::EstablishConnection() {
-			if (!SearchForServer()) { 
+			if (!SearchForServer()) {
 				std::thread serverThread(&Server::InitServer, &server);
-				serverThread.detach(); 
-				bool succes = SearchForServer();
-				//if(succes)
+				serverThread.detach();
+				SearchForServer();
+				//bool succes = SearchForServer();
+				//if (succes)
 				//{
-				//	ME_LOG_ERROR("succes to connect to server!"); 
-				//	//BeepBeep(); 
+				//	ME_LOG_ERROR("succes to connect to server!");
 				//}
-			}	//
+			}
 		}
 	};
 }

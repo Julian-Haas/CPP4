@@ -56,7 +56,7 @@ private:
 	int requestCode;
 	int answerCode;
 	int maxPlayerCount = 2;
-	SOCKET maxSocket; 
+	SOCKET maxSocket;
 	fd_set master;
 	addrinfo hints;
 	WSAData d;
@@ -246,7 +246,7 @@ public:
 		addrinfo* bindAddress;
 
 		// Bind to specific IP address and port 5000
-		getaddrinfo("192.168.178.28", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
+		getaddrinfo("192.168.178.24", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
 		printf("Creating listener socket\n");
 		//listenerSocket;
 		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
@@ -272,9 +272,9 @@ public:
 		}
 
 		// Server loop
-		while(true)
-		{	
-			UpdateServer(); 
+		while (true)
+		{
+			UpdateServer();
 		}
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
@@ -289,52 +289,52 @@ public:
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
 
-			int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
+		int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
 
-			if (selectResult < 0)
-			{
-				fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-				//
-				return; 
-			}
-			else if (selectResult == 0)
-			{
-				return; 
-			}
+		if (selectResult < 0)
+		{
+			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
+			//
+			return;
+		}
+		else if (selectResult == 0)
+		{
+			return;
+		}
 
-			for (SOCKET i = 0; i <= maxSocket; i++)
+		for (SOCKET i = 0; i <= maxSocket; i++)
+		{
+			if (FD_ISSET(i, &reads))
 			{
-				if (FD_ISSET(i, &reads))
+				if (i == listenerSocket)
 				{
-					if (i == listenerSocket)
+					// New connection
+					SOCKET clientSocket = accept(listenerSocket, 0, 0);
+					if (clientSocket == INVALID_SOCKET)
 					{
-						// New connection
-						SOCKET clientSocket = accept(listenerSocket, 0, 0);
-						if (clientSocket == INVALID_SOCKET)
-						{
-							fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
-						}
-						else
-						{
-							printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
-
-
-								FD_SET(clientSocket, &master);
-								if (clientSocket > maxSocket)
-								{
-									maxSocket = clientSocket;
-								}
-				
-						}
+						fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
 					}
 					else
 					{
-						// Handle data from an existing client
-						HandleIncomingRequest(i);
+						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
+
+
+						FD_SET(clientSocket, &master);
+						if (clientSocket > maxSocket)
+						{
+							maxSocket = clientSocket;
+						}
+
 					}
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(16));
+				else
+				{
+					// Handle data from an existing client
+					HandleIncomingRequest(i);
+				}
 			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		}
 	}
 
 	std::string GetClientIP(SOCKET clientSocket)
@@ -351,12 +351,3 @@ public:
 	}
 
 };
-
-
-
-
-
-
-
-
-
