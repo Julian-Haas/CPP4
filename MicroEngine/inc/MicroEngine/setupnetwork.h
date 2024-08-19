@@ -12,7 +12,7 @@
 #include <WinSock2.h>
 #include <iostream>
 #include <string>
-
+#include "MicroEngine\MEServer.h"
 namespace me {
 	enum protocol
 	{
@@ -32,8 +32,16 @@ namespace me {
 		int _position_y = 4;
 		int _position_z = 5;
 		int _playerID = -1;
-		//Server server;
+		Server server;
 	public:
+		SetupNetwork()
+			: server()
+		{
+		}
+		void UpdateTheServer()
+		{
+			server.UpdateServer(); 
+		}
 		bool SetupNetwork::ReadData()
 		{
 			bool readAllData = false;
@@ -97,8 +105,8 @@ namespace me {
 				return false;
 			}
 			printf("Remote address is :\n");
-			char addressBuffer[100];
-			getnameinfo(server->ai_addr, (socklen_t)server->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
+			PCHAR addressBuffer = nullptr;
+ 			getnameinfo(server->ai_addr, (socklen_t)server->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
 			printf("%s\n", addressBuffer);
 			printf("Creating socket...\n");
 			serverSocket = socket(server->ai_family, server->ai_socktype, server->ai_protocol);
@@ -172,9 +180,13 @@ namespace me {
 			}
 		}
 		void SetupNetwork::EstablishConnection() {
-			if (!SearchForServer()) {
-				//server = new Server;
-				SearchForServer();
+			if (!SearchForServer()) { 
+				std::thread serverThread(&Server::InitServer, &server);
+				bool printError = !SearchForServer();
+				if(printError)
+				{
+					ME_LOG_ERROR("Failed to connect to server!"); 
+				}
 			}
 		}
 	};

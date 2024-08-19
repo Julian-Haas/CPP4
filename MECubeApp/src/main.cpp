@@ -10,7 +10,6 @@
 #include "MicroEngine\d3d11device.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "MicroEngine\libraries.h"
-
 #pragma comment(lib, "MicroEngine_" CONFIG_NAME ".lib")
 
 int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR lpCmdLine, _In_ int nCmdShow)
