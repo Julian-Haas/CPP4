@@ -85,7 +85,7 @@ namespace me {
 		bool SetupNetwork::SearchForServer()
 		{
 			//magic numbers
-			const char* serverIP = "192.168.178.24";
+			const char* serverIP = "192.168.178.28";
 			const char* serverPort = "5000";
 			WSAData d;
 			if (WSAStartup(MAKEWORD(2, 2), &d))
@@ -182,12 +182,14 @@ namespace me {
 		void SetupNetwork::EstablishConnection() {
 			if (!SearchForServer()) { 
 				std::thread serverThread(&Server::InitServer, &server);
-				bool printError = !SearchForServer();
-				if(printError)
-				{
-					ME_LOG_ERROR("Failed to connect to server!"); 
-				}
-			}
+				serverThread.detach(); 
+				bool succes = SearchForServer();
+				//if(succes)
+				//{
+				//	ME_LOG_ERROR("succes to connect to server!"); 
+				//	//BeepBeep(); 
+				//}
+			}	//
 		}
 	};
 }

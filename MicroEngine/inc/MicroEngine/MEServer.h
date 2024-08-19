@@ -246,7 +246,7 @@ public:
 		addrinfo* bindAddress;
 
 		// Bind to specific IP address and port 5000
-		getaddrinfo("192.168.178.24", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
+		getaddrinfo("192.168.178.28", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
 		printf("Creating listener socket\n");
 		//listenerSocket;
 		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
@@ -272,8 +272,10 @@ public:
 		}
 
 		// Server loop
-
-		UpdateServer(); 
+		while(true)
+		{	
+			UpdateServer(); 
+		}
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
 		maxSocket = listenerSocket;
@@ -286,19 +288,18 @@ public:
 		struct timeval timeout;
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
-		while (true)
-		{
 
 			int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
 
 			if (selectResult < 0)
 			{
 				fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-				continue; 
+				//
+				return; 
 			}
 			else if (selectResult == 0)
 			{
-				continue; 
+				return; 
 			}
 
 			for (SOCKET i = 0; i <= maxSocket; i++)
@@ -317,20 +318,13 @@ public:
 						{
 							printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
 
-							// Check client IP and only accept if it matches
-							if (GetClientIP(clientSocket) == "192.168.178.24")  // Chat-GPT: Restrict to specific IP
-							{
+
 								FD_SET(clientSocket, &master);
 								if (clientSocket > maxSocket)
 								{
 									maxSocket = clientSocket;
 								}
-							}
-							else
-							{
-								printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
-								closesocket(clientSocket);
-							}
+				
 						}
 					}
 					else
@@ -341,7 +335,6 @@ public:
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(16));
 			}
-		}
 	}
 
 	std::string GetClientIP(SOCKET clientSocket)
