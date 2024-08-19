@@ -85,8 +85,8 @@ namespace me {
 		bool SetupNetwork::SearchForServer()
 		{
 			//magic numbers
-			const char* serverIP = "192.168.178.24";
-			const char* serverPort = "5000";
+			const char* serverIP = "127.0.0.1";
+			const char* serverPort = "8080";
 
 			bool sucess = false;
 

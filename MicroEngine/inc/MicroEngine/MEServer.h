@@ -246,7 +246,7 @@ public:
 		addrinfo* bindAddress;
 
 		// Bind to specific IP address and port 5000
-		getaddrinfo("192.168.178.24", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
+		getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
 		printf("Creating listener socket\n");
 		//listenerSocket;
 		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
