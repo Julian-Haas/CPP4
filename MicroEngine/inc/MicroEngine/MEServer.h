@@ -38,7 +38,7 @@ class Server
 {
 private:
 	//protocol enum 
-	int sendedInts[2];
+	float sendedInts[5];
 	float SendedPositions[3];
 	enum protocol
 	{
@@ -48,7 +48,7 @@ private:
 		JoinRequest = 101,
 		SendPosition = 102,
 	};
-	char request[4096];
+	char request[20];
 	std::map<int, Position> playerData;
 	float startPosOffset;
 	int playerCount;
@@ -69,13 +69,6 @@ private:
 	{
 		int msgCode;
 		memcpy(sendedInts, message, sizeof(sendedInts));
-		memcpy(SendedPositions, message + 8, sizeof(SendedPositions));
-
-		std::cout << "Message Code: " << sendedInts[0] << std::endl;
-		std::cout << "Player ID: " << sendedInts[1] << std::endl;
-		std::cout << "Position X: " << SendedPositions[0] << std::endl;
-		std::cout << "Position Y: " << SendedPositions[1] << std::endl;
-		std::cout << "Position Z: " << SendedPositions[2] << std::endl;
 	}
 	void RegisterNewPlayer()
 	{
@@ -151,6 +144,7 @@ private:
 
 	void HandleIncomingRequest(SOCKET i)
 	{
+		int bytesRecieved = recv(i, request, sizeof(request), 0); 
 		ReadMessage(request);
 		int msgCode;
 		memcpy(&msgCode, request, sizeof(msgCode));
@@ -159,8 +153,7 @@ private:
 		fd_set master;
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
-
-		switch (sendedInts[0])
+		switch ((int)sendedInts[0])
 		{
 		case 101:
 			RegisterNewPlayer();
@@ -177,6 +170,14 @@ private:
 			break;
 		case 102:
 			// maybe is irrelevant UpdatePlayerPosition(); 
+			for (n = 0; n <= maxSocket; n++)
+			{
+
+				Beep(750, 300);
+				msgCode = (int)ProceedData;
+				SendToClient(n, message.data());
+				
+			}
 			break;
 		default:
 			printf("Unhandled request");
@@ -229,66 +230,77 @@ public:
 		}
 		playerCount--;
 	}
-	int InitServer()
-	{
-		ReadMessage(request);
+	int InitServer() {
+		//ReadMessage(request);
 
-		if (WSAStartup(MAKEWORD(2, 2), &d))
-		{
-			printf("WinSocket failed to initialize\n");
+		if (WSAStartup(MAKEWORD(2, 2), &d)) {
+			UnserDebugFunktionoenchen("WinSocket failed to initialize");
 			return -1;
 		}
-		printf("Configuring local ip address\n");
+		//UnserDebugFunktionoenchen("Configuring local IP address");
+
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_INET;
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_flags = AI_PASSIVE;
 		addrinfo* bindAddress;
 
-		// Bind to specific IP address and port 5000
-		getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
-		printf("Creating listener socket\n");
-		//listenerSocket;
-		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
-		if (listenerSocket == INVALID_SOCKET)
-		{
-			fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
+		// Bind to specific IP address and port 8080
+		if (getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress) != 0) {
+			UnserDebugFunktionoenchen("getaddrinfo() failed");
+			WSACleanup();
 			return -1;
 		}
-		u_long mode = 1; // 
-		ioctlsocket(listenerSocket, FIONBIO, &mode); // Chat-GPT: Make socket non-blocking
-		printf("Binding address to socket\n");
-		if (bind(listenerSocket, bindAddress->ai_addr, bindAddress->ai_addrlen))
-		{
-			fprintf(stderr, "bind() failed. (%d)\n", WSAGetLastError());
+		//UnserDebugFunktionoenchen("Creating listener socket");
+
+		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
+		if (listenerSocket == INVALID_SOCKET) {
+			UnserDebugFunktionoenchen("socket() failed");
+			freeaddrinfo(bindAddress);
+			WSACleanup();
+			return -1;
+		}
+
+		u_long mode = 1; // Make socket non-blocking
+		if (ioctlsocket(listenerSocket, FIONBIO, &mode) != 0) {
+			UnserDebugFunktionoenchen("ioctlsocket() failed");
+			closesocket(listenerSocket);
+			freeaddrinfo(bindAddress);
+			WSACleanup();
+			return -1;
+		}
+
+		//UnserDebugFunktionoenchen("Binding address to socket");
+		if (bind(listenerSocket, bindAddress->ai_addr, bindAddress->ai_addrlen) != 0) {
+			UnserDebugFunktionoenchen("bind() failed");
+			closesocket(listenerSocket);
+			freeaddrinfo(bindAddress);
+			WSACleanup();
 			return -1;
 		}
 		freeaddrinfo(bindAddress);
-		printf("Listening...\n");
-		if (listen(listenerSocket, 10) < 0)
-		{
-			fprintf(stderr, "listen() failed. (%d)\n", WSAGetLastError());
+
+		//UnserDebugFunktionoenchen("Listening for connections...");
+		if (listen(listenerSocket, 10) < 0) {
+			UnserDebugFunktionoenchen("listen() failed");
+			closesocket(listenerSocket);
+			WSACleanup();
 			return -1;
 		}
+
 		maxSocket = listenerSocket;
-
-
-
-
-
-		// Server loop
-		while (true)
-		{
-			UpdateServer();
-		}
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
+		while(true)
+		{
+			UpdateServer(); 
+		}
 
-
-
+		//UnserDebugFunktionoenchen("Server initialization successful");
 
 		return 0;
 	}
+
 
 	void UnserDebugFunktionoenchen(int a) {
 		std::string resultStr = std::to_string(listenerSocket);
@@ -296,76 +308,84 @@ public:
 
 		ME_LOG_ERROR(resultCStr);
 	}
+	void UnserDebugFunktionoenchen(std::string a) {
+		const char* resultCStr = a.c_str();
 
+		ME_LOG_ERROR(resultCStr);
+	}
 
-	void UpdateServer()
-	{
-		fd_set reads = master;
+	void UpdateServer() {
+		fd_set reads;
+		FD_ZERO(&reads);
+		reads = master;
 
-
-
-		// Set a timeout value
 		struct timeval timeout;
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
 
 
-
-
-
-		int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
-
-		UnserDebugFunktionoenchen(maxSocket);
-
-		//std::string resultStr = std::to_string(selectResult);
-		//const char* resultCStr = resultStr.c_str();
-
-		if (selectResult < 0)
-		{
-			Beep(750, 300);
-			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
-			//
-			return;
-		}
-		else if (selectResult == 0)
-		{
-			return;
+		// Überprüfe, ob alle Sockets in master gültig sind
+		for (SOCKET i = 0; i <= maxSocket; i++) {
+			if (FD_ISSET(i, &master)) {
+				if (i == INVALID_SOCKET) {
+					UnserDebugFunktionoenchen("Invalid socket found in master set");
+					FD_CLR(i, &master);  // Entferne den ungültigen Socket
+				}
+			}
 		}
 
-		for (SOCKET i = 0; i <= maxSocket; i++)
-		{
-			if (FD_ISSET(i, &reads))
-			{
-				if (i == listenerSocket)
-				{
+		int selectResult = select(maxSocket + 1, &reads, nullptr, nullptr, &timeout);
+
+
+		if (selectResult < 0) {
+			int error = WSAGetLastError();
+			std::string errorMsg = "select() failed with error code: " + std::to_string(error);
+			UnserDebugFunktionoenchen(errorMsg.c_str());
+			return;
+		}
+		else if (selectResult == 0) {
+			// Timeout occurred, no sockets ready
+			UnserDebugFunktionoenchen("select() timeout, no sockets ready");
+			return;
+		}
+
+		for (SOCKET i = 0; i <= maxSocket; i++) {
+			if (FD_ISSET(i, &reads)) {
+				int bytesReceived = recv(listenerSocket, request, sizeof(request), 0);
+				if (i == listenerSocket) {
 					// New connection
-					SOCKET clientSocket = accept(listenerSocket, 0, 0);
-					if (clientSocket == INVALID_SOCKET)
-					{
-						fprintf(stderr, "accept() failed. (%d)\n", WSAGetLastError());
+					SOCKET clientSocket = accept(listenerSocket, nullptr, nullptr);
+					if (clientSocket == INVALID_SOCKET) {
+						int error = WSAGetLastError();
+						std::string errorMsg = "accept() failed with error code: " + std::to_string(error);
+						UnserDebugFunktionoenchen(errorMsg.c_str());
 					}
-					else
-					{
-						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
-						Beep(750, 300);
+					else {
+						//std::string connectionMsg = "New connection from socket: " + std::to_string(clientSocket);
+						Beep(750, 300); 
+						//UnserDebugFunktionoenchen(connectionMsg.c_str());
 
 						FD_SET(clientSocket, &master);
-						if (clientSocket > maxSocket)
-						{
+						if (clientSocket > maxSocket) {
 							maxSocket = clientSocket;
 						}
-
 					}
 				}
-				else
-				{
+				else {
 					// Handle data from an existing client
 					HandleIncomingRequest(i);
 				}
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));  // Slight delay to avoid CPU overuse
 	}
+	void CloseClientSocket(SOCKET clientSocket) {
+		closesocket(clientSocket);
+		FD_CLR(clientSocket, &master);
+		UnserDebugFunktionoenchen("Closed and removed socket from master set");
+	}
+
+
 
 	std::string GetClientIP(SOCKET clientSocket)
 	{
