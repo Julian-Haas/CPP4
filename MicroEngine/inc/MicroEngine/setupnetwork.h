@@ -42,7 +42,7 @@ namespace me {
 		{
 			server.UpdateServer();
 		}
-		bool SetupNetwork::ReadData()
+		bool SetupNetwork::ReadData(float* dataStorage, int& playerID, int& selectedPlayerID)
 		{
 			bool readAllData = false;
 			while (!readAllData)
@@ -63,10 +63,13 @@ namespace me {
 						return false;
 					}
 					memcpy(receivedMessageInInt, receivedMessage, sizeof(receivedMessage));
+					memcpy(dataStorage, receivedMessage, sizeof(receivedMessage));
 					switch (receivedMessageInInt[0])
 					{
 					case 1:
 						_playerID = receivedMessageInInt[1];
+						playerID = _playerID; 
+						selectedPlayerID = _playerID; 
 						break;
 					case 2:
 						//elaborate
@@ -74,6 +77,11 @@ namespace me {
 						break;
 					case 3:
 						//update player pos
+						if(receivedMessageInInt[1] != _playerID)
+						{
+							//client should only update the position from other clients. Self Clientposition should be managed manuelly. 
+							selectedPlayerID = receivedMessageInInt[1];
+						}
 						break;
 					default:
 						break;

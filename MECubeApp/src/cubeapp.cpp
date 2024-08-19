@@ -35,10 +35,47 @@ namespace capp
 	{
 	}
 
+	void CubeApp::InstantiateNewPlayer()
+	{
+		using namespace me; 
+		{
+			const auto cube = m_EntityManager.AddEntity();
+			m_ControlledEntityID = cube->GetID();
+			auto transform = cube->GetComponent<TransformComponent>().lock();
+			transform->Translate(0.0f, 0.0f, 30);
+	
+			auto meshRenderer = m_EntityManager.AddComponent<MeshRendererComponent>(cube->GetID());
+	
+			Material cubeMat;
+			cubeMat.AddShaderProperty(Color::s_White);
+			cubeMat.AddShaderProperty(Color::s_Black);
+			cubeMat.AddShaderProperty(Color::s_White);
+			cubeMat.AddShaderProperty(30.0f);
+			cubeMat.SetTexturePS(0, TextureInfo("assets://colormap.bmp"));
+			cubeMat.SetVertexShader("assets://Mesh.hlsl");
+			cubeMat.SetPixelShader("assets://Mesh.hlsl");
+			const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
+			meshRenderer->SetMesh(mesh);
+		}
+	}
+
+	void CubeApp::UpdatePlayerEntitys()
+	{
+		using namespace me;
+		if(selectedPlayerID != playerID)
+		{
+			m_PlayerData[selectedPlayerID].x = m_MessageData[2];
+			m_PlayerData[selectedPlayerID].y = m_MessageData[3];
+			m_PlayerData[selectedPlayerID].z = m_MessageData[4];
+			auto transform = PlayerTrasforms[selectedPlayerID]->GetComponent<me::TransformComponent>().lock();
+			transform->Translate(m_PlayerData[selectedPlayerID].x, m_PlayerData[selectedPlayerID].y, m_PlayerData[selectedPlayerID].z);
+		}
+	}
+
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 
-		using namespace me;
+		using namespace me;                                 
 
 
 		network.EstablishConnection();
@@ -166,13 +203,20 @@ namespace capp
 		}
 	}
 
+
+
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
+		//TO-DO: Update Selfposition in playerdata 
+		//send actual position to server 
 		using namespace me;
 
-		network.SendMessageToServer(SendPosition_Code);
 		//network.UpdateTheServer(); 
-
+		network.ReadData(m_MessageData, playerID, selectedPlayerID);
+		if((int)m_MessageData[0] == 3)
+		{
+			UpdatePlayerEntitys(); 
+		}
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
 			SetCapture(m_Window->GetHWnd());
@@ -184,7 +228,6 @@ namespace capp
 			finalPE->SetBrightness(finalPE->GetBrightness() + deltaTime);
 		if (Input::GetInstance()->IsKeyDown(VK_SUBTRACT))
 			finalPE->SetBrightness(finalPE->GetBrightness() - deltaTime);
-
 		//Control selected entity
 		const auto entity = m_EntityManager.GetEntity(m_ControlledEntityID).lock();
 		auto controlledEntity = entity ? entity->GetComponent<TransformComponent>().lock() : std::shared_ptr<TransformComponent>();
@@ -224,6 +267,8 @@ namespace capp
 			{
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
 			}
+			network.SendMessageToServer(SendPosition_Code);
+			
 		}
 
 		//Update all entities

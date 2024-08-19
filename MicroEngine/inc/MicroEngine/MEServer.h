@@ -144,6 +144,10 @@ private:
 
 	void HandleIncomingRequest(SOCKET i)
 	{
+		//TO-DO: When join request: Send position to other player
+		//TO-DO: Newly joined Player should recieve the other player ids and positions 
+		//TO-DO: When Server recieved new Position data, send the new Position to the other clients! 
+		//END-GOAL: Sended message should acutall contain the data from all Players!  
 		int bytesRecieved = recv(i, request, sizeof(request), 0); 
 		ReadMessage(request);
 		int msgCode;
@@ -348,7 +352,6 @@ public:
 			UnserDebugFunktionoenchen("select() timeout, no sockets ready");
 			return;
 		}
-
 		for (SOCKET i = 0; i <= maxSocket; i++) {
 			if (FD_ISSET(i, &reads)) {
 				int bytesReceived = recv(listenerSocket, request, sizeof(request), 0);
