@@ -172,5 +172,7 @@
     <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
     <ClInclude Include="inc\MicroEngine\posteffect.h" />
     <ClInclude Include="inc\MicroEngine\setupnetwork.h" />
+    <ClInclude Include="inc\MicroEngine\MEServer.h" />
+    <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
   </ItemGroup>
 </Project>

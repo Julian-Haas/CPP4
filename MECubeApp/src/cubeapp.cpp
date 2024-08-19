@@ -24,7 +24,7 @@
 #include "MicroEngine/transformcomponent.h"
 #include "MicroEngine/vertex.h"
 #include "MicroEngine/setupnetwork.h"
-
+#include "MicroEngine\MEServer.h"
 namespace capp
 {
 
@@ -41,9 +41,7 @@ namespace capp
 		using namespace me;
 
 
-		SetupNetwork network;
 		network.EstablishConnection();
-		network.BeepBeep();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
@@ -172,7 +170,8 @@ namespace capp
 	{
 		using namespace me;
 
-
+		network.SendMessageToServer(SendPosition_Code);
+		//network.UpdateTheServer(); 
 
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))

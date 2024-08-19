@@ -15,6 +15,7 @@
 #include <chrono>
 #include <optional>
 #include "MEServerHelper.h"
+#include <thread>
 struct Position
 {
 public:
@@ -55,6 +56,10 @@ private:
 	int requestCode;
 	int answerCode;
 	int maxPlayerCount = 2;
+	SOCKET maxSocket;
+	fd_set master;
+	addrinfo hints;
+	WSAData d;
 	//member functions: 
 	void SendToClient(SOCKET i, const char* msg)
 	{
@@ -227,14 +232,13 @@ public:
 	int InitServer()
 	{
 		ReadMessage(request);
-		WSAData d;
+
 		if (WSAStartup(MAKEWORD(2, 2), &d))
 		{
 			printf("WinSocket failed to initialize\n");
 			return -1;
 		}
 		printf("Configuring local ip address\n");
-		addrinfo hints;
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_INET;
 		hints.ai_socktype = SOCK_STREAM;
@@ -242,7 +246,7 @@ public:
 		addrinfo* bindAddress;
 
 		// Bind to specific IP address and port 5000
-		getaddrinfo("192.168.178.28", "5000", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
+		getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress); // Chat-GPT: Use public IP and port 5000
 		printf("Creating listener socket\n");
 		//listenerSocket;
 		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
@@ -266,37 +270,66 @@ public:
 			fprintf(stderr, "listen() failed. (%d)\n", WSAGetLastError());
 			return -1;
 		}
+		maxSocket = listenerSocket;
+
+
+
+
 
 		// Server loop
-		//while (true)
-		//{
-		//
-		//}
+		while (true)
+		{
+			UpdateServer();
+		}
+		FD_ZERO(&master);
+		FD_SET(listenerSocket, &master);
+
+
+
 
 		return 0;
 	}
+
+	void UnserDebugFunktionoenchen(int a) {
+		std::string resultStr = std::to_string(listenerSocket);
+		const char* resultCStr = resultStr.c_str();
+
+		ME_LOG_ERROR(resultCStr);
+	}
+
+
 	void UpdateServer()
 	{
-		fd_set master;
-		FD_ZERO(&master);
-		FD_SET(listenerSocket, &master);
-		SOCKET maxSocket = listenerSocket;
-
 		fd_set reads = master;
+
+
+
 		// Set a timeout value
 		struct timeval timeout;
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
 
+
+
+
+
 		int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
+
+		UnserDebugFunktionoenchen(maxSocket);
+
+		//std::string resultStr = std::to_string(selectResult);
+		//const char* resultCStr = resultStr.c_str();
 
 		if (selectResult < 0)
 		{
+			Beep(750, 300);
 			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
+			//
+			return;
 		}
 		else if (selectResult == 0)
 		{
-
+			return;
 		}
 
 		for (SOCKET i = 0; i <= maxSocket; i++)
@@ -314,22 +347,15 @@ public:
 					else
 					{
 						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
+						Beep(750, 300);
 
-						// Check client IP and only accept if it matches
-						if (GetClientIP(clientSocket) == "192.168.178.28")  // Chat-GPT: Restrict to specific IP
-						{
 						FD_SET(clientSocket, &master);
 						if (clientSocket > maxSocket)
 						{
 							maxSocket = clientSocket;
 						}
-						}
-						else
-						{
-							printf("Rejected connection from %s\n", GetClientIP(clientSocket).c_str());
-							closesocket(clientSocket);
-						}
-					}	
+
+					}
 				}
 				else
 				{
@@ -337,6 +363,7 @@ public:
 					HandleIncomingRequest(i);
 				}
 			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
 	}
 
@@ -354,12 +381,3 @@ public:
 	}
 
 };
-
-
-
-
-
-
-
-
-

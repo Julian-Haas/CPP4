@@ -10,6 +10,7 @@
 #include "MicroEngine\entitymanager.h"
 #include "MicroEngine\renderer.h"
 #include "MicroEngine\systemmanager.h"
+#include "MicroEngine\setupnetwork.h"
 
 namespace me
 {
@@ -41,7 +42,7 @@ namespace capp
 
 		void UpdateLogic(float deltaTime);
 		void InitEntities();
-
+		me::SetupNetwork network;
 		me::EntityID m_ControlledEntityID;
 		me::EntityID m_CameraID;
 		me::EntityID m_LightID;
