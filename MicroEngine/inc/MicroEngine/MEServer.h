@@ -362,7 +362,7 @@ public:
 					}
 					else {
 						//std::string connectionMsg = "New connection from socket: " + std::to_string(clientSocket);
-						Beep(750, 300); 
+						//Beep(750, 300); 
 						//UnserDebugFunktionoenchen(connectionMsg.c_str());
 
 						FD_SET(clientSocket, &master);
