@@ -42,7 +42,6 @@ namespace capp
 
 
 		network.EstablishConnection();
-		network.BeepBeep();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
@@ -170,14 +169,16 @@ namespace capp
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
 		using namespace me;
-		network.UpdateTheServer(); 
+
+		network.SendMessageToServer(SendPosition_Code);
+		//network.UpdateTheServer(); 
 
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
 			SetCapture(m_Window->GetHWnd());
 		if (Input::GetInstance()->IsKeyUp(VK_LBUTTON))
 			ReleaseCapture();
-		
+
 		FinalPostEffect* finalPE = m_Renderer->GetPostEffect<FinalPostEffect>();
 		if (Input::GetInstance()->IsKeyDown(VK_ADD))
 			finalPE->SetBrightness(finalPE->GetBrightness() + deltaTime);

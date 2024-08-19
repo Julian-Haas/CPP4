@@ -270,6 +270,11 @@ public:
 			fprintf(stderr, "listen() failed. (%d)\n", WSAGetLastError());
 			return -1;
 		}
+		maxSocket = listenerSocket;
+
+
+
+
 
 		// Server loop
 		while (true)
@@ -278,21 +283,46 @@ public:
 		}
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
-		maxSocket = listenerSocket;
+
+
+
+
 		return 0;
 	}
+
+	void UnserDebugFunktionoenchen(int a) {
+		std::string resultStr = std::to_string(listenerSocket);
+		const char* resultCStr = resultStr.c_str();
+
+		ME_LOG_ERROR(resultCStr);
+	}
+
+
 	void UpdateServer()
 	{
 		fd_set reads = master;
+
+
+
 		// Set a timeout value
 		struct timeval timeout;
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
 
+
+
+
+
 		int selectResult = select(maxSocket + 1, &reads, 0, 0, &timeout);
+
+		UnserDebugFunktionoenchen(maxSocket);
+
+		//std::string resultStr = std::to_string(selectResult);
+		//const char* resultCStr = resultStr.c_str();
 
 		if (selectResult < 0)
 		{
+			Beep(750, 300);
 			fprintf(stderr, "select() failed. (%d)\n", WSAGetLastError());
 			//
 			return;
@@ -317,7 +347,7 @@ public:
 					else
 					{
 						printf("New connection from %s\n", GetClientIP(clientSocket).c_str());
-
+						Beep(750, 300);
 
 						FD_SET(clientSocket, &master);
 						if (clientSocket > maxSocket)

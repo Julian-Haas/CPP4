@@ -23,15 +23,15 @@ namespace me {
 	class SetupNetwork {
 	private:
 		SOCKET serverSocket;
-		int unformattedRequest[5];
+		float unformattedRequest[5];
 		char formattedRequest[20];
 		int receivedMessageInInt[5];
 		char receivedMessage[20];
 		enum protocol;
-		int _position_x = 3;
-		int _position_y = 4;
-		int _position_z = 5;
 		int _playerID = -1;
+		float _position_x = 3;
+		float _position_y = 4;
+		float _position_z = 5;
 		Server server;
 	public:
 		SetupNetwork()
@@ -165,11 +165,50 @@ namespace me {
 			Beep(750, 300);
 		}
 		void SetupNetwork::SendMessageToServer(int code) {
+			_playerID = 1;
+			_position_x = 12.34f;
+			_position_y = 56.78f;
+			_position_z = 90.12f;
+
 			unformattedRequest[0] = code;
 			unformattedRequest[1] = _playerID;
 			unformattedRequest[2] = _position_x;
 			unformattedRequest[3] = _position_y;
 			unformattedRequest[4] = _position_z;
+
+			//test1
+			//std::ostringstream stream;
+			//stream << _playerID << " "
+			//	<< std::fixed << std::setprecision(2)
+			//	<< _position_x << " "
+			//	<< _position_y << " "
+			//	<< _position_z;
+			//std::string formattedString = stream.str();
+			//const char* cStr = formattedString.c_str();
+
+			//test2
+			//int unformattedRequest[5] = { 1, 123, 456, 789, 101112 };
+			//std::ostringstream stream;
+			//for (int i = 0; i < 5; ++i) {
+			//	stream << unformattedRequest[i] << "\n";
+			//}
+			//std::string formattedString = stream.str();
+			//const char* cStr = formattedString.c_str();
+
+			//test3
+			//std::ostringstream stream;
+			//stream << unformattedRequest[0] << " "
+			//	<< std::fixed << std::setprecision(2)
+			//	<< unformattedRequest[1] << " "
+			//	<< unformattedRequest[2] << " "
+			//	<< unformattedRequest[3] << " "
+			//	<< unformattedRequest[4];
+			//std::string formattedString = stream.str();
+			//const char* cStr = formattedString.c_str();
+
+			//testlog
+			//ME_LOG_ERROR(cStr);
+
 			memcpy(formattedRequest, unformattedRequest, sizeof(unformattedRequest));
 			int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 			if (bytesSent == SOCKET_ERROR) {
