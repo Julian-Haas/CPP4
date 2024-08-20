@@ -4,7 +4,8 @@
 #include <string>
 #include <map>
 #include<array>
-
+#include<Windows.h>
+#include<fstream>
 #pragma comment (lib, "ws2_32.lib")
 #pragma comment (lib, "iphlpapi.lib")
 
@@ -16,19 +17,20 @@
 #include <optional>
 #include "MEServerHelper.h"
 #include <thread>
+#include <array>
 struct Position
 {
 public:
 	float x;
 	float y;
 	float z;
-	Position() {}
+	Position() = default; 
 	Position(float xPos, float yPos, float zPos)
 		: x(xPos)
 		, y(yPos)
 		, z(zPos)
 	{}
-
+	 
 	~Position()
 	{}
 };
@@ -38,7 +40,7 @@ class Server
 {
 private:
 	//protocol enum 
-	float sendedInts[5];
+	float recievedFloats[5];
 	float SendedPositions[3];
 	enum protocol
 	{
@@ -63,12 +65,18 @@ private:
 	//member functions: 
 	void SendToClient(SOCKET i, const char* msg)
 	{
-		send(i, msg, 20, 0);
+		std::string message = msg; 
+		int result = send(i, msg, 20, 0);
+		if(result == SOCKET_ERROR)
+		{
+			UnserDebugFunktionoenchen(message); 
+		}
 	}
 	void ReadMessage(const char* message)
 	{
 		int msgCode;
-		memcpy(sendedInts, message, sizeof(sendedInts));
+		memcpy(&recievedFloats, message, sizeof(recievedFloats));
+		PrintFloats(recievedFloats);
 	}
 	void RegisterNewPlayer()
 	{
@@ -115,6 +123,19 @@ private:
 		playerCount++;
 		answerCode = (int)JoinAwnserSucessful;
 	}
+	void OpenDebugConsole()
+	{
+		// Neue Konsole erzeugen
+		AllocConsole();
+
+		// Konsole für Standardausgabe einrichten
+		FILE* file;
+		freopen_s(&file, "CONOUT$", "w", stdout);
+		freopen_s(&file, "CONOUT$", "w", stderr);
+		freopen_s(&file, "CONIN$", "r", stdin);
+
+		std::cout << "Debug-Konsole gestartet." << std::endl;
+	}
 	std::array<char, 20> PrepareMessage()
 	{
 		std::array<char, 20> message = {};  // Initialize with 0
@@ -132,8 +153,6 @@ private:
 		memcpy(&message[8], &posX, sizeof(posX));
 		memcpy(&message[12], &posY, sizeof(posY));
 		memcpy(&message[16], &posZ, sizeof(posZ));
-
-		ReadMessage(message.data()); // Use .data() to get a pointer
 		return message;
 	}
 	SOCKET listenerSocket;
@@ -141,7 +160,13 @@ private:
 	{
 		// Implement as needed
 	}
-
+	void PrintFloats(float x[])
+	{
+		for(int i = 0; i < 5; i++)
+		{
+			std::cout << x[i] << "\n"; 
+		}
+	}
 	void HandleIncomingRequest(SOCKET i)
 	{
 		//TO-DO: When join request: Send position to other player
@@ -157,30 +182,29 @@ private:
 		fd_set master;
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
-		switch ((int)sendedInts[0])
+		switch ((int)recievedFloats[0])
 		{
 		case 101:
 			RegisterNewPlayer();
 			auto message = PrepareMessage();
 			SendToClient(i, message.data());
-			for (n = 0; n <= maxSocket; n++)
+			for (n = 0; n <= maxSocket+1; n++)
 			{
 				if (n != i && FD_ISSET(n, &master))
 				{
 					msgCode = (int)ProceedData;
+					message = PrepareMessage(); 
 					SendToClient(n, message.data());
 				}
 			}
 			break;
 		case 102:
 			// maybe is irrelevant UpdatePlayerPosition(); 
-			for (n = 0; n <= maxSocket; n++)
+			for (n = 0; n <= maxSocket+1; n++)
 			{
-
-				Beep(750, 300);
 				msgCode = (int)ProceedData;
+				message = PrepareMessage(); 
 				SendToClient(n, message.data());
-				
 			}
 			break;
 		default:
@@ -236,7 +260,7 @@ public:
 	}
 	int InitServer() {
 		//ReadMessage(request);
-
+		OpenDebugConsole();
 		if (WSAStartup(MAKEWORD(2, 2), &d)) {
 			UnserDebugFunktionoenchen("WinSocket failed to initialize");
 			return -1;
@@ -310,12 +334,11 @@ public:
 		std::string resultStr = std::to_string(listenerSocket);
 		const char* resultCStr = resultStr.c_str();
 
-		ME_LOG_ERROR(resultCStr);
+		//ME_LOG_ERROR(resultCStr);
 	}
 	void UnserDebugFunktionoenchen(std::string a) {
-		const char* resultCStr = a.c_str();
-
-		ME_LOG_ERROR(resultCStr);
+		std::cout << a << std::endl;
+		//ME_LOG_ERROR(resultCStr);
 	}
 
 	void UpdateServer() {
@@ -327,19 +350,7 @@ public:
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
 
-
-		// Überprüfe, ob alle Sockets in master gültig sind
-		for (SOCKET i = 0; i <= maxSocket; i++) {
-			if (FD_ISSET(i, &master)) {
-				if (i == INVALID_SOCKET) {
-					UnserDebugFunktionoenchen("Invalid socket found in master set");
-					FD_CLR(i, &master);  // Entferne den ungültigen Socket
-				}
-			}
-		}
-
 		int selectResult = select(maxSocket + 1, &reads, nullptr, nullptr, &timeout);
-
 
 		if (selectResult < 0) {
 			int error = WSAGetLastError();
@@ -348,13 +359,13 @@ public:
 			return;
 		}
 		else if (selectResult == 0) {
-			// Timeout occurred, no sockets ready
-			UnserDebugFunktionoenchen("select() timeout, no sockets ready");
-			return;
+			//// Timeout occurred, no sockets ready
+			//UnserDebugFunktionoenchen("select() timeout, no sockets ready");
+			//return;
 		}
+
 		for (SOCKET i = 0; i <= maxSocket; i++) {
 			if (FD_ISSET(i, &reads)) {
-				int bytesReceived = recv(listenerSocket, request, sizeof(request), 0);
 				if (i == listenerSocket) {
 					// New connection
 					SOCKET clientSocket = accept(listenerSocket, nullptr, nullptr);
@@ -364,10 +375,6 @@ public:
 						UnserDebugFunktionoenchen(errorMsg.c_str());
 					}
 					else {
-						//std::string connectionMsg = "New connection from socket: " + std::to_string(clientSocket);
-						//Beep(750, 300); 
-						//UnserDebugFunktionoenchen(connectionMsg.c_str());
-
 						FD_SET(clientSocket, &master);
 						if (clientSocket > maxSocket) {
 							maxSocket = clientSocket;
@@ -375,13 +382,29 @@ public:
 					}
 				}
 				else {
-					// Handle data from an existing client
-					HandleIncomingRequest(i);
+					// Receiving data from an existing client
+					int bytesReceived = recv(i, request, sizeof(request), 0);
+					if (bytesReceived <= 0) {
+						// Client disconnected or error occurred
+						closesocket(i);
+						FD_CLR(i, &master);
+						if (i == maxSocket) {
+							// Recalculate maxSocket
+							while (FD_ISSET(maxSocket, &master) == false) {
+								maxSocket--;
+							}
+						}
+					}
+					else {
+						// Process received data
+						HandleIncomingRequest(i);
+					}
 				}
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));  // Slight delay to avoid CPU overuse
 	}
+
 	void CloseClientSocket(SOCKET clientSocket) {
 		closesocket(clientSocket);
 		FD_CLR(clientSocket, &master);

@@ -36,6 +36,10 @@ namespace me {
 	public:
 		SetupNetwork()
 			: server()
+			, _playerID(0)
+			, _position_x(0)
+			, _position_y(0)
+			, _position_z(0)
 		{
 		}
 		void UpdateTheServer()
@@ -45,51 +49,53 @@ namespace me {
 		bool SetupNetwork::ReadData(float* dataStorage, int& playerID, int& selectedPlayerID)
 		{
 			bool readAllData = false;
+			fd_set reads;
+			FD_ZERO(&reads);
+			FD_SET(serverSocket, &reads);
 			while (!readAllData)
 			{
-				fd_set reads;
-				FD_ZERO(&reads);
-				FD_SET(serverSocket, &reads);
 				timeval timeout;
 				timeout.tv_sec = 0;
-				timeout.tv_usec = 100000;
+				timeout.tv_usec = 16;
+				int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 				int selectResult = select((int)(serverSocket + 1), &reads, 0, 0, &timeout);
-				if (FD_ISSET(serverSocket, &reads))
+
+				if (selectResult >= 0 && FD_ISSET(serverSocket, &reads))
 				{
-					int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
-					if (bytesReceived == 0)
+					if (bytesReceived <= 0)
 					{
-						readAllData = true;
 						return false;
 					}
-					memcpy(receivedMessageInInt, receivedMessage, sizeof(receivedMessage));
-					memcpy(dataStorage, receivedMessage, sizeof(receivedMessage));
+
+					memcpy(&receivedMessageInInt, receivedMessage, sizeof(receivedMessageInInt));
+					memcpy(&dataStorage, receivedMessage, sizeof(dataStorage));
 					switch (receivedMessageInInt[0])
 					{
 					case 1:
 						_playerID = receivedMessageInInt[1];
-						playerID = _playerID; 
-						selectedPlayerID = _playerID; 
+						playerID = _playerID;
+						selectedPlayerID = _playerID;
 						break;
 					case 2:
-						//elaborate
 						return false;
-						break;
 					case 3:
-						//update player pos
-						if(receivedMessageInInt[1] != _playerID)
+						if (receivedMessageInInt[1] != _playerID)
 						{
-							//client should only update the position from other clients. Self Clientposition should be managed manuelly. 
 							selectedPlayerID = receivedMessageInInt[1];
 						}
 						break;
 					default:
-						break;
+						return false;  // Ungültige Nachricht empfangen, Schleife abbrechen
 					}
+				}
+				else
+				{
+					return false;  // Timeout ohne Daten, Schleife abbrechen
 				}
 			}
 			return true;
 		}
+
 		bool SetupNetwork::SearchForServer()
 		{
 			//magic numbers
@@ -173,11 +179,11 @@ namespace me {
 			Beep(750, 300);
 		}
 		void SetupNetwork::SendMessageToServer(int code) {
-			_playerID = 1;
-			_position_x = 12.34f;
-			_position_y = 56.78f;
-			_position_z = 90.12f;
-
+			//_playerID = 1;
+			//_position_x = 12.34f;
+			//_position_y = 56.78f;
+			//_position_z = 90.12f;
+		   
 			unformattedRequest[0] = code;
 			unformattedRequest[1] = _playerID;
 			unformattedRequest[2] = _position_x;
@@ -217,7 +223,8 @@ namespace me {
 			//testlog
 			//ME_LOG_ERROR(cStr);
 
-			memcpy(formattedRequest, unformattedRequest, sizeof(unformattedRequest));
+			memcpy(formattedRequest, unformattedRequest, sizeof(formattedRequest));
+			std::cout << formattedRequest << "\n"; 
 			int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 			if (bytesSent == SOCKET_ERROR) {
 				int error = WSAGetLastError();
@@ -230,12 +237,13 @@ namespace me {
 			if (!SearchForServer()) {
 				std::thread serverThread(&Server::InitServer, &server);
 				serverThread.detach();
-				SearchForServer();
-				//bool succes = SearchForServer();
-				//if (succes)
-				//{
-				//	ME_LOG_ERROR("succes to connect to server!");
-				//}
+				//SearchForServer();
+				bool succes = SearchForServer();
+				if (succes)
+				{
+					SendMessageToServer((int)RequestJoin_Code); 
+					//ME_LOG_ERROR("succes to connect to server!");
+				}
 			}
 		}
 	};

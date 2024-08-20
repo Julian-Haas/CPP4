@@ -19,6 +19,23 @@ namespace me
 
 namespace capp
 {
+	struct Position
+	{
+	public:
+		float x;
+		float y;
+		float z;
+		Position() = default;
+		Position(float xPos, float yPos, float zPos)
+			: x(xPos)
+			, y(yPos)
+			, z(zPos)
+		{}
+
+		~Position()
+		{}
+	};
+
 	namespace ExitCode
 	{
 		enum Enum
@@ -58,24 +75,4 @@ namespace capp
 		std::shared_ptr<me::Renderer> m_Renderer;
 	};
 
-	struct Position
-	{
-	public:
-		Position()
-			: x(0)
-			, y(0)
-			, z(0)
-		{}
-
-		Position(float X, float Y, float Z)
-			: x(X)
-			, y(Y)
-			, z(Z)
-		{}
-
-		~Position() = default;
-		float x;
-		float y;
-		float z;
-	};
 }

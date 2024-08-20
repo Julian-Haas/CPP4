@@ -40,7 +40,7 @@ namespace capp
 		using namespace me; 
 		{
 			const auto cube = m_EntityManager.AddEntity();
-			m_ControlledEntityID = cube->GetID();
+			//m_ControlledEntityID = cube->GetID();
 			auto transform = cube->GetComponent<TransformComponent>().lock();
 			transform->Translate(0.0f, 0.0f, 30);
 	
@@ -212,10 +212,25 @@ namespace capp
 		using namespace me;
 
 		//network.UpdateTheServer(); 
+		network.SendMessageToServer(SendPosition_Code);
 		network.ReadData(m_MessageData, playerID, selectedPlayerID);
+		//
 		if((int)m_MessageData[0] == 3)
 		{
-			UpdatePlayerEntitys(); 
+			auto it = m_PlayerData.find(selectedPlayerID);
+
+			if (it != m_PlayerData.end()) {
+				// Der Spieler existiert bereits, führe eine Update-Operation durch
+				UpdatePlayerEntitys();
+			} else 
+			{
+				m_PlayerData.insert(std::make_pair(selectedPlayerID, Position(m_MessageData[2], m_MessageData[3], m_MessageData[4])));
+				InstantiateNewPlayer(); 
+				UpdatePlayerEntitys(); 
+			}
+		} else if((int)m_MessageData[0] == 1) 
+		{
+			m_PlayerData.insert(std::make_pair(selectedPlayerID, Position(m_MessageData[2], m_MessageData[3], m_MessageData[4])));
 		}
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
@@ -248,26 +263,29 @@ namespace capp
 				controlledEntity->RotateLocal(0, 50 * deltaTime, 0);
 			}
 
-			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD8))
+			if (Input::GetInstance()->IsKeyDown('T'))
 			{
 				controlledEntity->TranslateLocal(0, 0, 10 * deltaTime);
+				network.SendMessageToServer(SendPosition_Code);
 			}
 
-			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD6))
+			if (Input::GetInstance()->IsKeyDown('F'))
 			{
 				controlledEntity->TranslateLocal(10 * deltaTime, 0, 0);
+				network.SendMessageToServer(SendPosition_Code);
 			}
 
-			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD2))
+			if (Input::GetInstance()->IsKeyDown('G'))
 			{
 				controlledEntity->TranslateLocal(0, 0, -10 * deltaTime);
+				network.SendMessageToServer(SendPosition_Code);
 			}
 
-			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD4))
+			if (Input::GetInstance()->IsKeyDown('H'))
 			{
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
+				network.SendMessageToServer(SendPosition_Code);
 			}
-			network.SendMessageToServer(SendPosition_Code);
 			
 		}
 
