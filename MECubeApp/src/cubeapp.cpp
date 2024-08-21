@@ -230,7 +230,7 @@ namespace capp
 		else
 		{
 			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
-			InstantiateNewPlayer();
+			//InstantiateNewPlayer();
 			UpdatePlayerEntitys();
 		}
 		//Allow capturing mouse when the left button is held and it moves outside the window
@@ -287,9 +287,19 @@ namespace capp
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
 				network.SendMessageToServer(SendPosition_Code);
 			}
-			a *= 1.1f;
-			std::cout << a << "\n";
-			controlledEntity->TranslateLocal(0.0f, 0.0f, a);
+			//if (!ultimativedebugflag) {
+
+			//	std::cout << DirectX::XMVectorGetX(controlledEntity->GetPosition()) << std::endl;
+			//	std::cout << DirectX::XMVectorGetY(controlledEntity->GetPosition()) << std::endl;
+			//	std::cout << DirectX::XMVectorGetZ(controlledEntity->GetPosition()) << std::endl;
+			//	ultimativedebugflag = true;;
+			//}
+			//a *= 1.1f;
+			//controlledEntity->TransformComponent::SetPosition(0.0f, a, 30.0f);
+			controlledEntity->SetPosition(0.0f, network.m_PlayerData[0].z, 30.0f);
+			//a *= 1.01f;
+			//std::cout << a << "\n";
+			//controlledEntity->TranslateLocal(0.0f, a, 0.0f);
 		}
 
 		//Update all entities

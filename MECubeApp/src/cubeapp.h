@@ -60,11 +60,12 @@ namespace capp
 		//int value is the Player ID 
 		std::map<int, me::Entity*> PlayerTrasforms;
 		int playerID;
+
 		int selectedPlayerID;
 		float m_MessageData[20];
 		void UpdateLogic(float deltaTime);
 		void InitEntities();
-		float a = 30.0f;
+		float a = 1.0f;
 		me::SetupNetwork network;
 		me::EntityID m_ControlledEntityID;
 		me::EntityID m_CameraID;
@@ -73,6 +74,8 @@ namespace capp
 		me::SystemManager m_SystemManager;
 		std::unique_ptr<me::Window> m_Window;
 		std::shared_ptr<me::Renderer> m_Renderer;
+
+		bool ultimativedebugflag = false;
 	};
 
 }
