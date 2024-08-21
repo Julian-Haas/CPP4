@@ -89,7 +89,7 @@ namespace me {
 					case 3:
 						UltraDebugFunktionOderSo();
 						UltraSchreibePlaayerPositionsdaten();
-						std::cout << m_PlayerData[0].z << std::endl;
+						//std::cout << m_PlayerData[0].z << std::endl;
 						break;
 					default:
 						return false;  // Ungültige Nachricht empfangen, Schleife abbrechen
@@ -114,6 +114,8 @@ namespace me {
 		void UltraSchreibePlaayerPositionsdaten() {
 			m_PlayerData.insert(std::make_pair<int, Position>((int)receivedMessageInFloat[1], Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4])));
 			m_PlayerData[(int)receivedMessageInFloat[1]] = Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4]);
+			//unsere pos= m_PlayerData
+
 		}
 
 		bool SetupNetwork::SearchForServer()

@@ -203,6 +203,9 @@ namespace capp
 		}
 	}
 
+	void BewegenBitte() {
+
+	}
 
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
@@ -213,6 +216,7 @@ namespace capp
 		//network.UpdateTheServer(); 
 		network.SendMessageToServer(SendPosition_Code);
 		network.ReadData();
+		BewegenBitte();
 
 		//network.ReadData(m_MessageData, playerID, selectedPlayerID);
 
@@ -283,7 +287,9 @@ namespace capp
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
 				network.SendMessageToServer(SendPosition_Code);
 			}
-
+			a *= 1.1f;
+			std::cout << a << "\n";
+			controlledEntity->TranslateLocal(0.0f, 0.0f, a);
 		}
 
 		//Update all entities

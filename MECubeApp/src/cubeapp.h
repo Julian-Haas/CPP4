@@ -64,6 +64,7 @@ namespace capp
 		float m_MessageData[20];
 		void UpdateLogic(float deltaTime);
 		void InitEntities();
+		float a = 30.0f;
 		me::SetupNetwork network;
 		me::EntityID m_ControlledEntityID;
 		me::EntityID m_CameraID;
