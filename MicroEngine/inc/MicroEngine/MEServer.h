@@ -144,7 +144,7 @@ private:
 		x[1] = currentPlayerID;
 		x[2] = playerData[currentPlayerID].x;
 		x[3] = playerData[currentPlayerID].y;
-		x[4] = playerData[currentPlayerID].z;
+		x[4] = playerData[currentPlayerID].z++;
 		memcpy(&dataToSend, x, sizeof(dataToSend));
 	}
 	SOCKET listenerSocket;

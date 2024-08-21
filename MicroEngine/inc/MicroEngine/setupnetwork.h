@@ -79,7 +79,6 @@ namespace me {
 					{
 						return false;
 					}
-
 					switch ((int)receivedMessageInFloat[0])
 					{
 					case 1:
@@ -88,7 +87,9 @@ namespace me {
 					case 2:
 						return false;
 					case 3:
-						std::cout << "blub";
+						UltraDebugFunktionOderSo();
+						UltraSchreibePlaayerPositionsdaten();
+						std::cout << m_PlayerData[0].z << std::endl;
 						break;
 					default:
 						return false;  // Ungültige Nachricht empfangen, Schleife abbrechen
@@ -101,7 +102,19 @@ namespace me {
 			}
 			return true;
 		}
+		void UltraDebugFunktionOderSo() {
+			//std::cout << "ClientReceived: " << std::endl;
+			//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
+			//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
+			//std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
+			//std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
+			//std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
+		}
 
+		void UltraSchreibePlaayerPositionsdaten() {
+			m_PlayerData.insert(std::make_pair<int, Position>((int)receivedMessageInFloat[1], Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4])));
+			m_PlayerData[(int)receivedMessageInFloat[1]] = Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4]);
+		}
 
 		bool SetupNetwork::SearchForServer()
 		{
@@ -192,12 +205,6 @@ namespace me {
 			unformattedRequest[3] = _position_y;
 			unformattedRequest[4] = _position_z;
 			memcpy(&formattedRequest, unformattedRequest, sizeof(formattedRequest));
-			//std::cout << "ClientReceived: " << std::endl;
-			//std::cout << "Code: " << unformattedRequest[0] << std::endl;
-			//std::cout << "Player-ID: " << unformattedRequest[1] << std::endl;
-			//std::cout << "X: " << unformattedRequest[2] << std::endl;
-			//std::cout << "Y: " << unformattedRequest[3] << std::endl;
-			//std::cout << "Z: " << unformattedRequest[4] << std::endl;
 			int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 			if (bytesSent == SOCKET_ERROR) {
 				int error = WSAGetLastError();
