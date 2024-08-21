@@ -178,72 +178,35 @@ private:
 		memcpy(&recievedFloats, request, sizeof(recievedFloats));
 		int msgCode = (int)recievedFloats[0];
 		currentPlayerID = (int)recievedFloats[1];
-		//memcpy(&msgCode, request, sizeof(msgCode));
-		//std::cout << msgCode << "\n";
-		// maxSocket sollte global sein oder dynamisch berechnet werden
 		SOCKET maxSocket = listenerSocket;
 
 		switch (msgCode)
 		{
-		case 101:  // Neuer Spieler verbindet sich
+		case JoinRequest:
 			currentPlayerSocket = i;
 			RegisterNewPlayer();
 			PrepareMessage();
 			SendToClient(i);
-			//float temp[5];
-			//memcpy(&temp, dataToSend, sizeof(temp));
-			//for (int j = 0; j < 5; j++) {
-			//	temp[j];
-			//	std::cout << temp[j] << std::endl;
-			//}
-			//_getch();
-
 			for (const auto& pair : playerData) {
 				SOCKET otherPlayerSocket = pair.second.playersocket;
 				if (otherPlayerSocket == currentPlayerSocket) {
-					//std::cout << "Key: " << pair.second.playersocket << std::endl;
 					answerCode = ProceedData;
 					PrepareMessage();
 					SendToClient(otherPlayerSocket);
 				}
 			}
-
-			//???
-			//if (n != i && FD_ISSET(n, &master))  // master sollte global sein
-			//{
-			//	//msgCode = (int)ProceedData;
-			//	message = PrepareMessage();
-			//	SendToClient(n, message.data());
-			//}
-
-
-
-
-		//Sende die Nachricht an alle anderen verbundenen Clients
-//for (SOCKET n = 0; n <= maxSocket; n++)
-//{
-//	if (n != i && FD_ISSET(n, &master))  // master sollte global sein
-//	{
-//		//msgCode = (int)ProceedData;
-//		message = PrepareMessage();
-//		SendToClient(n, message.data());
-//	}
-//}
 			break;
 
-		case 102:  // Positionsaktualisierung eines Spielers
+		case SendPosition:
 			//UpdatePlayerPosition();  // Annahme: Diese Funktion existiert
-
-			// Sende die Nachricht an alle verbundenen Clients
-			//for (SOCKET n = 0; n <= maxSocket; n++)
-			//{
-			//	if (FD_ISSET(n, &master))  // master sollte global sein
-			//	{
-			//		//msgCode = (int)ProceedData;
-			//		auto message = PrepareMessage();
-			//		SendToClient(n, message.data());
-			//	}
-			//}
+			for (const auto& pair : playerData) {
+				SOCKET otherPlayerSocket = pair.second.playersocket;
+				if (otherPlayerSocket == currentPlayerSocket) {
+					answerCode = ProceedData;
+					PrepareMessage();
+					SendToClient(otherPlayerSocket);
+				}
+			}
 			break;
 
 		default:
@@ -389,7 +352,6 @@ public:
 		struct timeval timeout;
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
-
 		int selectResult = select(maxSocket + 1, &reads, nullptr, nullptr, &timeout);
 
 		if (selectResult < 0) {
@@ -422,21 +384,10 @@ public:
 					}
 				}
 				else {
-					// Receiving data from an existing client
 					int bytesReceived = recv(i, request, sizeof(request), 0);
 
-					//float temp[5];
-					//memcpy(&temp, request, sizeof(temp));
-
-					//if (_debugFlag == false) {
-					//	for (int i = 0; i < 5; i++) {
-					//		//std::cout << std::to_string(temp[i]) << "\n";
-					//		std::cout << std::to_string(temp[i]) << "\n";
-					//		//std::cout << std::to_string((byte)unformattedRequest[i]) << "\n";
-					//	}
-					//	_debugFlag = true;
-					//}
-
+					float temp[5];
+					memcpy(&temp, request, sizeof(temp));
 					if (bytesReceived <= 0) {
 						// Client disconnected or error occurred
 						closesocket(i);

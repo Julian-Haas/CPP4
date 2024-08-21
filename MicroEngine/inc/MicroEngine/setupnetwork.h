@@ -62,23 +62,15 @@ namespace me {
 				timeval timeout;
 				timeout.tv_sec = 0;
 				timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms
-				int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 				int selectResult = select(serverSocket + 1, &reads, NULL, NULL, &timeout);
+				int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 				memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
-				//std::cout << "ClientReceived: " << std::endl;
-				//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
-				//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
-				//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
-				//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
-				//std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
-				//std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
-				//std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
 				if (selectResult == -1) {
 					std::cout << "select failed\n";
 					return false;
 				}
 				if (selectResult == 0) {
-					std::cout << "´result 0";
+					//std::cout << "result 0";
 					return false;
 				}
 				if (selectResult > 0 && FD_ISSET(serverSocket, &reads))
@@ -94,20 +86,9 @@ namespace me {
 						_playerID = receivedMessageInFloat[1];
 						break;
 					case 2:
-						//elaborate
 						return false;
 					case 3:
-						//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
-						//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
-						//std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
-						//std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
-						//std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
-
-						//selectedPlayerID = receivedMessageInFloat[1];
-						//if (receivedMessageInFloat[1] != _playerID)
-						//{
-						//	
-						//}
+						std::cout << "blub";
 						break;
 					default:
 						return false;  // Ungültige Nachricht empfangen, Schleife abbrechen
@@ -205,69 +186,18 @@ namespace me {
 			Beep(750, 300);
 		}
 		void SetupNetwork::SendMessageToServer(int code) {
-
-			//std::cout << "send data";
-			//_playerID = 1;
-			//_position_x = 12.34f;
-			//_position_y = 56.78f;
-			//_position_z = 90.12f;
-
 			unformattedRequest[0] = code;
 			unformattedRequest[1] = _playerID;
 			unformattedRequest[2] = _position_x;
 			unformattedRequest[3] = _position_y;
 			unformattedRequest[4] = _position_z;
-
-			//test1
-			//std::ostringstream stream;
-			//stream << _playerID << " "
-			//	<< std::fixed << std::setprecision(2)
-			//	<< _position_x << " "
-			//	<< _position_y << " "
-			//	<< _position_z;
-			//std::string formattedString = stream.str();
-			//const char* cStr = formattedString.c_str();
-
-			//test2
-			//int unformattedRequest[5] = { 1, 123, 456, 789, 101112 };
-			//std::ostringstream stream;
-			//for (int i = 0; i < 5; ++i) {
-			//	stream << unformattedRequest[i] << "\n";
-			//}
-			//std::string formattedString = stream.str();
-			//const char* cStr = formattedString.c_str();
-
-			//test3
-			//std::ostringstream stream;
-			//stream << unformattedRequest[0] << " "
-			//	<< std::fixed << std::setprecision(2)
-			//	<< unformattedRequest[1] << " "
-			//	<< unformattedRequest[2] << " "
-			//	<< unformattedRequest[3] << " "
-			//	<< unformattedRequest[4];
-			//std::string formattedString = stream.str();
-			//const char* cStr = formattedString.c_str();
-
-			//testlog
-			//ME_LOG_ERROR(cStr);
-
 			memcpy(&formattedRequest, unformattedRequest, sizeof(formattedRequest));
-
-			//float temp[5];
-			//memcpy(&temp, formattedRequest, sizeof(temp));
-
-			//if (_debugFlag == false) {
-			//	for (int i = 0; i < 5; i++) {
-			//		//std::cout << std::to_string(temp[i]) << "\n";
-			//		std::cout << std::to_string(temp[i]) << "\n";
-			//		//std::cout << std::to_string((byte)unformattedRequest[i]) << "\n";
-			//	}
-			//	_debugFlag = true;
-			//}
-
-
-			//std::cout << "data was processed";
-			//std::cout << std::to_string(formattedRequest[0]) << "\n";
+			//std::cout << "ClientReceived: " << std::endl;
+			//std::cout << "Code: " << unformattedRequest[0] << std::endl;
+			//std::cout << "Player-ID: " << unformattedRequest[1] << std::endl;
+			//std::cout << "X: " << unformattedRequest[2] << std::endl;
+			//std::cout << "Y: " << unformattedRequest[3] << std::endl;
+			//std::cout << "Z: " << unformattedRequest[4] << std::endl;
 			int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 			if (bytesSent == SOCKET_ERROR) {
 				int error = WSAGetLastError();
