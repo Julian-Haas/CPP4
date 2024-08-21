@@ -42,7 +42,7 @@ namespace capp
 			const auto cube = m_EntityManager.AddEntity();
 			//m_ControlledEntityID = cube->GetID();
 			auto transform = cube->GetComponent<TransformComponent>().lock();
-			transform->Translate(0.0f, 0.0f, 30);
+			transform->Translate(0, 0.0f, 30);
 	
 			auto meshRenderer = m_EntityManager.AddComponent<MeshRendererComponent>(cube->GetID());
 	

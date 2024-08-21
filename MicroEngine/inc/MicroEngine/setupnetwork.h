@@ -39,7 +39,7 @@ namespace me {
 			, _playerID(0)
 			, _position_x(0)
 			, _position_y(0)
-			, _position_z(0)
+			, _position_z(30)
 		{
 		}
 		void UpdateTheServer()
@@ -49,26 +49,34 @@ namespace me {
 		bool SetupNetwork::ReadData(float* dataStorage, int& playerID, int& selectedPlayerID)
 		{
 			bool readAllData = false;
-			fd_set reads;
-			FD_ZERO(&reads);
-			FD_SET(serverSocket, &reads);
 			while (!readAllData)
 			{
+				fd_set reads;
+				FD_ZERO(&reads);
+				FD_SET(serverSocket, &reads);
+
 				timeval timeout;
 				timeout.tv_sec = 0;
-				timeout.tv_usec = 16;
+				timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms
 				int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
-				int selectResult = select((int)(serverSocket + 1), &reads, 0, 0, &timeout);
-
-				if (selectResult >= 0 && FD_ISSET(serverSocket, &reads))
+				int selectResult = select(serverSocket + 1, &reads, NULL, NULL, &timeout);
+				if (selectResult == -1) {
+					std::cout << "select failed\n"; 
+					return false; 
+				}
+				if (selectResult == 0) {
+					std::cout << "timeout\n";
+					return false;
+				}
+				if (selectResult > 0 && FD_ISSET(serverSocket, &reads))
 				{
 					if (bytesReceived <= 0)
 					{
 						return false;
 					}
-
 					memcpy(&receivedMessageInInt, receivedMessage, sizeof(receivedMessageInInt));
-					memcpy(&dataStorage, receivedMessage, sizeof(dataStorage));
+					memcpy(&receivedMessageInInt, receivedMessage, sizeof(receivedMessageInInt));
+
 					switch (receivedMessageInInt[0])
 					{
 					case 1:
@@ -95,6 +103,7 @@ namespace me {
 			}
 			return true;
 		}
+
 
 		bool SetupNetwork::SearchForServer()
 		{
@@ -223,13 +232,13 @@ namespace me {
 			//testlog
 			//ME_LOG_ERROR(cStr);
 
-			memcpy(formattedRequest, unformattedRequest, sizeof(formattedRequest));
+			memcpy(&formattedRequest, unformattedRequest, sizeof(formattedRequest));
 			std::cout << formattedRequest << "\n"; 
 			int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 			if (bytesSent == SOCKET_ERROR) {
 				int error = WSAGetLastError();
 				if (error != WSAEWOULDBLOCK) {
-					fprintf(stderr, "send() failed. (%d)\n", error);  // Chat-GPT: Handle send() errors
+					//fprintf(stderr, "send() failed. (%d)\n", error);  // Chat-GPT: Handle send() errors
 				}
 			}
 		}

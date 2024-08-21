@@ -69,7 +69,9 @@ private:
 		int result = send(i, msg, 20, 0);
 		if(result == SOCKET_ERROR)
 		{
-			UnserDebugFunktionoenchen(message); 
+			std::cout << "\n send failed(server)\n ErrorCode: " << std::to_string(result) << "\n";
+			std::cout << WSAGetLastError(); 
+			//UnserDebugFunktionoenchen(message); 
 		}
 	}
 	void ReadMessage(const char* message)
@@ -82,7 +84,7 @@ private:
 	{
 		if (playerCount >= maxPlayerCount)
 		{
-			std::cout << "Player count too high" << playerCount << std::endl;
+			//std::cout << "Player count too high" << playerCount << std::endl;
 			answerCode = (int)JoinAwnserFailed;
 			return;
 		}
@@ -119,7 +121,7 @@ private:
 			currentPlayerID = newID;
 		}
 
-		playerData.insert(std::make_pair(currentPlayerID, Position(startPosOffset, startPosOffset, startPosOffset)));
+		playerData.insert(std::make_pair(currentPlayerID, Position(0, 0, 30)));
 		playerCount++;
 		answerCode = (int)JoinAwnserSucessful;
 	}
@@ -139,20 +141,13 @@ private:
 	std::array<char, 20> PrepareMessage()
 	{
 		std::array<char, 20> message = {};  // Initialize with 0
-
-		int code = answerCode;
-		memcpy(&message[0], &code, sizeof(code));
-
-		int playerId = currentPlayerID;
-		memcpy(&message[4], &playerId, sizeof(playerId));
-
-		float posX = playerData[currentPlayerID].x;
-		float posY = playerData[currentPlayerID].y;
-		float posZ = playerData[currentPlayerID].z;
-
-		memcpy(&message[8], &posX, sizeof(posX));
-		memcpy(&message[12], &posY, sizeof(posY));
-		memcpy(&message[16], &posZ, sizeof(posZ));
+		float x[5]; 
+		x[0] = answerCode; 
+		x[1] = currentPlayerID;
+		x[2] = playerData[currentPlayerID].x;
+		x[3] = playerData[currentPlayerID].y;
+		x[4] = playerData[currentPlayerID].z;
+		memcpy(&message, x, sizeof(message)); 
 		return message;
 	}
 	SOCKET listenerSocket;
@@ -164,54 +159,80 @@ private:
 	{
 		for(int i = 0; i < 5; i++)
 		{
-			std::cout << x[i] << "\n"; 
+			std::cout << "Element: " << " " << i << " " << x[i] << " ";
 		}
+		std::cout << "\n"; 
 	}
 	void HandleIncomingRequest(SOCKET i)
 	{
-		//TO-DO: When join request: Send position to other player
-		//TO-DO: Newly joined Player should recieve the other player ids and positions 
-		//TO-DO: When Server recieved new Position data, send the new Position to the other clients! 
-		//END-GOAL: Sended message should acutall contain the data from all Players!  
-		int bytesRecieved = recv(i, request, sizeof(request), 0); 
+		int bytesRecieved = recv(i, request, sizeof(request), 0);
+		if (bytesRecieved < 0)
+		{
+			int error = WSAGetLastError();
+			if (error == WSAEWOULDBLOCK)
+			{
+				// Socket ist nicht bereit, versuchen Sie es später erneut
+				return;
+			}
+			else
+			{
+				// Ein anderer Fehler ist aufgetreten
+				std::cout << "recv failed: " << error << std::endl;
+				closesocket(i);
+				FD_CLR(i, &master);
+				return;
+			}
+		}
+
+
 		ReadMessage(request);
 		int msgCode;
 		memcpy(&msgCode, request, sizeof(msgCode));
+
+		// maxSocket sollte global sein oder dynamisch berechnet werden
 		SOCKET maxSocket = listenerSocket;
-		SOCKET n;
-		fd_set master;
-		FD_ZERO(&master);
-		FD_SET(listenerSocket, &master);
-		switch ((int)recievedFloats[0])
+
+		switch (msgCode)
 		{
-		case 101:
+		case 101:  // Neuer Spieler verbindet sich
 			RegisterNewPlayer();
 			auto message = PrepareMessage();
 			SendToClient(i, message.data());
-			for (n = 0; n <= maxSocket+1; n++)
+
+			// Sende die Nachricht an alle anderen verbundenen Clients
+			for (SOCKET n = 0; n <= maxSocket; n++)
 			{
-				if (n != i && FD_ISSET(n, &master))
+				if (n != i && FD_ISSET(n, &master))  // master sollte global sein
 				{
 					msgCode = (int)ProceedData;
-					message = PrepareMessage(); 
+					message = PrepareMessage();
 					SendToClient(n, message.data());
 				}
 			}
 			break;
-		case 102:
-			// maybe is irrelevant UpdatePlayerPosition(); 
-			for (n = 0; n <= maxSocket+1; n++)
+
+		case 102:  // Positionsaktualisierung eines Spielers
+			UpdatePlayerPosition();  // Annahme: Diese Funktion existiert
+
+			// Sende die Nachricht an alle verbundenen Clients
+			for (SOCKET n = 0; n <= maxSocket; n++)
 			{
-				msgCode = (int)ProceedData;
-				message = PrepareMessage(); 
-				SendToClient(n, message.data());
+				if (FD_ISSET(n, &master))  // master sollte global sein
+				{
+					msgCode = (int)ProceedData;
+					auto message = PrepareMessage();
+					SendToClient(n, message.data());
+				}
 			}
 			break;
+
 		default:
-			printf("Unhandled request");
+			// Unbehandelter Nachrichtencode
+			std::cout << "Unhandled request: " << msgCode << std::endl;
 			break;
 		}
 	}
+
 
 public:
 	Server()
@@ -262,7 +283,7 @@ public:
 		//ReadMessage(request);
 		OpenDebugConsole();
 		if (WSAStartup(MAKEWORD(2, 2), &d)) {
-			UnserDebugFunktionoenchen("WinSocket failed to initialize");
+			//UnserDebugFunktionoenchen("WinSocket failed to initialize");
 			return -1;
 		}
 		//UnserDebugFunktionoenchen("Configuring local IP address");
@@ -275,7 +296,7 @@ public:
 
 		// Bind to specific IP address and port 8080
 		if (getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress) != 0) {
-			UnserDebugFunktionoenchen("getaddrinfo() failed");
+			//UnserDebugFunktionoenchen("getaddrinfo() failed");
 			WSACleanup();
 			return -1;
 		}
@@ -283,7 +304,7 @@ public:
 
 		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
 		if (listenerSocket == INVALID_SOCKET) {
-			UnserDebugFunktionoenchen("socket() failed");
+			//UnserDebugFunktionoenchen("socket() failed");
 			freeaddrinfo(bindAddress);
 			WSACleanup();
 			return -1;
@@ -291,7 +312,7 @@ public:
 
 		u_long mode = 1; // Make socket non-blocking
 		if (ioctlsocket(listenerSocket, FIONBIO, &mode) != 0) {
-			UnserDebugFunktionoenchen("ioctlsocket() failed");
+			//UnserDebugFunktionoenchen("ioctlsocket() failed");
 			closesocket(listenerSocket);
 			freeaddrinfo(bindAddress);
 			WSACleanup();
@@ -300,7 +321,7 @@ public:
 
 		//UnserDebugFunktionoenchen("Binding address to socket");
 		if (bind(listenerSocket, bindAddress->ai_addr, bindAddress->ai_addrlen) != 0) {
-			UnserDebugFunktionoenchen("bind() failed");
+			//UnserDebugFunktionoenchen("bind() failed");
 			closesocket(listenerSocket);
 			freeaddrinfo(bindAddress);
 			WSACleanup();
@@ -310,7 +331,7 @@ public:
 
 		//UnserDebugFunktionoenchen("Listening for connections...");
 		if (listen(listenerSocket, 10) < 0) {
-			UnserDebugFunktionoenchen("listen() failed");
+			//UnserDebugFunktionoenchen("listen() failed");
 			closesocket(listenerSocket);
 			WSACleanup();
 			return -1;
@@ -355,7 +376,7 @@ public:
 		if (selectResult < 0) {
 			int error = WSAGetLastError();
 			std::string errorMsg = "select() failed with error code: " + std::to_string(error);
-			UnserDebugFunktionoenchen(errorMsg.c_str());
+			//UnserDebugFunktionoenchen(errorMsg.c_str());
 			return;
 		}
 		else if (selectResult == 0) {
@@ -372,7 +393,7 @@ public:
 					if (clientSocket == INVALID_SOCKET) {
 						int error = WSAGetLastError();
 						std::string errorMsg = "accept() failed with error code: " + std::to_string(error);
-						UnserDebugFunktionoenchen(errorMsg.c_str());
+						//UnserDebugFunktionoenchen(errorMsg.c_str());
 					}
 					else {
 						FD_SET(clientSocket, &master);
@@ -408,7 +429,7 @@ public:
 	void CloseClientSocket(SOCKET clientSocket) {
 		closesocket(clientSocket);
 		FD_CLR(clientSocket, &master);
-		UnserDebugFunktionoenchen("Closed and removed socket from master set");
+		//UnserDebugFunktionoenchen("Closed and removed socket from master set");
 	}
 
 
