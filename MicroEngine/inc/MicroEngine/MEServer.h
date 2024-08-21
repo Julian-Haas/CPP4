@@ -89,7 +89,7 @@ private:
 
 		if (playerData.size() == 0)
 		{
-			std::cout << "PlayerData size = 0\n";
+			//std::cout << "PlayerData size = 0\n";
 			currentPlayerID = 0;
 		}
 		else

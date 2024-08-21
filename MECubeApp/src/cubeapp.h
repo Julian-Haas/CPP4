@@ -19,22 +19,22 @@ namespace me
 
 namespace capp
 {
-	struct Position
-	{
-	public:
-		float x;
-		float y;
-		float z;
-		Position() = default;
-		Position(float xPos, float yPos, float zPos)
-			: x(xPos)
-			, y(yPos)
-			, z(zPos)
-		{}
+	//struct Position
+	//{
+	//public:
+	//	float x;
+	//	float y;
+	//	float z;
+	//	Position() = default;
+	//	Position(float xPos, float yPos, float zPos)
+	//		: x(xPos)
+	//		, y(yPos)
+	//		, z(zPos)
+	//	{}
 
-		~Position()
-		{}
-	};
+	//	~Position()
+	//	{}
+	//};
 
 	namespace ExitCode
 	{
@@ -58,7 +58,6 @@ namespace capp
 	private:
 		ME_MOVE_COPY_NOT_ALLOWED(CubeApp);
 		//int value is the Player ID 
-		std::map<int, Position> m_PlayerData;
 		std::map<int, me::Entity*> PlayerTrasforms;
 		int playerID;
 		int selectedPlayerID;

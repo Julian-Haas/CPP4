@@ -35,7 +35,9 @@ namespace me {
 		float _position_y = 4;
 		float _position_z = 5;
 		Server server;
+
 	public:
+		std::map<int, Position> m_PlayerData;
 		SetupNetwork()
 			: server()
 			, _playerID(0)
@@ -63,16 +65,20 @@ namespace me {
 				int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 				int selectResult = select(serverSocket + 1, &reads, NULL, NULL, &timeout);
 				memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
-				memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
 				//std::cout << "ClientReceived: " << std::endl;
 				//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
 				//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
+				//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
+				//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
+				//std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
+				//std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
+				//std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
 				if (selectResult == -1) {
 					std::cout << "select failed\n";
 					return false;
 				}
 				if (selectResult == 0) {
-					//std::cout << "no more data to read";
+					std::cout << "´result 0";
 					return false;
 				}
 				if (selectResult > 0 && FD_ISSET(serverSocket, &reads))
@@ -86,14 +92,16 @@ namespace me {
 					{
 					case 1:
 						_playerID = receivedMessageInFloat[1];
-						std::cout << "player id: " << _playerID << std::endl;
-
-
 						break;
 					case 2:
 						//elaborate
 						return false;
 					case 3:
+						//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
+						//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
+						//std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
+						//std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
+						//std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
 
 						//selectedPlayerID = receivedMessageInFloat[1];
 						//if (receivedMessageInFloat[1] != _playerID)

@@ -64,11 +64,11 @@ namespace capp
 		using namespace me;
 		if (selectedPlayerID != playerID)
 		{
-			m_PlayerData[selectedPlayerID].x = m_MessageData[2];
-			m_PlayerData[selectedPlayerID].y = m_MessageData[3];
-			m_PlayerData[selectedPlayerID].z = m_MessageData[4];
+			network.m_PlayerData[selectedPlayerID].x = m_MessageData[2];
+			network.m_PlayerData[selectedPlayerID].y = m_MessageData[3];
+			network.m_PlayerData[selectedPlayerID].z = m_MessageData[4];
 			auto transform = PlayerTrasforms[selectedPlayerID]->GetComponent<me::TransformComponent>().lock();
-			transform->Translate(m_PlayerData[selectedPlayerID].x, m_PlayerData[selectedPlayerID].y, m_PlayerData[selectedPlayerID].z);
+			transform->Translate(network.m_PlayerData[selectedPlayerID].x, network.m_PlayerData[selectedPlayerID].y, network.m_PlayerData[selectedPlayerID].z);
 		}
 	}
 
@@ -217,15 +217,15 @@ namespace capp
 		//network.ReadData(m_MessageData, playerID, selectedPlayerID);
 
 
-		auto it = m_PlayerData.find(selectedPlayerID);
+		auto it = network.m_PlayerData.find(selectedPlayerID);
 
-		if (it != m_PlayerData.end()) {
+		if (it != network.m_PlayerData.end()) {
 			// Der Spieler existiert bereits, führe eine Update-Operation durch
 			UpdatePlayerEntitys();
 		}
 		else
 		{
-			m_PlayerData.insert(std::make_pair(selectedPlayerID, Position(m_MessageData[2], m_MessageData[3], m_MessageData[4])));
+			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
 			InstantiateNewPlayer();
 			UpdatePlayerEntitys();
 		}
