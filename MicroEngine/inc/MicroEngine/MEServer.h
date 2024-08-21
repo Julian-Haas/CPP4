@@ -21,16 +21,18 @@
 struct Position
 {
 public:
+	SOCKET playersocket;
 	float x;
 	float y;
 	float z;
-	Position() = default; 
-	Position(float xPos, float yPos, float zPos)
-		: x(xPos)
+	Position() = default;
+	Position(SOCKET socket, float xPos, float yPos, float zPos)
+		: playersocket(socket)
+		, x(xPos)
 		, y(yPos)
 		, z(zPos)
 	{}
-	 
+
 	~Position()
 	{}
 };
@@ -39,9 +41,11 @@ public:
 class Server
 {
 private:
+	bool _debugFlag = false;
 	//protocol enum 
 	float recievedFloats[5];
 	float SendedPositions[3];
+	char dataToSend[20];
 	enum protocol
 	{
 		JoinAwnserSucessful = 1,
@@ -58,27 +62,21 @@ private:
 	int requestCode;
 	int answerCode;
 	int maxPlayerCount = 2;
+	SOCKET currentPlayerSocket;
 	SOCKET maxSocket;
 	fd_set master;
 	addrinfo hints;
 	WSAData d;
 	//member functions: 
-	void SendToClient(SOCKET i, const char* msg)
+	void SendToClient(SOCKET i)
 	{
-		std::string message = msg; 
-		int result = send(i, msg, 20, 0);
-		if(result == SOCKET_ERROR)
+		int result = send(i, dataToSend, sizeof(dataToSend), 0);
+		if (result == SOCKET_ERROR)
 		{
-			std::cout << "\n send failed(server)\n ErrorCode: " << std::to_string(result) << "\n";
-			std::cout << WSAGetLastError(); 
+			std::cout << "send failed(server)\n" << std::to_string(result) << "\n";
+			std::cout << WSAGetLastError();
 			//UnserDebugFunktionoenchen(message); 
 		}
-	}
-	void ReadMessage(const char* message)
-	{
-		int msgCode;
-		memcpy(&recievedFloats, message, sizeof(recievedFloats));
-		PrintFloats(recievedFloats);
 	}
 	void RegisterNewPlayer()
 	{
@@ -121,10 +119,11 @@ private:
 			currentPlayerID = newID;
 		}
 
-		playerData.insert(std::make_pair(currentPlayerID, Position(0, 0, 30)));
+		playerData.insert(std::make_pair(currentPlayerID, Position(currentPlayerSocket, 0, 0, 30)));
 		playerCount++;
 		answerCode = (int)JoinAwnserSucessful;
 	}
+
 	void OpenDebugConsole()
 	{
 		// Neue Konsole erzeugen
@@ -138,17 +137,15 @@ private:
 
 		std::cout << "Debug-Konsole gestartet." << std::endl;
 	}
-	std::array<char, 20> PrepareMessage()
+	void PrepareMessage()
 	{
-		std::array<char, 20> message = {};  // Initialize with 0
-		float x[5]; 
-		x[0] = answerCode; 
+		float x[5];
+		x[0] = answerCode;
 		x[1] = currentPlayerID;
 		x[2] = playerData[currentPlayerID].x;
 		x[3] = playerData[currentPlayerID].y;
 		x[4] = playerData[currentPlayerID].z;
-		memcpy(&message, x, sizeof(message)); 
-		return message;
+		memcpy(&dataToSend, x, sizeof(dataToSend));
 	}
 	SOCKET listenerSocket;
 	void UpdatePlayerPosition()
@@ -157,76 +154,100 @@ private:
 	}
 	void PrintFloats(float x[])
 	{
-		for(int i = 0; i < 5; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			std::cout << "Element: " << " " << i << " " << x[i] << " ";
 		}
-		std::cout << "\n"; 
+		std::cout << "\n";
 	}
 	void HandleIncomingRequest(SOCKET i)
 	{
-		int bytesRecieved = recv(i, request, sizeof(request), 0);
-		if (bytesRecieved < 0)
-		{
-			int error = WSAGetLastError();
-			if (error == WSAEWOULDBLOCK)
-			{
-				// Socket ist nicht bereit, versuchen Sie es später erneut
-				return;
-			}
-			else
-			{
-				// Ein anderer Fehler ist aufgetreten
-				std::cout << "recv failed: " << error << std::endl;
-				closesocket(i);
-				FD_CLR(i, &master);
-				return;
-			}
-		}
+		//float temp[5];
+		//memcpy(&temp, request, sizeof(temp));
+		//std::cout << temp[0] << "\n";
 
+		//if (_debugFlag == false) {
+		//	for (int i = 0; i < 5; i++) {
+		//		//std::cout << std::to_string(temp[i]) << "\n";
+		//		std::cout << std::to_string(temp[i]) << "\n";
+		//		//std::cout << std::to_string((byte)unformattedRequest[i]) << "\n";
+		//	}
+		//	_debugFlag = true;
+		//}
 
-		ReadMessage(request);
-		int msgCode;
-		memcpy(&msgCode, request, sizeof(msgCode));
-
+		memcpy(&recievedFloats, request, sizeof(recievedFloats));
+		int msgCode = (int)recievedFloats[0];
+		currentPlayerID = (int)recievedFloats[1];
+		//memcpy(&msgCode, request, sizeof(msgCode));
+		//std::cout << msgCode << "\n";
 		// maxSocket sollte global sein oder dynamisch berechnet werden
 		SOCKET maxSocket = listenerSocket;
 
 		switch (msgCode)
 		{
 		case 101:  // Neuer Spieler verbindet sich
+			currentPlayerSocket = i;
 			RegisterNewPlayer();
-			auto message = PrepareMessage();
-			SendToClient(i, message.data());
+			PrepareMessage();
+			SendToClient(i);
+			//float temp[5];
+			//memcpy(&temp, dataToSend, sizeof(temp));
+			//for (int j = 0; j < 5; j++) {
+			//	temp[j];
+			//	std::cout << temp[j] << std::endl;
+			//}
+			//_getch();
 
-			// Sende die Nachricht an alle anderen verbundenen Clients
-			for (SOCKET n = 0; n <= maxSocket; n++)
-			{
-				if (n != i && FD_ISSET(n, &master))  // master sollte global sein
-				{
-					msgCode = (int)ProceedData;
-					message = PrepareMessage();
-					SendToClient(n, message.data());
+			for (const auto& pair : playerData) {
+				SOCKET otherPlayerSocket = pair.second.playersocket;
+				if (otherPlayerSocket == currentPlayerSocket) {
+					//std::cout << "Key: " << pair.second.playersocket << std::endl;
+					answerCode = ProceedData;
+					PrepareMessage();
+					SendToClient(otherPlayerSocket);
 				}
 			}
+
+			//???
+			//if (n != i && FD_ISSET(n, &master))  // master sollte global sein
+			//{
+			//	//msgCode = (int)ProceedData;
+			//	message = PrepareMessage();
+			//	SendToClient(n, message.data());
+			//}
+
+
+
+
+		//Sende die Nachricht an alle anderen verbundenen Clients
+//for (SOCKET n = 0; n <= maxSocket; n++)
+//{
+//	if (n != i && FD_ISSET(n, &master))  // master sollte global sein
+//	{
+//		//msgCode = (int)ProceedData;
+//		message = PrepareMessage();
+//		SendToClient(n, message.data());
+//	}
+//}
 			break;
 
 		case 102:  // Positionsaktualisierung eines Spielers
-			UpdatePlayerPosition();  // Annahme: Diese Funktion existiert
+			//UpdatePlayerPosition();  // Annahme: Diese Funktion existiert
 
 			// Sende die Nachricht an alle verbundenen Clients
-			for (SOCKET n = 0; n <= maxSocket; n++)
-			{
-				if (FD_ISSET(n, &master))  // master sollte global sein
-				{
-					msgCode = (int)ProceedData;
-					auto message = PrepareMessage();
-					SendToClient(n, message.data());
-				}
-			}
+			//for (SOCKET n = 0; n <= maxSocket; n++)
+			//{
+			//	if (FD_ISSET(n, &master))  // master sollte global sein
+			//	{
+			//		//msgCode = (int)ProceedData;
+			//		auto message = PrepareMessage();
+			//		SendToClient(n, message.data());
+			//	}
+			//}
 			break;
 
 		default:
+
 			// Unbehandelter Nachrichtencode
 			std::cout << "Unhandled request: " << msgCode << std::endl;
 			break;
@@ -246,11 +267,6 @@ public:
 	}
 	void UnregisterPlayer()
 	{
-		for (int i = 0; i < 13; ++i)
-		{
-			playerData.insert(std::make_pair(i, Position(10, 10, 10)));
-		}
-
 		currentPlayerID = 4;
 		int indexToRemove = currentPlayerID;
 
@@ -311,6 +327,9 @@ public:
 		}
 
 		u_long mode = 1; // Make socket non-blocking
+
+
+
 		if (ioctlsocket(listenerSocket, FIONBIO, &mode) != 0) {
 			//UnserDebugFunktionoenchen("ioctlsocket() failed");
 			closesocket(listenerSocket);
@@ -340,9 +359,9 @@ public:
 		maxSocket = listenerSocket;
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
-		while(true)
+		while (true)
 		{
-			UpdateServer(); 
+			UpdateServer();
 		}
 
 		//UnserDebugFunktionoenchen("Server initialization successful");
@@ -405,6 +424,19 @@ public:
 				else {
 					// Receiving data from an existing client
 					int bytesReceived = recv(i, request, sizeof(request), 0);
+
+					//float temp[5];
+					//memcpy(&temp, request, sizeof(temp));
+
+					//if (_debugFlag == false) {
+					//	for (int i = 0; i < 5; i++) {
+					//		//std::cout << std::to_string(temp[i]) << "\n";
+					//		std::cout << std::to_string(temp[i]) << "\n";
+					//		//std::cout << std::to_string((byte)unformattedRequest[i]) << "\n";
+					//	}
+					//	_debugFlag = true;
+					//}
+
 					if (bytesReceived <= 0) {
 						// Client disconnected or error occurred
 						closesocket(i);

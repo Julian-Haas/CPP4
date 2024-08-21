@@ -37,15 +37,15 @@ namespace capp
 
 	void CubeApp::InstantiateNewPlayer()
 	{
-		using namespace me; 
+		using namespace me;
 		{
 			const auto cube = m_EntityManager.AddEntity();
 			//m_ControlledEntityID = cube->GetID();
 			auto transform = cube->GetComponent<TransformComponent>().lock();
 			transform->Translate(0, 0.0f, 30);
-	
+
 			auto meshRenderer = m_EntityManager.AddComponent<MeshRendererComponent>(cube->GetID());
-	
+
 			Material cubeMat;
 			cubeMat.AddShaderProperty(Color::s_White);
 			cubeMat.AddShaderProperty(Color::s_Black);
@@ -62,7 +62,7 @@ namespace capp
 	void CubeApp::UpdatePlayerEntitys()
 	{
 		using namespace me;
-		if(selectedPlayerID != playerID)
+		if (selectedPlayerID != playerID)
 		{
 			m_PlayerData[selectedPlayerID].x = m_MessageData[2];
 			m_PlayerData[selectedPlayerID].y = m_MessageData[3];
@@ -75,7 +75,7 @@ namespace capp
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 
-		using namespace me;                                 
+		using namespace me;
 
 
 		network.EstablishConnection();
@@ -213,24 +213,21 @@ namespace capp
 
 		//network.UpdateTheServer(); 
 		network.SendMessageToServer(SendPosition_Code);
-		network.ReadData(m_MessageData, playerID, selectedPlayerID);
-		//
-		if((int)m_MessageData[0] == 3)
-		{
-			auto it = m_PlayerData.find(selectedPlayerID);
+		network.ReadData();
+		//network.ReadData(m_MessageData, playerID, selectedPlayerID);
 
-			if (it != m_PlayerData.end()) {
-				// Der Spieler existiert bereits, führe eine Update-Operation durch
-				UpdatePlayerEntitys();
-			} else 
-			{
-				m_PlayerData.insert(std::make_pair(selectedPlayerID, Position(m_MessageData[2], m_MessageData[3], m_MessageData[4])));
-				InstantiateNewPlayer(); 
-				UpdatePlayerEntitys(); 
-			}
-		} else if((int)m_MessageData[0] == 1) 
+
+		auto it = m_PlayerData.find(selectedPlayerID);
+
+		if (it != m_PlayerData.end()) {
+			// Der Spieler existiert bereits, führe eine Update-Operation durch
+			UpdatePlayerEntitys();
+		}
+		else
 		{
 			m_PlayerData.insert(std::make_pair(selectedPlayerID, Position(m_MessageData[2], m_MessageData[3], m_MessageData[4])));
+			InstantiateNewPlayer();
+			UpdatePlayerEntitys();
 		}
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
@@ -286,7 +283,7 @@ namespace capp
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
 				network.SendMessageToServer(SendPosition_Code);
 			}
-			
+
 		}
 
 		//Update all entities
