@@ -27,6 +27,7 @@ void Server::SendToClient(SOCKET i)
 		std::cout << WSAGetLastError();
 	}
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::RegisterNewPlayer()
 {
 	if (playerCount >= maxPlayerCount)
@@ -66,7 +67,24 @@ void Server::RegisterNewPlayer()
 	playerCount++;
 	answerCode = (int)JoinAnswerSucessful;
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Server::InitServer()
+{
+	OpenDebugConsole();
+	if (!InitListenerSocket()) {
+		return false;
+	}
+	if (!InitClassParameters()) {
+		return false;
+	}
+	isServerRunning = true;
+	while (isServerRunning) {
+		AcceptIncomingConnections();
+		CheckForIncomingData();
+	}
+	return true;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::HandleIncomingRequest(SOCKET i)
 {
 	memcpy(&recievedFloats, request, sizeof(recievedFloats));
@@ -103,110 +121,122 @@ void Server::HandleIncomingRequest(SOCKET i)
 		break;
 	}
 }
-
-int Server::InitServer()
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Server::AcceptIncomingConnection()
 {
-	OpenDebugConsole();
-	if (WSAStartup(MAKEWORD(2, 2), &d)) {
-		return -1;
+	if (FD_ISSET(listenerSocket, &reads)) {
+		SOCKET newSocket = accept(listenerSocket, nullptr, nullptr);
+		if (newSocket == INVALID_SOCKET) {
+			DisplayWSAError("accept");
+			//assume graceful handling here was already done
+		}
 	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Server::CheckForIncomingData()
+{
+	const struct timeval LongTimeout = { 5, 0 };
+	FD_ZERO(&reads);
+	reads = master;
+	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
+	if (selectResult < 0) {
+		DisplayWSAError("select");
+		//assume graceful handling here was already done
+		return;
+	}
+
+	//if listener -> accept
+	for (SOCKET s : sockets) {
+		FD_ISSET(s, &reads);
+
+
+	}
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Server::InitListenerSocket()
+{
+	addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	addrinfo* bindAddress;
-	if (getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress) != 0) {
+	addrinfo* bindAddress = nullptr;
+	int bindResult = getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress);
+	if (bindResult != 0) {
+		DisplayWSAError("getaddrinfo");
 		WSACleanup();
-		return -1;
+		return false;
 	}
 	listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
 	if (listenerSocket == INVALID_SOCKET) {
+		DisplayWSAError("socket");
 		freeaddrinfo(bindAddress);
 		WSACleanup();
-		return -1;
-	}
-	u_long mode = 1;
-	if (ioctlsocket(listenerSocket, FIONBIO, &mode) != 0) {
-		closesocket(listenerSocket);
-		freeaddrinfo(bindAddress);
-		WSACleanup();
-		return -1;
+		return false;
 	}
 	if (bind(listenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen)) != 0) {
+		DisplayWSAError("bind");
 		closesocket(listenerSocket);
 		freeaddrinfo(bindAddress);
 		WSACleanup();
-		return -1;
+		return false;
 	}
-	freeaddrinfo(bindAddress);
-	if (listen(listenerSocket, 10) < 0) {
+	int listenResult = listen(listenerSocket, 20);
+	if (listenResult == SOCKET_ERROR) {
+		DisplayWSAError("listen");
 		closesocket(listenerSocket);
+		freeaddrinfo(bindAddress);
 		WSACleanup();
-		return -1;
+		return false;
+	}
+	if (!InitNonBlockingMode(listenerSocket)) {
+		closesocket(listenerSocket);
+		freeaddrinfo(bindAddress);
+		WSACleanup();
+		return false;
 	}
 	maxSocket = listenerSocket;
 	FD_ZERO(&master);
 	FD_SET(listenerSocket, &master);
-	while (true)
-	{
-		UpdateServer();
-	}
-	return 0;
+	sockets.push_back(listenerSocket);
+	freeaddrinfo(bindAddress);
+	return true;
 }
-
-void Server::UpdateServer()
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Server::InitNonBlockingMode(SOCKET socket)
 {
-	fd_set reads;
-	FD_ZERO(&reads);
-	reads = master;
+	if (socket == INVALID_SOCKET) {
+		std::cerr << "Failed to make Socket non-blocking. Invalid Socket" << std::endl;
+		return false;
+	}
+	u_long mode = 1;
+	int result = ioctlsocket(socket, FIONBIO, &mode);
+	if (result != 0) {
+		DisplayWSAError("ioctlsocket");
+		return false;
+	}
+	return true;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Server::DisplayWSAError(std::string failedprocess)
+{
+	std::cerr << failedprocess << " failed. WSA-Error-Code: ";
+	std::cerr << WSAGetLastError() << std::endl;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Server::InitClassParameters()
+{
+	if (!InitListenerSocket()) return false;
 
-	struct timeval timeout;
-	timeout.tv_sec = 1;  // 1 second timeout
-	timeout.tv_usec = 0;
-	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &timeout);
-	if (selectResult < 0) {
-		int error = WSAGetLastError();
-		std::string errorMsg = "select() failed with error code: " + std::to_string(error);
-		return;
-	}
-	else if (selectResult == 0) {
-		//// Timeout occurred, no sockets ready
-		//UnserDebugFunktionoenchen("select() timeout, no sockets ready");
-		//return;
-	}
-	for (SOCKET i = 0; i <= maxSocket; i++) {
-		if (FD_ISSET(i, &reads)) {
-			if (i == listenerSocket) {
-				SOCKET clientSocket = accept(listenerSocket, nullptr, nullptr);
-				if (clientSocket == INVALID_SOCKET) {
-					int error = WSAGetLastError();
-					std::string errorMsg = "accept() failed with error code: " + std::to_string(error);
-				}
-				else {
-					FD_SET(clientSocket, &master);
-					if (static_cast<int>(clientSocket) > maxSocket) {
-						maxSocket = clientSocket;
-					}
-				}
-			}
-			else {
-				int bytesReceived = recv(i, request, sizeof(request), 0);
-				float temp[5];
-				memcpy(&temp, request, sizeof(temp));
-				if (bytesReceived <= 0) {
-					closesocket(i);
-					FD_CLR(i, &master);
-					if (i == maxSocket) {
-						while (FD_ISSET(maxSocket, &master) == false) {
-							maxSocket--;
-						}
-					}
-				}
-				else {
-					HandleIncomingRequest(i);
-				}
-			}
-		}
+	return true;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Server::InitWinSockLibrary() {
+	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (result != 0) {
+		DisplayWSAError("WSAStartup");
+		return false;
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,3 +282,4 @@ void Server::PrepareMessage()
 	x[4] = playerData[currentPlayerID].z++;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
