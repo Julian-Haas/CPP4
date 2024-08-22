@@ -114,7 +114,12 @@
     <ClCompile Include="src\setupnetwork.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="inc\MicroEngine\MEServer.cpp" />
+    <ClCompile Include="inc\MicroEngine\MEServer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\MicroEngine\component.h" />
@@ -175,5 +180,6 @@
     <ClInclude Include="inc\MicroEngine\setupnetwork.h" />
     <ClInclude Include="inc\MicroEngine\MEServer.h" />
     <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
+    <ClInclude Include="inc\MicroEngine\test.h" />
   </ItemGroup>
 </Project>

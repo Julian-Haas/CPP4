@@ -49,6 +49,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\systemmanager.cpp" />
+    <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\transformcomponent.cpp" />
     <ClCompile Include="src\util.cpp" />
     <ClCompile Include="src\vertex.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="inc\MicroEngine\setupnetwork.h" />
     <ClInclude Include="inc\MicroEngine\system.h" />
     <ClInclude Include="inc\MicroEngine\systemmanager.h" />
+    <ClInclude Include="inc\MicroEngine\test.h" />
     <ClInclude Include="inc\MicroEngine\transformcomponent.h" />
     <ClInclude Include="inc\MicroEngine\util.h" />
     <ClInclude Include="inc\MicroEngine\vertex.h" />

@@ -5,17 +5,10 @@
 #pragma comment (lib, "iphlpapi.lib")
 #include <WS2tcpip.h>
 #include <iostream>
-//#include "MEServer.h"
 
 
 
 namespace me {
-	enum protocol
-	{
-		RequestJoin_Code = 101,
-		SendPosition_Code = 102,
-		SendLogOut_Code = 103
-	};
 	void SetupNetwork::Testfunktion()
 	{
 		std::cout << "Testfunktion aufgerufen." << std::endl;

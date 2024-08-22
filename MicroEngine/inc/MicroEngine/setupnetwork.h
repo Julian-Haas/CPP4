@@ -1,7 +1,7 @@
 #pragma once
 #include "me_interface.h"
 #include <winsock2.h>
-//#include "MEServer.h"
+#include "MEServer.h"
 
 namespace me {
 	enum protocol {
@@ -32,7 +32,7 @@ namespace me {
 	class SetupNetwork {
 	private:
 		bool _debugFlag = false;
-		SOCKET serverSocket2;
+		SOCKET serverSocket;
 		float unformattedRequest[5];
 		char formattedRequest[20];
 		float receivedMessageInFloat[5];
@@ -41,7 +41,7 @@ namespace me {
 		float _position_x = 3;
 		float _position_y = 4;
 		float _position_z = 5;
-		//Server server;
+		Server server;
 	public:
 		std::map<int, Position> m_PlayerData;
 		ME_API void Testfunktion();

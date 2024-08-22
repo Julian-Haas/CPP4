@@ -21,7 +21,9 @@
 #include "MicroEngine/vertex.h"
 #include "MicroEngine\MEServer.h"
 #include "MicroEngine\util.h"
+#include "MicroEngine\test.h"
 #include <map>
+
 
 
 namespace capp
@@ -74,9 +76,16 @@ namespace capp
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 		using namespace me;
-		network.Testfunktion();
+		{
+			Test test;
+			test.Foo();
+		}
 
-		network.EstablishConnection();
+
+		using namespace me;
+		//network.Testfunktion();
+
+		//network.EstablishConnection();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
