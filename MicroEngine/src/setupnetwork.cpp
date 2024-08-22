@@ -178,7 +178,7 @@ namespace me {
 			bool succes = SearchForServer();
 			if (succes)
 			{
-				SendMessageToServer((int)RequestJoin_Code);
+				SendMessageToServer(JoinRequest);
 				//ME_LOG_ERROR("succes to connect to server!");
 			}
 		}

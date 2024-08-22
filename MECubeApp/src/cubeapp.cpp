@@ -236,7 +236,7 @@ namespace capp
 		}
 		else
 		{
-			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, me::Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
+			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
 			//InstantiateNewPlayer();
 			UpdatePlayerEntitys();
 		}

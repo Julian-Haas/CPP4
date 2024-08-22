@@ -33,29 +33,25 @@ public:
 		, y(yPos)
 		, z(zPos)
 	{}
-
-	~Position()
-	{}
+	~Position() = default;
 };
+
+enum protocol
+{
+	JoinAnswerSucessful = 1,
+	JoinAnswerFailed = 2,
+	ProceedData = 3,
+	JoinRequest = 101,
+	SendPosition = 102,
+};
+
 class Server
 {
-public:
-	ME_API void Testfunktion();
-
 private:
 	bool _debugFlag = false;
-	//protocol enum 
 	float recievedFloats[5];
 	float SendedPositions[3];
 	char dataToSend[20];
-	enum protocol
-	{
-		JoinAwnserSucessful = 1,
-		JoinAwnserFailed = 2,
-		ProceedData = 3,
-		JoinRequest = 101,
-		SendPosition = 102,
-	};
 	char request[20];
 	std::map<float, Position> playerData;
 	float startPosOffset;
@@ -83,7 +79,7 @@ private:
 	{
 		if (playerCount >= maxPlayerCount)
 		{
-			answerCode = (int)JoinAwnserFailed;
+			answerCode = (int)JoinAnswerFailed;
 			return;
 		}
 		if (playerData.size() == 0)
@@ -116,7 +112,7 @@ private:
 		}
 		playerData.insert(std::make_pair(currentPlayerID, Position(currentPlayerSocket, 0, 0, 30)));
 		playerCount++;
-		answerCode = (int)JoinAwnserSucessful;
+		answerCode = (int)JoinAnswerSucessful;
 	}
 	void OpenDebugConsole()
 	{

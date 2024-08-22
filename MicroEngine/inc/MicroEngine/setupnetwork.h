@@ -4,31 +4,6 @@
 #include "MEServer.h"
 
 namespace me {
-	enum protocol {
-		RequestJoin_Code = 101,
-		SendPosition_Code = 102,
-		SendLogOut_Code = 103
-	};
-
-	struct Position
-	{
-	public:
-		SOCKET playersocket;
-		float x;
-		float y;
-		float z;
-		Position() = default;
-		Position(SOCKET socket, float xPos, float yPos, float zPos)
-			: playersocket(socket)
-			, x(xPos)
-			, y(yPos)
-			, z(zPos)
-		{}
-
-		~Position()
-		{}
-	};
-
 	class SetupNetwork {
 	private:
 		bool _debugFlag = false;
