@@ -1,24 +1,7 @@
 #pragma once
 #include "me_interface.h"
-#include <iostream>
-#include<vector>
-#include <string>
-#include <map>
-#include<array>
-#include<Windows.h>
-#include<fstream>
-#pragma comment (lib, "ws2_32.lib")
-#pragma comment (lib, "iphlpapi.lib")
-#include <cstdio>
 #include <WinSock2.h>
-#include <iphlpapi.h>
-#include <WS2tcpip.h>
-#include <chrono>
-#include <optional>
 #include "MEServerHelper.h"
-#include <thread>
-#include <array>
-#include "me_interface.h"
 
 struct Position
 {

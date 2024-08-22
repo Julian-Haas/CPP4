@@ -1,5 +1,23 @@
 #include "stdafx.h"
 #include "MEServer.h"
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <array>
+#include <fstream>
+#include <cstdio>
+#include <WinSock2.h>
+#include <iphlpapi.h>
+#include <WS2tcpip.h>
+#include <chrono>
+#include <optional>
+#include <thread>
+#include "me_interface.h"
+//#pragma comment (lib, "ws2_32.lib")
+//#pragma comment (lib, "iphlpapi.lib")
+
+
 void Server::SendToClient(SOCKET i)
 {
 	int result = send(i, dataToSend, sizeof(dataToSend), 0);
@@ -213,6 +231,7 @@ Server::Server()
 	, maxPlayerCount(2)
 {
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::OpenDebugConsole()
 {
 	AllocConsole();
@@ -222,6 +241,7 @@ void Server::OpenDebugConsole()
 	freopen_s(&file, "CONIN$", "r", stdin);
 	std::cout << "Debug-Konsole gestartet." << std::endl;
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::PrepareMessage()
 {
 	float x[5];

@@ -18,23 +18,6 @@ namespace me
 
 namespace capp
 {
-	//struct Position
-	//{
-	//public:
-	//	float x;
-	//	float y;
-	//	float z;
-	//	Position() = default;
-	//	Position(float xPos, float yPos, float zPos)
-	//		: x(xPos)
-	//		, y(yPos)
-	//		, z(zPos)
-	//	{}
-
-	//	~Position()
-	//	{}
-	//};
-
 	namespace ExitCode
 	{
 		enum Enum

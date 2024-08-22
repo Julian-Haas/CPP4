@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "setupnetwork.h"
-
 #pragma comment (lib, "ws2_32.lib")
 #pragma comment (lib, "iphlpapi.lib")
 #include <WS2tcpip.h>
 #include <iostream>
-
-
+#include <thread>
 
 namespace me {
 	void SetupNetwork::Testfunktion()
