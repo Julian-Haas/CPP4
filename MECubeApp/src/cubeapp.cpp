@@ -214,7 +214,7 @@ namespace capp
 		using namespace me;
 
 		//network.UpdateTheServer(); 
-		network.SendMessageToServer(SendPosition_Code);
+		//network.SendMessageToServer(SendPosition_Code);
 		network.ReadData();
 		BewegenBitte();
 

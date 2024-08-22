@@ -87,7 +87,7 @@ namespace me {
 					case 2:
 						return false;
 					case 3:
-						UltraDebugFunktionOderSo();
+						//UltraDebugFunktionOderSo();
 						UltraSchreibePlaayerPositionsdaten();
 						//std::cout << m_PlayerData[0].z << std::endl;
 						break;
@@ -103,21 +103,18 @@ namespace me {
 			return true;
 		}
 		void UltraDebugFunktionOderSo() {
-			//std::cout << "ClientReceived: " << std::endl;
-			//std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
-			//std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
-			//std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
-			//std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
-			//std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
+			std::cout << "ClientReceived: " << std::endl;
+			std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
+			std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
+			std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
+			std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
+			std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
 		}
-
 		void UltraSchreibePlaayerPositionsdaten() {
 			m_PlayerData.insert(std::make_pair<int, Position>((int)receivedMessageInFloat[1], Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4])));
 			m_PlayerData[(int)receivedMessageInFloat[1]] = Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4]);
 			//unsere pos= m_PlayerData
-
 		}
-
 		bool SetupNetwork::SearchForServer()
 		{
 			//magic numbers

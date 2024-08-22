@@ -64,6 +64,7 @@ private:
 	int maxPlayerCount = 2;
 	SOCKET currentPlayerSocket;
 	SOCKET maxSocket;
+	std::vector<SOCKET> clientSockets;
 	fd_set master;
 	addrinfo hints;
 	WSAData d;
@@ -137,6 +138,18 @@ private:
 
 		std::cout << "Debug-Konsole gestartet." << std::endl;
 	}
+
+	void UltimativePrintPlayerDataFunktion() {
+		for (const auto& pair : playerData) {
+			std::cout << "Player-ID: " << pair.first << ", Value: " << std::endl;
+			std::cout << "Socket!:" << pair.second.playersocket << std::endl;
+			std::cout << "X: " << pair.second.x << std::endl;
+			std::cout << "Y: " << pair.second.y << std::endl;
+			std::cout << "Z: " << pair.second.z << std::endl;
+			std::cout << std::endl;
+		}
+
+	}
 	void PrepareMessage()
 	{
 		float x[5];
@@ -183,6 +196,7 @@ private:
 		switch (msgCode)
 		{
 		case JoinRequest:
+
 			currentPlayerSocket = i;
 			RegisterNewPlayer();
 			PrepareMessage();
@@ -193,6 +207,7 @@ private:
 					answerCode = ProceedData;
 					PrepareMessage();
 					SendToClient(otherPlayerSocket);
+					//UltimativePrintPlayerDataFunktion();
 				}
 			}
 			break;
@@ -339,8 +354,13 @@ public:
 
 		//ME_LOG_ERROR(resultCStr);
 	}
-	void UnserDebugFunktionoenchen(std::string a) {
+	void A(std::string a) {
 		std::cout << a << std::endl;
+		//ME_LOG_ERROR(resultCStr);
+	}
+
+	void A(int a) {
+		std::cout << std::to_string(a) << std::endl;
 		//ME_LOG_ERROR(resultCStr);
 	}
 
@@ -378,12 +398,15 @@ public:
 					}
 					else {
 						FD_SET(clientSocket, &master);
+						A(clientSocket);
+						clientSockets.push_back(clientSocket);
 						if (clientSocket > maxSocket) {
 							maxSocket = clientSocket;
 						}
 					}
 				}
 				else {
+					//std::cout << "not new connection\n";
 					int bytesReceived = recv(i, request, sizeof(request), 0);
 
 					float temp[5];
@@ -414,8 +437,6 @@ public:
 		FD_CLR(clientSocket, &master);
 		//UnserDebugFunktionoenchen("Closed and removed socket from master set");
 	}
-
-
 
 	std::string GetClientIP(SOCKET clientSocket)
 	{
