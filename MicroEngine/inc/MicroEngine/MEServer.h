@@ -45,7 +45,6 @@ private:
 	SOCKET currentPlayerSocket;
 	SOCKET listenerSocket;
 	SOCKET maxSocket;
-	addrinfo hints;
 	fd_set master;
 	fd_set reads;
 	WSADATA wsaData;

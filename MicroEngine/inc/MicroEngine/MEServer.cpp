@@ -163,6 +163,7 @@ bool Server::InitWinSockLibrary() {
 		DisplayWSAError("WSAStartup");
 		return false;
 	}
+	return true;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::PrintPlayerData()
@@ -202,11 +203,11 @@ void Server::OpenDebugConsole()
 void Server::SendMessage(SOCKET i, float answerCode)
 {
 	float x[5];
-	x[0] = static_cast<float>(answerCode);
+	x[0] = answerCode;
 	x[1] = currentPlayerID;
-	x[2] = playerData[currentPlayerID].x;
-	x[3] = playerData[currentPlayerID].y;
-	x[4] = playerData[currentPlayerID].z++;
+	x[2] = playerData[static_cast<int>(currentPlayerID)].x;
+	x[3] = playerData[static_cast<int>(currentPlayerID)].y;
+	x[4] = playerData[static_cast<int>(currentPlayerID)].z++;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 	int result = send(i, dataToSend, sizeof(dataToSend), 0);
 	if (result == SOCKET_ERROR)
