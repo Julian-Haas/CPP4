@@ -114,6 +114,7 @@
     <ClCompile Include="src\setupnetwork.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="inc\MicroEngine\MEServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\MicroEngine\component.h" />

@@ -12,8 +12,10 @@
 #include <WinSock2.h>
 #include <iostream>
 #include <string>
-#include "MicroEngine\MEServer.h"
-#include "cubeapp.h"
+
+#include "MEServer.h"
+#include "me_interface.h"
+
 namespace me {
 	enum protocol
 	{
@@ -21,7 +23,9 @@ namespace me {
 		SendPosition_Code = 102,
 		SendLogOut_Code = 103
 	};
-	class SetupNetwork {
+	ME_API class SetupNetwork {
+	public:
+		void Testfunktion();
 	private:
 		bool _debugFlag = false;
 		SOCKET serverSocket;
@@ -30,7 +34,7 @@ namespace me {
 		float receivedMessageInFloat[5];
 		char receivedMessage[20];
 		enum protocol;
-		int _playerID = -1;
+		float _playerID = -1;
 		float _position_x = 3;
 		float _position_y = 4;
 		float _position_z = 5;
@@ -62,7 +66,7 @@ namespace me {
 				timeval timeout;
 				timeout.tv_sec = 0;
 				timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms
-				int selectResult = select(serverSocket + 1, &reads, NULL, NULL, &timeout);
+				int selectResult = select(static_cast<int>(serverSocket + 1), &reads, NULL, NULL, &timeout);
 				int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 				memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
 				if (selectResult == -1) {
@@ -134,18 +138,18 @@ namespace me {
 			ZeroMemory(&hints, sizeof(hints));
 			hints.ai_family = AF_INET;
 			hints.ai_socktype = SOCK_STREAM;
-			addrinfo* server;
-			if (getaddrinfo(serverIP, serverPort, &hints, &server))
+			addrinfo* serverAddrInfo;
+			if (getaddrinfo(serverIP, serverPort, &hints, &serverAddrInfo))
 			{
 				fprintf(stderr, "getaddrinfo() failed. (%d)\n", WSAGetLastError());
 				return false;
 			}
 			printf("Remote address is :\n");
 			PCHAR addressBuffer = nullptr;
-			getnameinfo(server->ai_addr, (socklen_t)server->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
+			getnameinfo(serverAddrInfo->ai_addr, (socklen_t)serverAddrInfo->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
 			printf("%s\n", addressBuffer);
 			printf("Creating socket...\n");
-			serverSocket = socket(server->ai_family, server->ai_socktype, server->ai_protocol);
+			serverSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
 			if (serverSocket == INVALID_SOCKET)
 			{
 				fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
@@ -157,7 +161,7 @@ namespace me {
 			ioctlsocket(serverSocket, FIONBIO, &mode);
 
 			printf("Connecting to server...\n");
-			int result = connect(serverSocket, server->ai_addr, (int)server->ai_addrlen);
+			int result = connect(serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
 			if (result == SOCKET_ERROR)
 			{
 				int error = WSAGetLastError();
@@ -191,13 +195,13 @@ namespace me {
 					fprintf(stderr, "connect() failed. (%d)\n", error);
 				}
 			}
-			freeaddrinfo(server);
+			freeaddrinfo(serverAddrInfo);
 			return sucess;
 		}
 		void SetupNetwork::BeepBeep() {
 			Beep(750, 300);
 		}
-		void SetupNetwork::SendMessageToServer(int code) {
+		void SetupNetwork::SendMessageToServer(float code) {
 			unformattedRequest[0] = code;
 			unformattedRequest[1] = _playerID;
 			unformattedRequest[2] = _position_x;

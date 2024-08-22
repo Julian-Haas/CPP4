@@ -18,6 +18,8 @@
 #include "MEServerHelper.h"
 #include <thread>
 #include <array>
+#include "me_interface.h"
+
 struct Position
 {
 public:
@@ -40,6 +42,9 @@ public:
 #pragma once
 class Server
 {
+public:
+	ME_API void Testfunktion();
+
 private:
 	bool _debugFlag = false;
 	//protocol enum 
@@ -55,13 +60,13 @@ private:
 		SendPosition = 102,
 	};
 	char request[20];
-	std::map<int, Position> playerData;
+	std::map<float, Position> playerData;
 	float startPosOffset;
-	int playerCount;
-	int currentPlayerID;
-	int requestCode;
-	int answerCode;
-	int maxPlayerCount = 2;
+	float playerCount;
+	float currentPlayerID;
+	float requestCode;
+	float answerCode;
+	float maxPlayerCount = 2;
 	SOCKET currentPlayerSocket;
 	SOCKET maxSocket;
 	std::vector<SOCKET> clientSockets;
@@ -96,8 +101,8 @@ private:
 		else
 		{
 			auto it = playerData.begin();
-			int newID = -1;
-			int i = 0;
+			float newID = -1.0f;
+			float i = 0.0f;
 
 			while (it != playerData.end())
 			{
@@ -111,10 +116,10 @@ private:
 				i++;
 			}
 
-			if (newID == -1)
+			if (newID == -1.0f)
 			{
 				auto lastKey = std::prev(playerData.end());
-				newID = lastKey->first + 1;
+				newID = lastKey->first + 1.0f;
 			}
 
 			currentPlayerID = newID;
@@ -153,7 +158,7 @@ private:
 	void PrepareMessage()
 	{
 		float x[5];
-		x[0] = answerCode;
+		x[0] = static_cast<float>(answerCode);
 		x[1] = currentPlayerID;
 		x[2] = playerData[currentPlayerID].x;
 		x[3] = playerData[currentPlayerID].y;
@@ -189,9 +194,9 @@ private:
 		//}
 
 		memcpy(&recievedFloats, request, sizeof(recievedFloats));
-		int msgCode = (int)recievedFloats[0];
-		currentPlayerID = (int)recievedFloats[1];
-		SOCKET maxSocket = listenerSocket;
+		int msgCode = static_cast<int>(recievedFloats[0]);
+		currentPlayerID = recievedFloats[1];
+		//maxSocket = listenerSocket;
 
 		switch (msgCode)
 		{
@@ -245,33 +250,33 @@ public:
 	}
 	void UnregisterPlayer()
 	{
-		currentPlayerID = 4;
-		int indexToRemove = currentPlayerID;
+		//currentPlayerID = 4;
+		//int indexToRemove = currentPlayerID;
 
-		auto it = playerData.begin();
-		playerData[0].x = -5;
-		playerData[0].y = -5;
-		playerData[0].z = -5;
-		while (it != playerData.end())
-		{
-			if (it->first > indexToRemove)
-			{
-				int newKey = it->first - 1;
-				playerData[newKey] = it->second;
-				it = playerData.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
+		//auto it = playerData.begin();
+		//playerData[0].x = -5;
+		//playerData[0].y = -5;
+		//playerData[0].z = -5;
+		//while (it != playerData.end())
+		//{
+		//	if (it->first > indexToRemove)
+		//	{
+		//		int newKey = it->first - 1;
+		//		playerData[newKey] = it->second;
+		//		it = playerData.erase(it);
+		//	}
+		//	else
+		//	{
+		//		++it;
+		//	}
+	//}
 
-		// Debug output
-		for (auto it = playerData.begin(); it != playerData.end(); ++it)
-		{
-			std::cout << "Key: " << it->first << ", Value: (" << it->second.x << ", " << it->second.y << ", " << it->second.z << ")" << std::endl;
-		}
-		playerCount--;
+	// Debug output
+	//for (auto it = playerData.begin(); it != playerData.end(); ++it)
+	//{
+	//	std::cout << "Key: " << it->first << ", Value: (" << it->second.x << ", " << it->second.y << ", " << it->second.z << ")" << std::endl;
+	//}
+	//playerCount--;
 	}
 	int InitServer() {
 		//ReadMessage(request);
@@ -317,7 +322,7 @@ public:
 		}
 
 		//UnserDebugFunktionoenchen("Binding address to socket");
-		if (bind(listenerSocket, bindAddress->ai_addr, bindAddress->ai_addrlen) != 0) {
+		if (bind(listenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen)) != 0) {
 			//UnserDebugFunktionoenchen("bind() failed");
 			closesocket(listenerSocket);
 			freeaddrinfo(bindAddress);
@@ -372,7 +377,7 @@ public:
 		struct timeval timeout;
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
-		int selectResult = select(maxSocket + 1, &reads, nullptr, nullptr, &timeout);
+		int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &timeout);
 
 		if (selectResult < 0) {
 			int error = WSAGetLastError();
@@ -398,9 +403,9 @@ public:
 					}
 					else {
 						FD_SET(clientSocket, &master);
-						A(clientSocket);
-						clientSockets.push_back(clientSocket);
-						if (clientSocket > maxSocket) {
+						//A(clientSocket);
+						//clientSockets.push_back(clientSocket);
+						if (static_cast<int>(clientSocket) > maxSocket) {
 							maxSocket = clientSocket;
 						}
 					}

@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="inc\MicroEngine\MEServer.cpp" />
     <ClCompile Include="src\cameracomponent.cpp" />
     <ClCompile Include="src\color.cpp" />
     <ClCompile Include="src\componentstorer.cpp" />

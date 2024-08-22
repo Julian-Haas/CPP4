@@ -74,9 +74,8 @@ namespace capp
 
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
-
 		using namespace me;
-
+		/*network.Testfunktion();*/
 
 		network.EstablishConnection();
 
