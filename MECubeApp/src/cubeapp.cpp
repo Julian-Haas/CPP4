@@ -85,7 +85,7 @@ namespace capp
 		using namespace me;
 		//network.Testfunktion();
 
-		//network.EstablishConnection();
+		network.EstablishConnection();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 

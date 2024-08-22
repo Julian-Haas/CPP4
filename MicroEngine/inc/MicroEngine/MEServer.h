@@ -8,7 +8,6 @@
 #include<fstream>
 #pragma comment (lib, "ws2_32.lib")
 #pragma comment (lib, "iphlpapi.lib")
-
 #include <cstdio>
 #include <WinSock2.h>
 #include <iphlpapi.h>
@@ -71,7 +70,6 @@ private:
 	fd_set master;
 	addrinfo hints;
 	WSAData d;
-	//member functions: 
 	void SendToClient(SOCKET i)
 	{
 		int result = send(i, dataToSend, sizeof(dataToSend), 0);
@@ -79,18 +77,15 @@ private:
 		{
 			std::cout << "send failed(server)\n" << std::to_string(result) << "\n";
 			std::cout << WSAGetLastError();
-			//UnserDebugFunktionoenchen(message); 
 		}
 	}
 	void RegisterNewPlayer()
 	{
 		if (playerCount >= maxPlayerCount)
 		{
-			//std::cout << "Player count too high" << playerCount << std::endl;
 			answerCode = (int)JoinAwnserFailed;
 			return;
 		}
-
 		if (playerData.size() == 0)
 		{
 			//std::cout << "PlayerData size = 0\n";
@@ -101,7 +96,6 @@ private:
 			auto it = playerData.begin();
 			float newID = -1.0f;
 			float i = 0.0f;
-
 			while (it != playerData.end())
 			{
 				if (it->first != i)
@@ -113,35 +107,26 @@ private:
 				it++;
 				i++;
 			}
-
 			if (newID == -1.0f)
 			{
 				auto lastKey = std::prev(playerData.end());
 				newID = lastKey->first + 1.0f;
 			}
-
 			currentPlayerID = newID;
 		}
-
 		playerData.insert(std::make_pair(currentPlayerID, Position(currentPlayerSocket, 0, 0, 30)));
 		playerCount++;
 		answerCode = (int)JoinAwnserSucessful;
 	}
-
 	void OpenDebugConsole()
 	{
-		// Neue Konsole erzeugen
 		AllocConsole();
-
-		// Konsole für Standardausgabe einrichten
 		FILE* file;
 		freopen_s(&file, "CONOUT$", "w", stdout);
 		freopen_s(&file, "CONOUT$", "w", stderr);
 		freopen_s(&file, "CONIN$", "r", stdin);
-
 		std::cout << "Debug-Konsole gestartet." << std::endl;
 	}
-
 	void UltimativePrintPlayerDataFunktion() {
 		for (const auto& pair : playerData) {
 			std::cout << "Player-ID: " << pair.first << ", Value: " << std::endl;
@@ -178,28 +163,12 @@ private:
 	}
 	void HandleIncomingRequest(SOCKET i)
 	{
-		//float temp[5];
-		//memcpy(&temp, request, sizeof(temp));
-		//std::cout << temp[0] << "\n";
-
-		//if (_debugFlag == false) {
-		//	for (int i = 0; i < 5; i++) {
-		//		//std::cout << std::to_string(temp[i]) << "\n";
-		//		std::cout << std::to_string(temp[i]) << "\n";
-		//		//std::cout << std::to_string((byte)unformattedRequest[i]) << "\n";
-		//	}
-		//	_debugFlag = true;
-		//}
-
 		memcpy(&recievedFloats, request, sizeof(recievedFloats));
 		int msgCode = static_cast<int>(recievedFloats[0]);
 		currentPlayerID = recievedFloats[1];
-		//maxSocket = listenerSocket;
-
 		switch (msgCode)
 		{
 		case JoinRequest:
-
 			currentPlayerSocket = i;
 			RegisterNewPlayer();
 			PrepareMessage();
@@ -210,13 +179,10 @@ private:
 					answerCode = ProceedData;
 					PrepareMessage();
 					SendToClient(otherPlayerSocket);
-					//UltimativePrintPlayerDataFunktion();
 				}
 			}
 			break;
-
 		case SendPosition:
-			//UpdatePlayerPosition();  // Annahme: Diese Funktion existiert
 			for (const auto& pair : playerData) {
 				SOCKET otherPlayerSocket = pair.second.playersocket;
 				if (otherPlayerSocket == currentPlayerSocket) {
@@ -226,16 +192,11 @@ private:
 				}
 			}
 			break;
-
 		default:
-
-			// Unbehandelter Nachrichtencode
 			std::cout << "Unhandled request: " << msgCode << std::endl;
 			break;
 		}
 	}
-
-
 public:
 	Server()
 		: startPosOffset(1000243.3F)
@@ -277,66 +238,44 @@ public:
 	//playerCount--;
 	}
 	int InitServer() {
-		//ReadMessage(request);
 		OpenDebugConsole();
 		if (WSAStartup(MAKEWORD(2, 2), &d)) {
-			//UnserDebugFunktionoenchen("WinSocket failed to initialize");
 			return -1;
 		}
-		//UnserDebugFunktionoenchen("Configuring local IP address");
-
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_INET;
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_flags = AI_PASSIVE;
 		addrinfo* bindAddress;
-
-		// Bind to specific IP address and port 8080
 		if (getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress) != 0) {
-			//UnserDebugFunktionoenchen("getaddrinfo() failed");
 			WSACleanup();
 			return -1;
 		}
-		//UnserDebugFunktionoenchen("Creating listener socket");
-
 		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
 		if (listenerSocket == INVALID_SOCKET) {
-			//UnserDebugFunktionoenchen("socket() failed");
 			freeaddrinfo(bindAddress);
 			WSACleanup();
 			return -1;
 		}
-
-		u_long mode = 1; // Make socket non-blocking
-
-
-
+		u_long mode = 1;
 		if (ioctlsocket(listenerSocket, FIONBIO, &mode) != 0) {
-			//UnserDebugFunktionoenchen("ioctlsocket() failed");
 			closesocket(listenerSocket);
 			freeaddrinfo(bindAddress);
 			WSACleanup();
 			return -1;
 		}
-
-		//UnserDebugFunktionoenchen("Binding address to socket");
 		if (bind(listenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen)) != 0) {
-			//UnserDebugFunktionoenchen("bind() failed");
 			closesocket(listenerSocket);
 			freeaddrinfo(bindAddress);
 			WSACleanup();
 			return -1;
 		}
 		freeaddrinfo(bindAddress);
-
-		//UnserDebugFunktionoenchen("Listening for connections...");
 		if (listen(listenerSocket, 10) < 0) {
-			//UnserDebugFunktionoenchen("listen() failed");
 			closesocket(listenerSocket);
 			WSACleanup();
 			return -1;
 		}
-
 		maxSocket = listenerSocket;
 		FD_ZERO(&master);
 		FD_SET(listenerSocket, &master);
@@ -344,29 +283,8 @@ public:
 		{
 			UpdateServer();
 		}
-
-		//UnserDebugFunktionoenchen("Server initialization successful");
-
 		return 0;
 	}
-
-
-	void UnserDebugFunktionoenchen(int a) {
-		std::string resultStr = std::to_string(listenerSocket);
-		const char* resultCStr = resultStr.c_str();
-
-		//ME_LOG_ERROR(resultCStr);
-	}
-	void A(std::string a) {
-		std::cout << a << std::endl;
-		//ME_LOG_ERROR(resultCStr);
-	}
-
-	void A(int a) {
-		std::cout << std::to_string(a) << std::endl;
-		//ME_LOG_ERROR(resultCStr);
-	}
-
 	void UpdateServer() {
 		fd_set reads;
 		FD_ZERO(&reads);
@@ -376,11 +294,9 @@ public:
 		timeout.tv_sec = 1;  // 1 second timeout
 		timeout.tv_usec = 0;
 		int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &timeout);
-
 		if (selectResult < 0) {
 			int error = WSAGetLastError();
 			std::string errorMsg = "select() failed with error code: " + std::to_string(error);
-			//UnserDebugFunktionoenchen(errorMsg.c_str());
 			return;
 		}
 		else if (selectResult == 0) {
@@ -388,57 +304,45 @@ public:
 			//UnserDebugFunktionoenchen("select() timeout, no sockets ready");
 			//return;
 		}
-
 		for (SOCKET i = 0; i <= maxSocket; i++) {
 			if (FD_ISSET(i, &reads)) {
 				if (i == listenerSocket) {
-					// New connection
 					SOCKET clientSocket = accept(listenerSocket, nullptr, nullptr);
 					if (clientSocket == INVALID_SOCKET) {
 						int error = WSAGetLastError();
 						std::string errorMsg = "accept() failed with error code: " + std::to_string(error);
-						//UnserDebugFunktionoenchen(errorMsg.c_str());
 					}
 					else {
 						FD_SET(clientSocket, &master);
-						//A(clientSocket);
-						//clientSockets.push_back(clientSocket);
 						if (static_cast<int>(clientSocket) > maxSocket) {
 							maxSocket = clientSocket;
 						}
 					}
 				}
 				else {
-					//std::cout << "not new connection\n";
 					int bytesReceived = recv(i, request, sizeof(request), 0);
-
 					float temp[5];
 					memcpy(&temp, request, sizeof(temp));
 					if (bytesReceived <= 0) {
-						// Client disconnected or error occurred
 						closesocket(i);
 						FD_CLR(i, &master);
 						if (i == maxSocket) {
-							// Recalculate maxSocket
 							while (FD_ISSET(maxSocket, &master) == false) {
 								maxSocket--;
 							}
 						}
 					}
 					else {
-						// Process received data
 						HandleIncomingRequest(i);
 					}
 				}
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));  // Slight delay to avoid CPU overuse
 	}
 
 	void CloseClientSocket(SOCKET clientSocket) {
 		closesocket(clientSocket);
 		FD_CLR(clientSocket, &master);
-		//UnserDebugFunktionoenchen("Closed and removed socket from master set");
 	}
 
 	std::string GetClientIP(SOCKET clientSocket)
@@ -453,5 +357,4 @@ public:
 		}
 		return "";
 	}
-
 };
