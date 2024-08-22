@@ -168,7 +168,7 @@ namespace me {
 		if (!SearchForServer()) {
 			std::thread serverThread(&Server::InitServer, &server);
 			serverThread.detach();
-			SearchForServer();
+			//SearchForServer();
 		}
 	}
 	void SetupNetwork::SendMessageToServer(float code)

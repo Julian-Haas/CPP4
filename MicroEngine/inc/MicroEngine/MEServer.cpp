@@ -19,6 +19,8 @@ void Server::RegisterNewPlayer(SOCKET i)
 	if (playerCount >= maxPlayerCount)
 	{
 		SendMessageToClient(i, JoinAnswerFailed);
+		//FD_CLR(i, &master);
+		closesocket(i);
 		return;
 	}
 	SendMessageToClient(i, JoinAnswerSucessful);
@@ -62,12 +64,14 @@ void Server::AcceptIncomingConnection()
 		DisplayWSAError("accept");
 		//assume graceful handling here was already done
 	}
+	// nur wenn platz und dann auch in master
+	sockets.push_back(newSocket);
 	RegisterNewPlayer(newSocket);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::CheckForIncomingData()
 {
-	const struct timeval LongTimeout = { 5, 0 };
+	const struct timeval LongTimeout = { 1, 0 };
 	FD_ZERO(&reads);
 	reads = master;
 	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
@@ -77,6 +81,7 @@ void Server::CheckForIncomingData()
 		return;
 	}
 	for (SOCKET s : sockets) {
+		std::cout << s << "\n";
 		if (!FD_ISSET(s, &reads)) continue;
 		if (s == listenerSocket) {
 			AcceptIncomingConnection();
