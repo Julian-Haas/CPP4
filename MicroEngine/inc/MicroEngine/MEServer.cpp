@@ -18,11 +18,11 @@ void Server::RegisterNewPlayer()
 	}
 	if (playerData.size() == 0)
 	{
-		//std::cout << "PlayerData size = 0\n";
 		currentPlayerID = 0;
 	}
 	else
 	{
+		//suche freie zahl
 		auto it = playerData.begin();
 		float newID = -1.0f;
 		float i = 0.0f;

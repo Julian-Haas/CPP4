@@ -17,6 +17,7 @@ namespace me {
 		float _position_y = 4;
 		float _position_z = 5;
 		Server server;
+
 	public:
 		std::map<int, Position> m_PlayerData;
 		ME_API void Testfunktion();

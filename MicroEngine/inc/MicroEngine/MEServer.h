@@ -50,33 +50,32 @@ class Server
 {
 private:
 	float recievedFloats[5];
-	float SendedPositions[3];
+	float SentPositions[3];
 	char dataToSend[20];
 	char request[20];
 	std::map<float, Position> playerData;
+	float maxPlayerCount = 2;
+	float currentPlayerID;
 	float startPosOffset;
 	float playerCount;
-	float currentPlayerID;
 	float requestCode;
 	float answerCode;
-	float maxPlayerCount = 2;
+	std::vector<SOCKET> clientSockets;
 	SOCKET currentPlayerSocket;
 	SOCKET listenerSocket;
 	SOCKET maxSocket;
-	std::vector<SOCKET> clientSockets;
-	fd_set master;
 	addrinfo hints;
+	fd_set master;
 	WSAData d;
+	void HandleIncomingRequest(SOCKET i);
 	void SendToClient(SOCKET i);
 	void RegisterNewPlayer();
 	void OpenDebugConsole();
 	void PrintPlayerData();
 	void PrepareMessage();
-	void HandleIncomingRequest(SOCKET i);
 	void UpdateServer();
-	void CloseClientSocket(SOCKET clientSocket);
 public:
-	ME_API Server();
 	ME_API ~Server() = default;
 	ME_API int InitServer();
+	ME_API Server();
 };
