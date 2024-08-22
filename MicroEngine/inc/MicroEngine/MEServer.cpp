@@ -14,72 +14,27 @@
 #include <optional>
 #include <thread>
 #include "me_interface.h"
-//#pragma comment (lib, "ws2_32.lib")
-//#pragma comment (lib, "iphlpapi.lib")
-
-
-void Server::SendToClient(SOCKET i)
-{
-	int result = send(i, dataToSend, sizeof(dataToSend), 0);
-	if (result == SOCKET_ERROR)
-	{
-		std::cout << "send failed(server)\n" << std::to_string(result) << "\n";
-		std::cout << WSAGetLastError();
-	}
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Server::RegisterNewPlayer()
+void Server::RegisterNewPlayer(SOCKET i)
 {
 	if (playerCount >= maxPlayerCount)
 	{
-		answerCode = (int)JoinAnswerFailed;
+		SendMessage(i, JoinAnswerFailed);
 		return;
 	}
-	if (playerData.size() == 0)
-	{
-		currentPlayerID = 0;
-	}
-	else
-	{
-		//suche freie zahl
-		auto it = playerData.begin();
-		float newID = -1.0f;
-		float i = 0.0f;
-		while (it != playerData.end())
-		{
-			if (it->first != i)
-			{
-				newID = i;
-				std::cout << "Set id at index: " << i << std::endl;
-				break;
-			}
-			it++;
-			i++;
-		}
-		if (newID == -1.0f)
-		{
-			auto lastKey = std::prev(playerData.end());
-			newID = lastKey->first + 1.0f;
-		}
-		currentPlayerID = newID;
-	}
-	playerData.insert(std::make_pair(currentPlayerID, Position(currentPlayerSocket, 0, 0, 30)));
-	playerCount++;
-	answerCode = (int)JoinAnswerSucessful;
+	float newPlayerID = playerNumbers.front();
+	playerNumbers.erase(playerNumbers.begin());
+	playerData.insert(std::make_pair(i, Position(newPlayerID, 0, 0, 30)));
+	++playerCount;
+	//update position for everyone
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Server::InitServer()
 {
 	OpenDebugConsole();
-	if (!InitListenerSocket()) {
-		return false;
-	}
-	if (!InitClassParameters()) {
-		return false;
-	}
+	if (!InitListenerSocket()) return false;
+	if (!InitListenerSocket()) return false;
 	isServerRunning = true;
 	while (isServerRunning) {
-		AcceptIncomingConnections();
 		CheckForIncomingData();
 	}
 	return true;
@@ -90,47 +45,23 @@ void Server::HandleIncomingRequest(SOCKET i)
 	memcpy(&recievedFloats, request, sizeof(recievedFloats));
 	int msgCode = static_cast<int>(recievedFloats[0]);
 	currentPlayerID = recievedFloats[1];
-	switch (msgCode)
-	{
-	case JoinRequest:
-		currentPlayerSocket = i;
-		RegisterNewPlayer();
-		PrepareMessage();
-		SendToClient(i);
-		for (const auto& pair : playerData) {
-			SOCKET otherPlayerSocket = pair.second.playersocket;
-			if (otherPlayerSocket == currentPlayerSocket) {
-				answerCode = ProceedData;
-				PrepareMessage();
-				SendToClient(otherPlayerSocket);
-			}
+	if (msgCode != SendPosition) return;
+	for (const auto& pair : playerData) {
+		SOCKET otherPlayerSocket = pair.first;
+		if (otherPlayerSocket == currentPlayerSocket) {
+			SendMessage(i, ProceedData);
 		}
-		break;
-	case SendPosition:
-		for (const auto& pair : playerData) {
-			SOCKET otherPlayerSocket = pair.second.playersocket;
-			if (otherPlayerSocket == currentPlayerSocket) {
-				answerCode = ProceedData;
-				PrepareMessage();
-				SendToClient(otherPlayerSocket);
-			}
-		}
-		break;
-	default:
-		std::cout << "Unhandled request: " << msgCode << std::endl;
-		break;
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::AcceptIncomingConnection()
 {
-	if (FD_ISSET(listenerSocket, &reads)) {
-		SOCKET newSocket = accept(listenerSocket, nullptr, nullptr);
-		if (newSocket == INVALID_SOCKET) {
-			DisplayWSAError("accept");
-			//assume graceful handling here was already done
-		}
+	SOCKET newSocket = accept(listenerSocket, nullptr, nullptr);
+	if (newSocket == INVALID_SOCKET) {
+		DisplayWSAError("accept");
+		//assume graceful handling here was already done
 	}
+	RegisterNewPlayer(newSocket);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::CheckForIncomingData()
@@ -144,14 +75,15 @@ void Server::CheckForIncomingData()
 		//assume graceful handling here was already done
 		return;
 	}
-
-	//if listener -> accept
 	for (SOCKET s : sockets) {
-		FD_ISSET(s, &reads);
-
-
+		if (!FD_ISSET(s, &reads)) continue;
+		if (s == listenerSocket) {
+			AcceptIncomingConnection();
+		}
+		else {
+			HandleIncomingRequest(s);
+		}
 	}
-
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Server::InitListenerSocket()
@@ -225,13 +157,6 @@ void Server::DisplayWSAError(std::string failedprocess)
 	std::cerr << WSAGetLastError() << std::endl;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool Server::InitClassParameters()
-{
-	if (!InitListenerSocket()) return false;
-
-	return true;
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Server::InitWinSockLibrary() {
 	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
@@ -243,8 +168,8 @@ bool Server::InitWinSockLibrary() {
 void Server::PrintPlayerData()
 {
 	for (const auto& pair : playerData) {
-		std::cout << "Player-ID: " << pair.first << ", Value: " << std::endl;
-		std::cout << "Socket!:" << pair.second.playersocket << std::endl;
+		std::cout << "Socket!:: " << pair.first << std::endl;
+		std::cout << "Player-ID:" << pair.second.playerID << std::endl;
 		std::cout << "X: " << pair.second.x << std::endl;
 		std::cout << "Y: " << pair.second.y << std::endl;
 		std::cout << "Z: " << pair.second.z << std::endl;
@@ -253,13 +178,15 @@ void Server::PrintPlayerData()
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Server::Server()
-	: startPosOffset(1000243.3F)
-	, playerCount(0)
+	: playerCount(0)
 	, currentPlayerID(0)
 	, requestCode(0)
-	, answerCode(0)
 	, maxPlayerCount(2)
 {
+	playerNumbers.reserve(8);
+	for (float i = 0.0f; i < 8.0f; ++i) {
+		playerNumbers.push_back(i);
+	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Server::OpenDebugConsole()
@@ -272,7 +199,7 @@ void Server::OpenDebugConsole()
 	std::cout << "Debug-Konsole gestartet." << std::endl;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Server::PrepareMessage()
+void Server::SendMessage(SOCKET i, float answerCode)
 {
 	float x[5];
 	x[0] = static_cast<float>(answerCode);
@@ -281,5 +208,11 @@ void Server::PrepareMessage()
 	x[3] = playerData[currentPlayerID].y;
 	x[4] = playerData[currentPlayerID].z++;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
+	int result = send(i, dataToSend, sizeof(dataToSend), 0);
+	if (result == SOCKET_ERROR)
+	{
+		DisplayWSAError("send");
+		//assume graceful handling here was already done
+	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

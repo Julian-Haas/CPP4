@@ -6,13 +6,13 @@
 struct Position
 {
 public:
-	SOCKET playersocket;
+	float playerID;
 	float x;
 	float y;
 	float z;
 	Position() = default;
-	Position(SOCKET socket, float xPos, float yPos, float zPos)
-		: playersocket(socket)
+	Position(float sentPlayerID, float xPos, float yPos, float zPos)
+		: playerID(sentPlayerID)
 		, x(xPos)
 		, y(yPos)
 		, z(zPos)
@@ -36,13 +36,11 @@ private:
 	float SentPositions[3];
 	char dataToSend[20];
 	char request[20];
-	std::map<float, Position> playerData;
+	std::map<SOCKET, Position> playerData;
 	float maxPlayerCount = 2;
 	float currentPlayerID;
-	float startPosOffset;
 	float playerCount;
 	float requestCode;
-	float answerCode;
 	std::vector<SOCKET> sockets;
 	SOCKET currentPlayerSocket;
 	SOCKET listenerSocket;
@@ -51,18 +49,17 @@ private:
 	fd_set master;
 	fd_set reads;
 	WSADATA wsaData;
+	std::vector<float> playerNumbers;
 	bool isServerRunning;
 	void AcceptIncomingConnection();
 	void CheckForIncomingData();
 	void HandleIncomingRequest(SOCKET i);
-	void SendToClient(SOCKET i);
-	void RegisterNewPlayer();
+	void RegisterNewPlayer(SOCKET i);
 	void OpenDebugConsole();
 	bool InitWinSockLibrary();
 	void PrintPlayerData();
-	void PrepareMessage();
+	void SendMessage(SOCKET i, float answercode);
 	void DisplayWSAError(std::string failedprocess);
-	bool InitClassParameters();
 	bool InitListenerSocket();
 	bool InitNonBlockingMode(SOCKET socket);
 public:
