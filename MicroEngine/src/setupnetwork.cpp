@@ -20,10 +20,6 @@ namespace me {
 		, _position_z(30)
 	{
 	}
-	void SetupNetwork::UpdateTheServer()
-	{
-		server.UpdateServer();
-	}
 	bool SetupNetwork::ReadData()
 	{
 		bool readAllData = false;

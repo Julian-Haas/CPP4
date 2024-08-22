@@ -22,7 +22,6 @@ namespace me {
 		ME_API void Testfunktion();
 		ME_API SetupNetwork();
 		ME_API ~SetupNetwork() = default;
-		ME_API void UpdateTheServer();
 		ME_API bool ReadData();
 		ME_API void UltraDebugFunktionOderSo();
 		ME_API void UltraSchreibePlaayerPositionsdaten();
