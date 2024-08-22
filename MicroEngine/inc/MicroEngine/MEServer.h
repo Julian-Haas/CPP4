@@ -57,7 +57,7 @@ private:
 	void OpenDebugConsole();
 	bool InitWinSockLibrary();
 	void PrintPlayerData();
-	void SendMessage(SOCKET i, float answercode);
+	void SendMessageToClient(SOCKET i, float answercode);
 	void DisplayWSAError(std::string failedprocess);
 	bool InitListenerSocket();
 	bool InitNonBlockingMode(SOCKET socket);

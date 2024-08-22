@@ -18,9 +18,10 @@ void Server::RegisterNewPlayer(SOCKET i)
 {
 	if (playerCount >= maxPlayerCount)
 	{
-		SendMessage(i, JoinAnswerFailed);
+		SendMessageToClient(i, JoinAnswerFailed);
 		return;
 	}
+	SendMessageToClient(i, JoinAnswerSucessful);
 	float newPlayerID = playerNumbers.front();
 	playerNumbers.erase(playerNumbers.begin());
 	playerData.insert(std::make_pair(i, Position(newPlayerID, 0, 0, 30)));
@@ -31,7 +32,7 @@ void Server::RegisterNewPlayer(SOCKET i)
 bool Server::InitServer()
 {
 	OpenDebugConsole();
-	if (!InitListenerSocket()) return false;
+	if (!InitWinSockLibrary()) return false;
 	if (!InitListenerSocket()) return false;
 	isServerRunning = true;
 	while (isServerRunning) {
@@ -49,7 +50,7 @@ void Server::HandleIncomingRequest(SOCKET i)
 	for (const auto& pair : playerData) {
 		SOCKET otherPlayerSocket = pair.first;
 		if (otherPlayerSocket == currentPlayerSocket) {
-			SendMessage(i, ProceedData);
+			SendMessageToClient(i, ProceedData);
 		}
 	}
 }
@@ -200,7 +201,7 @@ void Server::OpenDebugConsole()
 	std::cout << "Debug-Konsole gestartet." << std::endl;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Server::SendMessage(SOCKET i, float answerCode)
+void Server::SendMessageToClient(SOCKET i, float answerCode)
 {
 	float x[5];
 	x[0] = answerCode;

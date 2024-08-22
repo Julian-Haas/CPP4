@@ -60,31 +60,9 @@ namespace capp
 		}
 	}
 
-	void CubeApp::UpdatePlayerEntitys()
-	{
-		using namespace me;
-		//if (selectedPlayerID != playerID)
-		//{
-		//network.m_PlayerData[selectedPlayerID].x = m_MessageData[2];
-		//network.m_PlayerData[selectedPlayerID].y = m_MessageData[3];
-		//network.m_PlayerData[selectedPlayerID].z = m_MessageData[4];
-		//auto transform = PlayerTrasforms[selectedPlayerID]->GetComponent<me::TransformComponent>().lock();
-		//transform->Translate(network.m_PlayerData[selectedPlayerID].x, network.m_PlayerData[selectedPlayerID].y, network.m_PlayerData[selectedPlayerID].z);
-		//}
-	}
-
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 		using namespace me;
-		{
-			Test test;
-			test.Foo();
-		}
-
-
-		using namespace me;
-		//network.Testfunktion();
-
 		network.EstablishConnection();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
@@ -116,6 +94,19 @@ namespace capp
 		}
 
 		return ExitCode::Success;
+	}
+
+	void CubeApp::UpdatePlayerEntitys()
+	{
+		using namespace me;
+		//if (selectedPlayerID != playerID)
+		//{
+		//network.m_PlayerData[selectedPlayerID].x = m_MessageData[2];
+		//network.m_PlayerData[selectedPlayerID].y = m_MessageData[3];
+		//network.m_PlayerData[selectedPlayerID].z = m_MessageData[4];
+		//auto transform = PlayerTrasforms[selectedPlayerID]->GetComponent<me::TransformComponent>().lock();
+		//transform->Translate(network.m_PlayerData[selectedPlayerID].x, network.m_PlayerData[selectedPlayerID].y, network.m_PlayerData[selectedPlayerID].z);
+		//}
 	}
 
 	void CubeApp::InitEntities()

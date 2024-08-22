@@ -168,13 +168,7 @@ namespace me {
 		if (!SearchForServer()) {
 			std::thread serverThread(&Server::InitServer, &server);
 			serverThread.detach();
-			//SearchForServer();
-			bool succes = SearchForServer();
-			if (succes)
-			{
-				SendMessageToServer(JoinRequest);
-				//ME_LOG_ERROR("succes to connect to server!");
-			}
+			SearchForServer();
 		}
 	}
 	void SetupNetwork::SendMessageToServer(float code)
