@@ -23,8 +23,12 @@
 #include "MicroEngine/directorywatcher.h"
 #include "MicroEngine/transformcomponent.h"
 #include "MicroEngine/vertex.h"
-#include "MicroEngine/setupnetwork.h"
 #include "MicroEngine\MEServer.h"
+#include "MicroEngine\util.h"
+
+#include <map>
+
+
 namespace capp
 {
 
@@ -75,7 +79,7 @@ namespace capp
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 		using namespace me;
-		/*network.Testfunktion();*/
+		network.Testfunktion();
 
 		network.EstablishConnection();
 

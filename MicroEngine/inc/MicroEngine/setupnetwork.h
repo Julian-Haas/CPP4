@@ -23,9 +23,9 @@ namespace me {
 		SendPosition_Code = 102,
 		SendLogOut_Code = 103
 	};
-	ME_API class SetupNetwork {
+	class SetupNetwork {
 	public:
-		void Testfunktion();
+
 	private:
 		bool _debugFlag = false;
 		SOCKET serverSocket;
@@ -42,14 +42,10 @@ namespace me {
 
 	public:
 		std::map<int, Position> m_PlayerData;
-		SetupNetwork()
-			: server()
-			, _playerID(0)
-			, _position_x(0)
-			, _position_y(0)
-			, _position_z(30)
-		{
-		}
+		ME_API void Testfunktion();
+		ME_API SetupNetwork();
+		ME_API ~SetupNetwork();
+
 		void UpdateTheServer()
 		{
 			server.UpdateServer();

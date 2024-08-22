@@ -5,13 +5,12 @@
 #pragma once
 
 #include <memory>
-#include "MicroEngine\util.h"
 #include "MicroEngine\window.h"
 #include "MicroEngine\entitymanager.h"
 #include "MicroEngine\renderer.h"
 #include "MicroEngine\systemmanager.h"
-#include "MicroEngine\setupnetwork.h"
-#include <map>
+#include "MicroEngine/setupnetwork.h"
+
 namespace me
 {
 	class Window;
