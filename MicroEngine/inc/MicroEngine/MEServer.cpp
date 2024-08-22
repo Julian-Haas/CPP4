@@ -48,36 +48,6 @@ void Server::RegisterNewPlayer()
 	playerCount++;
 	answerCode = (int)JoinAnswerSucessful;
 }
-void Server::OpenDebugConsole()
-{
-	AllocConsole();
-	FILE* file;
-	freopen_s(&file, "CONOUT$", "w", stdout);
-	freopen_s(&file, "CONOUT$", "w", stderr);
-	freopen_s(&file, "CONIN$", "r", stdin);
-	std::cout << "Debug-Konsole gestartet." << std::endl;
-}
-void Server::PrintPlayerData()
-{
-	for (const auto& pair : playerData) {
-		std::cout << "Player-ID: " << pair.first << ", Value: " << std::endl;
-		std::cout << "Socket!:" << pair.second.playersocket << std::endl;
-		std::cout << "X: " << pair.second.x << std::endl;
-		std::cout << "Y: " << pair.second.y << std::endl;
-		std::cout << "Z: " << pair.second.z << std::endl;
-		std::cout << std::endl;
-	}
-}
-void Server::PrepareMessage()
-{
-	float x[5];
-	x[0] = static_cast<float>(answerCode);
-	x[1] = currentPlayerID;
-	x[2] = playerData[currentPlayerID].x;
-	x[3] = playerData[currentPlayerID].y;
-	x[4] = playerData[currentPlayerID].z++;
-	memcpy(&dataToSend, x, sizeof(dataToSend));
-}
 
 void Server::HandleIncomingRequest(SOCKET i)
 {
@@ -114,45 +84,6 @@ void Server::HandleIncomingRequest(SOCKET i)
 		std::cout << "Unhandled request: " << msgCode << std::endl;
 		break;
 	}
-}
-Server::Server()
-	: startPosOffset(1000243.3F)
-	, playerCount(0)
-	, currentPlayerID(0)
-	, requestCode(0)
-	, answerCode(0)
-	, maxPlayerCount(2)
-{
-}
-void Server::UnregisterPlayer()
-{
-	//currentPlayerID = 4;
-	//int indexToRemove = currentPlayerID;
-
-	//auto it = playerData.begin();
-	//playerData[0].x = -5;
-	//playerData[0].y = -5;
-	//playerData[0].z = -5;
-	//while (it != playerData.end())
-	//{
-	//	if (it->first > indexToRemove)
-	//	{
-	//		int newKey = it->first - 1;
-	//		playerData[newKey] = it->second;
-	//		it = playerData.erase(it);
-	//	}
-	//	else
-	//	{
-	//		++it;
-	//	}
-//}
-
-// Debug output
-//for (auto it = playerData.begin(); it != playerData.end(); ++it)
-//{
-//	std::cout << "Key: " << it->first << ", Value: (" << it->second.x << ", " << it->second.y << ", " << it->second.z << ")" << std::endl;
-//}
-//playerCount--;
 }
 
 int Server::InitServer()
@@ -260,9 +191,44 @@ void Server::UpdateServer()
 		}
 	}
 }
-
-void Server::CloseClientSocket(SOCKET clientSocket)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Server::PrintPlayerData()
 {
-	closesocket(clientSocket);
-	FD_CLR(clientSocket, &master);
+	for (const auto& pair : playerData) {
+		std::cout << "Player-ID: " << pair.first << ", Value: " << std::endl;
+		std::cout << "Socket!:" << pair.second.playersocket << std::endl;
+		std::cout << "X: " << pair.second.x << std::endl;
+		std::cout << "Y: " << pair.second.y << std::endl;
+		std::cout << "Z: " << pair.second.z << std::endl;
+		std::cout << std::endl;
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Server::Server()
+	: startPosOffset(1000243.3F)
+	, playerCount(0)
+	, currentPlayerID(0)
+	, requestCode(0)
+	, answerCode(0)
+	, maxPlayerCount(2)
+{
+}
+void Server::OpenDebugConsole()
+{
+	AllocConsole();
+	FILE* file;
+	freopen_s(&file, "CONOUT$", "w", stdout);
+	freopen_s(&file, "CONOUT$", "w", stderr);
+	freopen_s(&file, "CONIN$", "r", stdin);
+	std::cout << "Debug-Konsole gestartet." << std::endl;
+}
+void Server::PrepareMessage()
+{
+	float x[5];
+	x[0] = static_cast<float>(answerCode);
+	x[1] = currentPlayerID;
+	x[2] = playerData[currentPlayerID].x;
+	x[3] = playerData[currentPlayerID].y;
+	x[4] = playerData[currentPlayerID].z++;
+	memcpy(&dataToSend, x, sizeof(dataToSend));
 }

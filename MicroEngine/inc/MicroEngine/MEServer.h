@@ -78,6 +78,5 @@ private:
 public:
 	ME_API Server();
 	ME_API ~Server() = default;
-	ME_API void UnregisterPlayer();
 	ME_API int InitServer();
 };
