@@ -58,9 +58,9 @@ namespace capp
 		ME_MOVE_COPY_NOT_ALLOWED(CubeApp);
 		//int value is the Player ID 
 		std::map<int, me::Entity*> PlayerTrasforms;
-		int playerID;
+		float playerID;
 
-		int selectedPlayerID;
+		float selectedPlayerID;
 		float m_MessageData[20];
 		void UpdateLogic(float deltaTime);
 		void InitEntities();

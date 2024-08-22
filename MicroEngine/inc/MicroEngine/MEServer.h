@@ -38,8 +38,6 @@ public:
 	~Position()
 	{}
 };
-
-#pragma once
 class Server
 {
 public:

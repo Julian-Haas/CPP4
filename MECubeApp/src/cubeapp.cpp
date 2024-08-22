@@ -3,10 +3,7 @@
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
-
 #include "cubeapp.h"
-
-
 
 #include "MicroEngine/d3d11util.h"
 #include "MicroEngine/lightcomponent.h"
@@ -16,7 +13,6 @@
 #include "MicroEngine/cameracomponent.h"
 #include "MicroEngine/meshrenderercomponent.h"
 #include "MicroEngine/primitivemeshes.h"
-
 #include "MicroEngine/mesh.h"
 #include "MicroEngine/input.h"
 #include "MicroEngine/firstpersoncontrollercomponent.h"
@@ -25,7 +21,6 @@
 #include "MicroEngine/vertex.h"
 #include "MicroEngine\MEServer.h"
 #include "MicroEngine\util.h"
-
 #include <map>
 
 
@@ -232,7 +227,7 @@ namespace capp
 		}
 		else
 		{
-			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
+			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, me::Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
 			//InstantiateNewPlayer();
 			UpdatePlayerEntitys();
 		}
@@ -270,25 +265,25 @@ namespace capp
 			if (Input::GetInstance()->IsKeyDown('T'))
 			{
 				controlledEntity->TranslateLocal(0, 0, 10 * deltaTime);
-				network.SendMessageToServer(SendPosition_Code);
+				//network.SendMessageToServer(SendPosition_Code);
 			}
 
 			if (Input::GetInstance()->IsKeyDown('F'))
 			{
 				controlledEntity->TranslateLocal(10 * deltaTime, 0, 0);
-				network.SendMessageToServer(SendPosition_Code);
+				//network.SendMessageToServer(SendPosition_Code);
 			}
 
 			if (Input::GetInstance()->IsKeyDown('G'))
 			{
 				controlledEntity->TranslateLocal(0, 0, -10 * deltaTime);
-				network.SendMessageToServer(SendPosition_Code);
+				//network.SendMessageToServer(SendPosition_Code);
 			}
 
 			if (Input::GetInstance()->IsKeyDown('H'))
 			{
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
-				network.SendMessageToServer(SendPosition_Code);
+				//network.SendMessageToServer(SendPosition_Code);
 			}
 			//if (!ultimativedebugflag) {
 
