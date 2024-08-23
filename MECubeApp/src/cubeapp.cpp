@@ -3,7 +3,10 @@
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
+
 #include "cubeapp.h"
+
+
 
 #include "MicroEngine/d3d11util.h"
 #include "MicroEngine/lightcomponent.h"
@@ -13,17 +16,15 @@
 #include "MicroEngine/cameracomponent.h"
 #include "MicroEngine/meshrenderercomponent.h"
 #include "MicroEngine/primitivemeshes.h"
+
 #include "MicroEngine/mesh.h"
 #include "MicroEngine/input.h"
 #include "MicroEngine/firstpersoncontrollercomponent.h"
 #include "MicroEngine/directorywatcher.h"
 #include "MicroEngine/transformcomponent.h"
 #include "MicroEngine/vertex.h"
-#include "MicroEngine\MEServer.h"
-#include "MicroEngine\util.h"
-#include "MicroEngine\test.h"
-#include <map>
-
+#include "MicroEngine/setupnetwork.h"
+#include "MicroEngine/MEServer.h"
 
 
 namespace capp
@@ -36,34 +37,9 @@ namespace capp
 	{
 	}
 
-	void CubeApp::InstantiateNewPlayer()
-	{
-		using namespace me;
-		{
-			const auto cube = m_EntityManager.AddEntity();
-			//m_ControlledEntityID = cube->GetID();
-			auto transform = cube->GetComponent<TransformComponent>().lock();
-			transform->Translate(0, 0.0f, 30);
-
-			auto meshRenderer = m_EntityManager.AddComponent<MeshRendererComponent>(cube->GetID());
-
-			Material cubeMat;
-			cubeMat.AddShaderProperty(Color::s_White);
-			cubeMat.AddShaderProperty(Color::s_Black);
-			cubeMat.AddShaderProperty(Color::s_White);
-			cubeMat.AddShaderProperty(30.0f);
-			cubeMat.SetTexturePS(0, TextureInfo("assets://colormap.bmp"));
-			cubeMat.SetVertexShader("assets://Mesh.hlsl");
-			cubeMat.SetPixelShader("assets://Mesh.hlsl");
-			const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
-			meshRenderer->SetMesh(mesh);
-		}
-	}
-
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 		using namespace me;
-		network.EstablishConnection();
 
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
@@ -94,19 +70,6 @@ namespace capp
 		}
 
 		return ExitCode::Success;
-	}
-
-	void CubeApp::UpdatePlayerEntitys()
-	{
-		using namespace me;
-		//if (selectedPlayerID != playerID)
-		//{
-		//network.m_PlayerData[selectedPlayerID].x = m_MessageData[2];
-		//network.m_PlayerData[selectedPlayerID].y = m_MessageData[3];
-		//network.m_PlayerData[selectedPlayerID].z = m_MessageData[4];
-		//auto transform = PlayerTrasforms[selectedPlayerID]->GetComponent<me::TransformComponent>().lock();
-		//transform->Translate(network.m_PlayerData[selectedPlayerID].x, network.m_PlayerData[selectedPlayerID].y, network.m_PlayerData[selectedPlayerID].z);
-		//}
 	}
 
 	void CubeApp::InitEntities()
@@ -201,36 +164,10 @@ namespace capp
 		}
 	}
 
-	void BewegenBitte() {
-
-	}
-
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
-		//TO-DO: Update Selfposition in playerdata 
-		//send actual position to server 
 		using namespace me;
 
-		//network.UpdateTheServer(); 
-		//network.SendMessageToServer(SendPosition_Code);
-		network.ReadData();
-		BewegenBitte();
-
-		//network.ReadData(m_MessageData, playerID, selectedPlayerID);
-
-
-		auto it = network.m_PlayerData.find(selectedPlayerID);
-
-		if (it != network.m_PlayerData.end()) {
-			// Der Spieler existiert bereits, führe eine Update-Operation durch
-			UpdatePlayerEntitys();
-		}
-		else
-		{
-			network.m_PlayerData.insert(std::make_pair(selectedPlayerID, Position((SOCKET)1, m_MessageData[2], m_MessageData[3], m_MessageData[4])));
-			//InstantiateNewPlayer();
-			UpdatePlayerEntitys();
-		}
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
 			SetCapture(m_Window->GetHWnd());
@@ -242,6 +179,7 @@ namespace capp
 			finalPE->SetBrightness(finalPE->GetBrightness() + deltaTime);
 		if (Input::GetInstance()->IsKeyDown(VK_SUBTRACT))
 			finalPE->SetBrightness(finalPE->GetBrightness() - deltaTime);
+
 		//Control selected entity
 		const auto entity = m_EntityManager.GetEntity(m_ControlledEntityID).lock();
 		auto controlledEntity = entity ? entity->GetComponent<TransformComponent>().lock() : std::shared_ptr<TransformComponent>();
@@ -262,42 +200,25 @@ namespace capp
 				controlledEntity->RotateLocal(0, 50 * deltaTime, 0);
 			}
 
-			if (Input::GetInstance()->IsKeyDown('T'))
+			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD8))
 			{
 				controlledEntity->TranslateLocal(0, 0, 10 * deltaTime);
-				//network.SendMessageToServer(SendPosition_Code);
 			}
 
-			if (Input::GetInstance()->IsKeyDown('F'))
+			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD6))
 			{
 				controlledEntity->TranslateLocal(10 * deltaTime, 0, 0);
-				//network.SendMessageToServer(SendPosition_Code);
 			}
 
-			if (Input::GetInstance()->IsKeyDown('G'))
+			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD2))
 			{
 				controlledEntity->TranslateLocal(0, 0, -10 * deltaTime);
-				//network.SendMessageToServer(SendPosition_Code);
 			}
 
-			if (Input::GetInstance()->IsKeyDown('H'))
+			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD4))
 			{
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
-				//network.SendMessageToServer(SendPosition_Code);
 			}
-			//if (!ultimativedebugflag) {
-
-			//	std::cout << DirectX::XMVectorGetX(controlledEntity->GetPosition()) << std::endl;
-			//	std::cout << DirectX::XMVectorGetY(controlledEntity->GetPosition()) << std::endl;
-			//	std::cout << DirectX::XMVectorGetZ(controlledEntity->GetPosition()) << std::endl;
-			//	ultimativedebugflag = true;;
-			//}
-			//a *= 1.1f;
-			//controlledEntity->TransformComponent::SetPosition(0.0f, a, 30.0f);
-			controlledEntity->SetPosition(0.0f, network.m_PlayerData[0].z, 30.0f);
-			//a *= 1.01f;
-			//std::cout << a << "\n";
-			//controlledEntity->TranslateLocal(0.0f, a, 0.0f);
 		}
 
 		//Update all entities

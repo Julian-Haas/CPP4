@@ -114,10 +114,10 @@
     <ClCompile Include="src\setupnetwork.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="inc\MicroEngine\MEServer.cpp">
+    <ClCompile Include="src\test.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\test.cpp">
+    <ClCompile Include="src\MEServer.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
