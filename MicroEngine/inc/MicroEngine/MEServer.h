@@ -37,9 +37,9 @@ private:
 	char dataToSend[20];
 	char request[20];
 	std::map<SOCKET, Position> playerData;
-	float maxPlayerCount = 2;
 	float currentPlayerID;
 	float playerCount;
+	float maxPlayerCount;
 	std::vector<SOCKET> sockets;
 	SOCKET currentPlayerSocket;
 	SOCKET listenerSocket;

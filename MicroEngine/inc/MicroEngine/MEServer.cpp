@@ -43,6 +43,10 @@ void Server::HandleNewConnection()
 	}
 	FD_SET(newSocket, &master);
 	sockets.push_back(newSocket);
+	system("cls");
+	for (SOCKET s : sockets) {
+		std::cout << s << "\n";
+	}
 	float newPlayerID = playerNumbers.front();
 	playerNumbers.erase(playerNumbers.begin());
 	playerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
@@ -58,7 +62,7 @@ void Server::CheckForIncomingData()
 	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
 	if (selectResult < 0) WSAError("select");
 	for (SOCKET s : sockets) {
-		std::cout << s << "\n";
+		//std::cout << s << "\n";
 		if (!FD_ISSET(s, &reads)) continue;
 		if (s == listenerSocket) {
 			HandleNewConnection();
@@ -138,10 +142,10 @@ void Server::PrintPlayerData()
 Server::Server()
 	: playerCount(0)
 	, currentPlayerID(0)
-	, maxPlayerCount(2)
+	, maxPlayerCount(8)
 {
-	playerNumbers.reserve(8);
-	for (float i = 0.0f; i < 8.0f; ++i) {
+	playerNumbers.reserve(static_cast<int>(maxPlayerCount));
+	for (float i = 0.0f; i < maxPlayerCount; ++i) {
 		playerNumbers.push_back(i);
 	}
 }
