@@ -32,7 +32,7 @@ enum protocol
 class Server
 {
 private:
-	float recievedFloats[5];
+	float receivedFloats[5];
 	float SentPositions[3];
 	char dataToSend[20];
 	char request[20];

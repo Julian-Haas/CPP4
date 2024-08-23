@@ -40,7 +40,7 @@ namespace capp
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 		using namespace me;
-
+		network.EstablishConnection();
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
 		m_Renderer = std::make_shared<Renderer>();

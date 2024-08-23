@@ -20,10 +20,14 @@ void Server::InitServer()
 }
 void Server::HandleIncomingRequest(SOCKET i)
 {
-	memcpy(&recievedFloats, request, sizeof(recievedFloats));
-	int msgCode = static_cast<int>(recievedFloats[0]);
-	currentPlayerID = recievedFloats[1];
+	memcpy(&receivedFloats, request, sizeof(receivedFloats));
+	int msgCode = static_cast<int>(receivedFloats[0]);
 	if (msgCode != SendPosition) return;
+	currentPlayerID = receivedFloats[1];
+	float posX = receivedFloats[2];
+	float posY = receivedFloats[3];
+	float posZ = receivedFloats[4];
+	playerData[i] = Position(currentPlayerID, posX, posY, posZ);
 	for (const auto& pair : playerData) {
 		SOCKET otherPlayerSocket = pair.first;
 		if (otherPlayerSocket == currentPlayerSocket) {
@@ -164,7 +168,7 @@ void Server::SendMessageToClient(SOCKET i, float answerCode)
 	x[1] = currentPlayerID;
 	x[2] = playerData[static_cast<int>(currentPlayerID)].x;
 	x[3] = playerData[static_cast<int>(currentPlayerID)].y;
-	x[4] = playerData[static_cast<int>(currentPlayerID)].z++;
+	x[4] = playerData[static_cast<int>(currentPlayerID)].z;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 	int result = send(i, dataToSend, sizeof(dataToSend), 0);
 	if (result == SOCKET_ERROR) WSAError("send");
