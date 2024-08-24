@@ -47,6 +47,7 @@ namespace capp
 		float m_MessageData[20];
 		void UpdateLogic(float deltaTime);
 		void InitEntities();
+		void UpdateEntities();
 		float a = 1.0f;
 		me::SetupNetwork network;
 		me::EntityID m_ControlledEntityID;
@@ -57,6 +58,7 @@ namespace capp
 		std::unique_ptr<me::Window> m_Window;
 		std::shared_ptr<me::Renderer> m_Renderer;
 
+		float testfloat;
 		bool ultimativedebugflag = false;
 	};
 

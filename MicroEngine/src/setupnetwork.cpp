@@ -12,7 +12,7 @@ namespace me {
 		std::cout << "Testfunktion aufgerufen." << std::endl;
 	}
 	SetupNetwork::SetupNetwork() : server()
-		, _playerID(0)
+		, playerID(0)
 		, _position_x(0)
 		, _position_y(0)
 		, _position_z(30)
@@ -37,6 +37,7 @@ namespace me {
 				std::cout << "select failed\n";
 				return false;
 			}
+			UltraDebugFunktionOderSo();
 			if (selectResult == 0) {
 				//std::cout << "result 0";
 				return false;
@@ -47,16 +48,23 @@ namespace me {
 				{
 					return false;
 				}
+				//UltraDebugFunktionOderSo();
 				switch ((int)receivedMessageInFloat[0])
 				{
-				case 1:
-					_playerID = receivedMessageInFloat[1];
+				case JoinRequestAccepted:
+					playerID = receivedMessageInFloat[1];
 					break;
 				case 2:
 					return false;
 				case 3:
+
+					//std::cout << "x[0] = " << x[0] << std::endl;
+					//std::cout << "x[1] = " << x[1] << std::endl;
+					//std::cout << "x[2] = " << x[2] << std::endl;
+					//std::cout << "x[3] = " << x[3] << std::endl;
+					//std::cout << "x[4] = " << x[4] << std::endl;
 					//UltraDebugFunktionOderSo();
-					UltraSchreibePlaayerPositionsdaten();
+					//UltraSchreibePlaayerPositionsdaten();
 					//std::cout << m_PlayerData[0].z << std::endl;
 					break;
 				default:
@@ -174,10 +182,10 @@ namespace me {
 	void SetupNetwork::SendMessageToServer(float code)
 	{
 		unformattedRequest[0] = code;
-		unformattedRequest[1] = _playerID;
+		unformattedRequest[1] = playerID;
 		unformattedRequest[2] = _position_x;
 		unformattedRequest[3] = _position_y;
-		unformattedRequest[4] = _position_z;
+		unformattedRequest[4] = _position_z++;
 		memcpy(&formattedRequest, unformattedRequest, sizeof(formattedRequest));
 		int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
 		if (bytesSent == SOCKET_ERROR) {

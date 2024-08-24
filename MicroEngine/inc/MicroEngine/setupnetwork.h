@@ -12,10 +12,10 @@ namespace me {
 		char formattedRequest[20];
 		float receivedMessageInFloat[5];
 		char receivedMessage[20];
-		float _playerID = -1;
-		float _position_x = 3;
-		float _position_y = 4;
-		float _position_z = 5;
+		float playerID;
+		float _position_x;
+		float _position_y;
+		float _position_z;
 		Server server;
 
 	public:

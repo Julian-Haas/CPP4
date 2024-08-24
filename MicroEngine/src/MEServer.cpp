@@ -10,19 +10,20 @@
 #include < conio.h >
 void Server::InitServer()
 {
+	Beep(750, 300);
 	OpenDebugConsole();
 	InitWinSockLibrary();
 	InitListenerSocket();
 	isServerRunning = true;
-	while (isServerRunning) {
-		CheckForIncomingData();
-	}
+	while (isServerRunning) CheckForIncomingData();
 }
 void Server::HandleIncomingRequest(SOCKET i)
 {
+	int bytesReceived = recv(i, request, sizeof(request), 0);
 	memcpy(&receivedFloats, request, sizeof(receivedFloats));
 	int msgCode = static_cast<int>(receivedFloats[0]);
 	if (msgCode != SendPosition) return;
+	currentPlayerSocket = i;
 	currentPlayerID = receivedFloats[1];
 	float posX = receivedFloats[2];
 	float posY = receivedFloats[3];
@@ -30,9 +31,22 @@ void Server::HandleIncomingRequest(SOCKET i)
 	playerData[i] = Position(currentPlayerID, posX, posY, posZ);
 	for (const auto& pair : playerData) {
 		SOCKET otherPlayerSocket = pair.first;
-		if (otherPlayerSocket == currentPlayerSocket) {
+		if (otherPlayerSocket == currentPlayerSocket) { //needs to be !=
 			SendMessageToClient(i, ProceedData);
 		}
+	}
+}
+void Server::PrintMap()
+{
+	for (const auto& pair : playerData) {
+		SOCKET socket = pair.first;
+		const Position& position = pair.second;
+		std::cout << "Socket: " << socket << std::endl;
+		std::cout << "Player ID: " << position.playerID << std::endl;
+		std::cout << "X: " << position.x << std::endl;
+		std::cout << "Y: " << position.y << std::endl;
+		std::cout << "Z: " << position.z << std::endl;
+		std::cout << std::endl;
 	}
 }
 void Server::HandleNewConnection()
@@ -47,10 +61,10 @@ void Server::HandleNewConnection()
 	}
 	FD_SET(newSocket, &master);
 	sockets.push_back(newSocket);
-	system("cls");
-	for (SOCKET s : sockets) {
-		std::cout << s << "\n";
-	}
+	//system("cls");
+	//for (SOCKET s : sockets) {
+	//	std::cout << s << "\n";
+	//}
 	float newPlayerID = playerNumbers.front();
 	playerNumbers.erase(playerNumbers.begin());
 	playerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
@@ -66,7 +80,6 @@ void Server::CheckForIncomingData()
 	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
 	if (selectResult < 0) WSAError("select");
 	for (SOCKET s : sockets) {
-		//std::cout << s << "\n";
 		if (!FD_ISSET(s, &reads)) continue;
 		if (s == listenerSocket) {
 			HandleNewConnection();
@@ -109,7 +122,10 @@ void Server::InitListenerSocket()
 }
 void Server::InitNonBlockingMode(SOCKET socket)
 {
-	if (socket == INVALID_SOCKET) std::cerr << "Failed to make Socket non-blocking. Invalid Socket" << std::endl;
+	if (socket == INVALID_SOCKET) {
+		std::cerr << "Failed to make Socket non-blocking. Invalid Socket" << std::endl;
+		return;
+	}
 	u_long mode = 1;
 	int result = ioctlsocket(socket, FIONBIO, &mode);
 	if (result != 0) WSAError("ioctlsocket");
@@ -132,17 +148,6 @@ void Server::InitWinSockLibrary() {
 	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) WSAError("WSAStartup");
 }
-void Server::PrintPlayerData()
-{
-	for (const auto& pair : playerData) {
-		std::cout << "Socket!:: " << pair.first << std::endl;
-		std::cout << "Player-ID:" << pair.second.playerID << std::endl;
-		std::cout << "X: " << pair.second.x << std::endl;
-		std::cout << "Y: " << pair.second.y << std::endl;
-		std::cout << "Z: " << pair.second.z << std::endl;
-		std::cout << std::endl;
-	}
-}
 Server::Server()
 	: playerCount(0)
 	, currentPlayerID(0)
@@ -152,6 +157,7 @@ Server::Server()
 	for (float i = 0.0f; i < maxPlayerCount; ++i) {
 		playerNumbers.push_back(i);
 	}
+	playerData.clear();
 }
 void Server::OpenDebugConsole()
 {
@@ -166,9 +172,9 @@ void Server::SendMessageToClient(SOCKET i, float answerCode)
 	float x[5];
 	x[0] = answerCode;
 	x[1] = currentPlayerID;
-	x[2] = playerData[static_cast<int>(currentPlayerID)].x;
-	x[3] = playerData[static_cast<int>(currentPlayerID)].y;
-	x[4] = playerData[static_cast<int>(currentPlayerID)].z;
+	x[2] = playerData[static_cast<int>(i)].x;
+	x[3] = playerData[static_cast<int>(i)].y;
+	x[4] = playerData[static_cast<int>(i)].z;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 	int result = send(i, dataToSend, sizeof(dataToSend), 0);
 	if (result == SOCKET_ERROR) WSAError("send");

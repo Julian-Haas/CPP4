@@ -33,7 +33,6 @@ class Server
 {
 private:
 	float receivedFloats[5];
-	float SentPositions[3];
 	char dataToSend[20];
 	char request[20];
 	std::map<SOCKET, Position> playerData;
@@ -48,12 +47,12 @@ private:
 	fd_set reads;
 	std::vector<float> playerNumbers;
 	bool isServerRunning;
+	void PrintMap();
 	void HandleNewConnection();
 	void CheckForIncomingData();
 	void HandleIncomingRequest(SOCKET i);
 	void OpenDebugConsole();
 	void InitWinSockLibrary();
-	void PrintPlayerData();
 	void SendMessageToClient(SOCKET i, float answercode);
 	void WSAError(std::string failedprocess);
 	void InitListenerSocket();

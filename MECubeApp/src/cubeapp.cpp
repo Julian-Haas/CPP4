@@ -29,11 +29,11 @@
 
 namespace capp
 {
-
 	CubeApp::CubeApp()
 		: m_ControlledEntityID(me::INVALID_ENTITY_ID)
 		, m_CameraID(me::INVALID_ENTITY_ID)
 		, m_LightID(me::INVALID_ENTITY_ID)
+		, testfloat(30.0f)
 	{
 	}
 
@@ -167,7 +167,12 @@ namespace capp
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
 		using namespace me;
-
+		network.SendMessageToServer(SendPosition);
+		if (ultimativedebugflag == false) {
+			system("cls");
+			ultimativedebugflag = true;
+		}
+		network.ReadData();
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
 			SetCapture(m_Window->GetHWnd());
@@ -185,6 +190,8 @@ namespace capp
 		auto controlledEntity = entity ? entity->GetComponent<TransformComponent>().lock() : std::shared_ptr<TransformComponent>();
 		if (controlledEntity)
 		{
+			testfloat += deltaTime;
+			controlledEntity->SetPosition(0.0f, 0.0f, testfloat);
 			if (Input::GetInstance()->IsKeyDown('Z'))
 			{
 				controlledEntity->RotateLocal(0, 0, 50 * deltaTime);
@@ -219,6 +226,7 @@ namespace capp
 			{
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
 			}
+
 		}
 
 		//Update all entities
