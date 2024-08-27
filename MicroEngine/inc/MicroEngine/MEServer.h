@@ -25,28 +25,30 @@ enum protocol
 	JoinRequestAccepted = 1,
 	JoinRequestDenied = 2,
 	ProceedData = 3,
+
 	JoinRequest = 101,
 	SendPosition = 102,
+	SendLogOut = 103
 };
 
 class Server
 {
 private:
-	float receivedFloats[5];
-	char dataToSend[20];
-	char request[20];
-	std::map<SOCKET, Position> playerData;
-	float currentPlayerID;
-	float playerCount;
-	float maxPlayerCount;
-	std::vector<SOCKET> sockets;
-	SOCKET currentPlayerSocket;
+	float receivedFloats[5]; // 3er array; mutmaßlich komplett sparen, datentyp nicht in namen
+	char dataToSend[20]; // getrennt halten vom request
+	char request[20]; // größe anpassen aufs maximum was reinkommen kann
+	std::map<SOCKET, Position> playerData; // ok
+	float currentPlayerID; // byte
+	float playerCount; // byte
+	float maxPlayerCount; // byte
+	std::vector<SOCKET> sockets; // name nicht erklärend
+	SOCKET currentPlayerSocket; // int und eventuell lokal
 	SOCKET listenerSocket;
-	SOCKET maxSocket;
-	fd_set master;
-	fd_set reads;
-	std::vector<float> playerNumbers;
-	bool isServerRunning;
+	SOCKET maxSocket; // möglicherweise int
+	fd_set master; // ok; der master hat sichts zu sagen! allein der commander hat die macht!
+	//fd_set reads;
+	std::vector<float> playerNumbers; // byte
+	bool isServerRunning; // ok 
 	void PrintMap();
 	void HandleNewConnection();
 	void CheckForIncomingData();

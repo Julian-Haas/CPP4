@@ -10,7 +10,6 @@
 #include < conio.h >
 void Server::InitServer()
 {
-	Beep(750, 300);
 	OpenDebugConsole();
 	InitWinSockLibrary();
 	InitListenerSocket();
@@ -61,10 +60,6 @@ void Server::HandleNewConnection()
 	}
 	FD_SET(newSocket, &master);
 	sockets.push_back(newSocket);
-	//system("cls");
-	//for (SOCKET s : sockets) {
-	//	std::cout << s << "\n";
-	//}
 	float newPlayerID = playerNumbers.front();
 	playerNumbers.erase(playerNumbers.begin());
 	playerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
@@ -75,7 +70,8 @@ void Server::HandleNewConnection()
 void Server::CheckForIncomingData()
 {
 	const struct timeval LongTimeout = { 1, 0 };
-	FD_ZERO(&reads);
+	fd_set reads;
+	//FD_ZERO(&reads);
 	reads = master;
 	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
 	if (selectResult < 0) WSAError("select");
@@ -97,8 +93,9 @@ void Server::InitListenerSocket()
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	addrinfo* bindAddress = nullptr;
-	int bindResult = getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress);
-	if (bindResult != 0) {
+	//bindAddress->ai_family = AF_INET;
+	int result_getaddrinfo = getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress);
+	if (result_getaddrinfo != 0) {
 		freeaddrinfo(bindAddress);
 		WSAError("getaddrinfo");
 	}
@@ -107,13 +104,14 @@ void Server::InitListenerSocket()
 		freeaddrinfo(bindAddress);
 		WSAError("socket");
 	}
-	if (bind(listenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen)) != 0) {
+	int result_bind = bind(listenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen));
+	if (result_bind != 0) {
 		freeaddrinfo(bindAddress);
 		WSAError("bind");
 	}
 	freeaddrinfo(bindAddress);
-	int listenResult = listen(listenerSocket, 20);
-	if (listenResult == SOCKET_ERROR) WSAError("listen");
+	int result_listen = listen(listenerSocket, 20);
+	if (result_listen == SOCKET_ERROR) WSAError("listen");
 	InitNonBlockingMode(listenerSocket);
 	maxSocket = listenerSocket;
 	FD_ZERO(&master);
@@ -169,13 +167,14 @@ void Server::OpenDebugConsole()
 }
 void Server::SendMessageToClient(SOCKET i, float answerCode)
 {
+	currentPlayerID = playerData[static_cast<int>(i)].playerID;
 	float x[5];
 	x[0] = answerCode;
 	x[1] = currentPlayerID;
-	x[2] = playerData[static_cast<int>(i)].x;
-	x[3] = playerData[static_cast<int>(i)].y;
-	x[4] = playerData[static_cast<int>(i)].z;
+	x[2] = playerData[static_cast<int>(currentPlayerID)].x;
+	x[3] = playerData[static_cast<int>(currentPlayerID)].y;
+	x[4] = playerData[static_cast<int>(currentPlayerID)].z;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
-	int result = send(i, dataToSend, sizeof(dataToSend), 0);
-	if (result == SOCKET_ERROR) WSAError("send");
+	int result_send = send(i, dataToSend, sizeof(dataToSend), 0);
+	if (result_send == SOCKET_ERROR) WSAError("send");
 }
