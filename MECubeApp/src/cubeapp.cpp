@@ -26,6 +26,7 @@
 #include "MicroEngine/client.h"
 #include "MicroEngine/MEServer.h"
 #include "MicroEngine/debugwindow.h"
+#include "MicroEngine/say.h"
 
 
 namespace capp
@@ -44,7 +45,7 @@ namespace capp
 		using namespace me;
 		Debugwindow debugWindow;
 		debugWindow.OpenDebugConsole();
-		network.EstablishConnection();
+		client.EstablishConnection();
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
 		m_Renderer = std::make_shared<Renderer>();
@@ -171,7 +172,7 @@ namespace capp
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
 		using namespace me;
-		//network.SendMessageToServer(SendPosition);
+		client.SendPositionToServer(1.0f, 1.0f, 1.0f);
 		//if (ultimativedebugflag == false) {
 		//	system("cls");
 		//	ultimativedebugflag = true;

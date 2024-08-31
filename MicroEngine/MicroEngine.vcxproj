@@ -62,6 +62,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header.h" />
     <ClInclude Include="inc\MicroEngine\cameracomponent.h" />
     <ClInclude Include="inc\MicroEngine\color.h" />
     <ClInclude Include="inc\MicroEngine\component.h" />
@@ -94,6 +95,7 @@
     <ClInclude Include="inc\MicroEngine\primitivemeshes.h" />
     <ClInclude Include="inc\MicroEngine\renderercomponent.h" />
     <ClInclude Include="inc\MicroEngine\renderer.h" />
+    <ClInclude Include="inc\MicroEngine\say.h" />
     <ClInclude Include="inc\MicroEngine\scenenode.h" />
     <ClInclude Include="inc\MicroEngine\client.h" />
     <ClInclude Include="inc\MicroEngine\system.h" />

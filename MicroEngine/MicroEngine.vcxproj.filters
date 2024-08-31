@@ -185,5 +185,7 @@
     <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
     <ClInclude Include="inc\MicroEngine\test.h" />
     <ClInclude Include="inc\MicroEngine\debugwindow.h" />
+    <ClInclude Include="Header.h" />
+    <ClInclude Include="inc\MicroEngine\say.h" />
   </ItemGroup>
 </Project>

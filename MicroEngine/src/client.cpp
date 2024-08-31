@@ -5,6 +5,7 @@
 #include <WS2tcpip.h>
 #include <iostream>
 #include <thread>
+#include "say.h"
 
 namespace me {
 	Client::Client() : server()
@@ -12,6 +13,7 @@ namespace me {
 		, _position_x(0)
 		, _position_y(0)
 		, _position_z(30)
+		, m_StartingTime(std::chrono::steady_clock::now())
 	{
 	}
 	bool Client::ReadData()
@@ -164,22 +166,30 @@ namespace me {
 			//SearchForServer();
 		}
 	}
-	void Client::SendMessageToServer(float code)
+	void Client::SendPositionToServer(float x, float y, float z)
 	{
-		unformattedRequest[0] = code;
-		unformattedRequest[1] = playerID;
-		unformattedRequest[2] = _position_x;
-		unformattedRequest[3] = _position_y;
-		unformattedRequest[4] = _position_z++;
-		memcpy(&formattedRequest, unformattedRequest, sizeof(formattedRequest));
-		int bytesSent = send(serverSocket, formattedRequest, sizeof(formattedRequest), 0);
-		if (bytesSent == SOCKET_ERROR) {
-			int error = WSAGetLastError();
-			if (error != WSAEWOULDBLOCK) {
-			}
+		auto now = std::chrono::steady_clock::now();
+		std::chrono::duration<double> elapsed = now - m_StartingTime;
+		if (elapsed.count() >= 1.0) {
+			system("cls");
+			char positionDataFormatted[12];
+			std::memcpy(&positionDataFormatted[0], &x, sizeof(x));
+			std::memcpy(&positionDataFormatted[4], &y, sizeof(y));
+			std::memcpy(&positionDataFormatted[8], &z, sizeof(z));
+			Helper::Say(x);
+			Helper::Say(y);
+			Helper::Say(z);
+			Helper::Say(temp++);
+			m_StartingTime = now;
+			//int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
+			//if (bytesSent == SOCKET_ERROR) {
+			//	int error = WSAGetLastError();
+			//	if (error != WSAEWOULDBLOCK) {
+			//	}
+			//}
 		}
 	}
-	void Client::UltraDebugFunktionOderSo()
+	void Client::UltraDebugFunktionOderSo(float daten[5])
 	{
 		std::cout << "ClientReceived: " << std::endl;
 		std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
