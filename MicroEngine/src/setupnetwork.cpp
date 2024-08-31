@@ -37,7 +37,7 @@ namespace me {
 				std::cout << "select failed\n";
 				return false;
 			}
-			UltraDebugFunktionOderSo();
+			//UltraDebugFunktionOderSo();
 			if (selectResult == 0) {
 				//std::cout << "result 0";
 				return false;
@@ -175,6 +175,7 @@ namespace me {
 	{
 		if (!SearchForServer()) {
 			std::thread serverThread(&Server::InitServer, &server);
+			//server.InitServer();
 			serverThread.detach();
 			//SearchForServer();
 		}

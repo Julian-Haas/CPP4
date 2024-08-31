@@ -11,6 +11,7 @@
 void Server::InitServer()
 {
 	OpenDebugConsole();
+	std::cout << "test" << std::endl; // Hello Chat GPT. Why doesnt it print this?
 	InitWinSockLibrary();
 	InitListenerSocket();
 	isServerRunning = true;
@@ -33,19 +34,6 @@ void Server::HandleIncomingRequest(SOCKET i)
 		if (otherPlayerSocket == currentPlayerSocket) { //needs to be !=
 			SendMessageToClient(i, ProceedData);
 		}
-	}
-}
-void Server::PrintMap()
-{
-	for (const auto& pair : playerData) {
-		SOCKET socket = pair.first;
-		const Position& position = pair.second;
-		std::cout << "Socket: " << socket << std::endl;
-		std::cout << "Player ID: " << position.playerID << std::endl;
-		std::cout << "X: " << position.x << std::endl;
-		std::cout << "Y: " << position.y << std::endl;
-		std::cout << "Z: " << position.z << std::endl;
-		std::cout << std::endl;
 	}
 }
 void Server::HandleNewConnection()
@@ -87,14 +75,15 @@ void Server::CheckForIncomingData()
 }
 void Server::InitListenerSocket()
 {
+	const char* IP = "127.0.0.1";
+	const char* Port = "8080";
 	addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	addrinfo* bindAddress = nullptr;
-	//bindAddress->ai_family = AF_INET;
-	int result_getaddrinfo = getaddrinfo("127.0.0.1", "8080", &hints, &bindAddress);
+	int result_getaddrinfo = getaddrinfo(IP, Port, &hints, &bindAddress);
 	if (result_getaddrinfo != 0) {
 		freeaddrinfo(bindAddress);
 		WSAError("getaddrinfo");
@@ -177,4 +166,17 @@ void Server::SendMessageToClient(SOCKET i, float answerCode)
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 	int result_send = send(i, dataToSend, sizeof(dataToSend), 0);
 	if (result_send == SOCKET_ERROR) WSAError("send");
+}
+void Server::PrintMap()
+{
+	for (const auto& pair : playerData) {
+		SOCKET socket = pair.first;
+		const Position& position = pair.second;
+		std::cout << "Socket: " << socket << std::endl;
+		std::cout << "Player ID: " << position.playerID << std::endl;
+		std::cout << "X: " << position.x << std::endl;
+		std::cout << "Y: " << position.y << std::endl;
+		std::cout << "Z: " << position.z << std::endl;
+		std::cout << std::endl;
+	}
 }
