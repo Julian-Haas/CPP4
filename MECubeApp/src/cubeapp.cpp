@@ -25,6 +25,7 @@
 #include "MicroEngine/vertex.h"
 #include "MicroEngine/setupnetwork.h"
 #include "MicroEngine/MEServer.h"
+//#include "debugwindow.h"
 
 
 namespace capp

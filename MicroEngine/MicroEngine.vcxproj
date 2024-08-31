@@ -25,6 +25,7 @@
     <ClCompile Include="src\d3d11texture2d.cpp" />
     <ClCompile Include="src\d3d11util.cpp" />
     <ClCompile Include="src\d3d11vertexshader.cpp" />
+    <ClCompile Include="src\debugwindow.cpp" />
     <ClCompile Include="src\directorywatcher.cpp" />
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\entitymanager.cpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="inc\MicroEngine\d3d11texture2d.h" />
     <ClInclude Include="inc\MicroEngine\d3d11util.h" />
     <ClInclude Include="inc\MicroEngine\d3d11vertexshader.h" />
+    <ClInclude Include="inc\MicroEngine\debugwindow.h" />
     <ClInclude Include="inc\MicroEngine\directorywatcher.h" />
     <ClInclude Include="inc\MicroEngine\entity.h" />
     <ClInclude Include="inc\MicroEngine\entitymanager.h" />

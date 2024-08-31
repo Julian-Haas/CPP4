@@ -146,14 +146,6 @@ Server::Server()
 	}
 	playerData.clear();
 }
-void Server::OpenDebugConsole()
-{
-	AllocConsole();
-	FILE* file;
-	freopen_s(&file, "CONOUT$", "w", stdout);
-	freopen_s(&file, "CONOUT$", "w", stderr);
-	freopen_s(&file, "CONIN$", "r", stdin);
-}
 void Server::SendMessageToClient(SOCKET i, float answerCode)
 {
 	currentPlayerID = playerData[static_cast<int>(i)].playerID;

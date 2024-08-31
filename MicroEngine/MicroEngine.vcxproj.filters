@@ -120,6 +120,9 @@
     <ClCompile Include="src\MEServer.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\debugwindow.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\MicroEngine\component.h" />
@@ -181,5 +184,6 @@
     <ClInclude Include="inc\MicroEngine\MEServer.h" />
     <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
     <ClInclude Include="inc\MicroEngine\test.h" />
+    <ClInclude Include="inc\MicroEngine\debugwindow.h" />
   </ItemGroup>
 </Project>
