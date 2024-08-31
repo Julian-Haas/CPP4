@@ -10,8 +10,6 @@
 #include < conio.h >
 void Server::InitServer()
 {
-	OpenDebugConsole();
-	std::cout << "test" << std::endl; // Hello Chat GPT. Why doesnt it print this?
 	InitWinSockLibrary();
 	InitListenerSocket();
 	isServerRunning = true;
@@ -59,7 +57,6 @@ void Server::CheckForIncomingData()
 {
 	const struct timeval LongTimeout = { 1, 0 };
 	fd_set reads;
-	//FD_ZERO(&reads);
 	reads = master;
 	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
 	if (selectResult < 0) WSAError("select");

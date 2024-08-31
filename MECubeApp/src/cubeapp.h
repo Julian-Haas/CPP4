@@ -9,7 +9,7 @@
 #include "MicroEngine\entitymanager.h"
 #include "MicroEngine\renderer.h"
 #include "MicroEngine\systemmanager.h"
-#include "MicroEngine/setupnetwork.h"
+#include "MicroEngine/client.h"
 
 namespace me
 {
@@ -49,7 +49,7 @@ namespace capp
 		void InitEntities();
 		void UpdateEntities();
 		float a = 1.0f;
-		me::SetupNetwork network;
+		me::Client network;
 		me::EntityID m_ControlledEntityID;
 		me::EntityID m_CameraID;
 		me::EntityID m_LightID;

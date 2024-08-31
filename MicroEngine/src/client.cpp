@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "setupnetwork.h"
+#include "client.h"
 #pragma comment (lib, "ws2_32.lib")
 #pragma comment (lib, "iphlpapi.lib")
 #include <WS2tcpip.h>
@@ -7,18 +7,14 @@
 #include <thread>
 
 namespace me {
-	void SetupNetwork::Testfunktion()
-	{
-		std::cout << "Testfunktion aufgerufen." << std::endl;
-	}
-	SetupNetwork::SetupNetwork() : server()
+	Client::Client() : server()
 		, playerID(0)
 		, _position_x(0)
 		, _position_y(0)
 		, _position_z(30)
 	{
 	}
-	bool SetupNetwork::ReadData()
+	bool Client::ReadData()
 	{
 		bool readAllData = false;
 		while (!readAllData)
@@ -37,7 +33,6 @@ namespace me {
 				std::cout << "select failed\n";
 				return false;
 			}
-			//UltraDebugFunktionOderSo();
 			if (selectResult == 0) {
 				//std::cout << "result 0";
 				return false;
@@ -57,7 +52,6 @@ namespace me {
 				case 2:
 					return false;
 				case 3:
-
 					//std::cout << "x[0] = " << x[0] << std::endl;
 					//std::cout << "x[1] = " << x[1] << std::endl;
 					//std::cout << "x[2] = " << x[2] << std::endl;
@@ -78,23 +72,13 @@ namespace me {
 		}
 		return true;
 	}
-	void SetupNetwork::UltraDebugFunktionOderSo()
-	{
-		std::cout << "ClientReceived: " << std::endl;
-		std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
-		std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
-		std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
-		std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
-		std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
-	}
-	void SetupNetwork::UltraSchreibePlaayerPositionsdaten()
+	void Client::UltraSchreibePlaayerPositionsdaten()
 	{
 		m_PlayerData.insert(std::make_pair<int, Position>((int)receivedMessageInFloat[1], Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4])));
 		m_PlayerData[(int)receivedMessageInFloat[1]] = Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4]);
 	}
-	bool SetupNetwork::SearchForServer()
+	bool Client::SearchForServer()
 	{
-		//magic numbers
 		const char* serverIP = "127.0.0.1";
 		const char* serverPort = "8080";
 
@@ -106,7 +90,7 @@ namespace me {
 			printf("WinSocket failed to initialize\n");
 			return false;
 		}
-		printf("Configuring remote address\n");
+		//printf("Configuring remote address\n");
 		addrinfo hints;
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_INET;
@@ -117,11 +101,11 @@ namespace me {
 			fprintf(stderr, "getaddrinfo() failed. (%d)\n", WSAGetLastError());
 			return false;
 		}
-		printf("Remote address is :\n");
+		//printf("Remote address is :\n");
 		PCHAR addressBuffer = nullptr;
 		getnameinfo(serverAddrInfo->ai_addr, (socklen_t)serverAddrInfo->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
-		printf("%s\n", addressBuffer);
-		printf("Creating socket...\n");
+		//printf("%s\n", addressBuffer);
+		//printf("Creating socket...\n");
 		serverSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
 		if (serverSocket == INVALID_SOCKET)
 		{
@@ -133,7 +117,7 @@ namespace me {
 		u_long mode = 1;
 		ioctlsocket(serverSocket, FIONBIO, &mode);
 
-		printf("Connecting to server...\n");
+		//printf("Connecting to server...\n");
 		int result = connect(serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
 		if (result == SOCKET_ERROR)
 		{
@@ -171,7 +155,7 @@ namespace me {
 		freeaddrinfo(serverAddrInfo);
 		return sucess;
 	}
-	void SetupNetwork::EstablishConnection()
+	void Client::EstablishConnection()
 	{
 		if (!SearchForServer()) {
 			std::thread serverThread(&Server::InitServer, &server);
@@ -180,7 +164,7 @@ namespace me {
 			//SearchForServer();
 		}
 	}
-	void SetupNetwork::SendMessageToServer(float code)
+	void Client::SendMessageToServer(float code)
 	{
 		unformattedRequest[0] = code;
 		unformattedRequest[1] = playerID;
@@ -194,5 +178,14 @@ namespace me {
 			if (error != WSAEWOULDBLOCK) {
 			}
 		}
+	}
+	void Client::UltraDebugFunktionOderSo()
+	{
+		std::cout << "ClientReceived: " << std::endl;
+		std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
+		std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
+		std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
+		std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
+		std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
 	}
 }

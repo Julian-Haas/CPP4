@@ -111,7 +111,7 @@
     <ClCompile Include="src\posteffect.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\setupnetwork.cpp">
+    <ClCompile Include="src\client.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\test.cpp">
@@ -180,7 +180,7 @@
     <ClInclude Include="inc\MicroEngine\systemmanager.h" />
     <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
     <ClInclude Include="inc\MicroEngine\posteffect.h" />
-    <ClInclude Include="inc\MicroEngine\setupnetwork.h" />
+    <ClInclude Include="inc\MicroEngine\client.h" />
     <ClInclude Include="inc\MicroEngine\MEServer.h" />
     <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
     <ClInclude Include="inc\MicroEngine\test.h" />

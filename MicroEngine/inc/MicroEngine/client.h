@@ -4,7 +4,7 @@
 #include "MEServer.h"
 
 namespace me {
-	class SetupNetwork {
+	class Client {
 	private:
 		bool _debugFlag = false;
 		SOCKET serverSocket;
@@ -20,9 +20,8 @@ namespace me {
 
 	public:
 		std::map<int, Position> m_PlayerData;
-		ME_API void Testfunktion();
-		ME_API SetupNetwork();
-		ME_API ~SetupNetwork() = default;
+		ME_API Client();
+		ME_API ~Client() = default;
 		ME_API bool ReadData();
 		ME_API void UltraDebugFunktionOderSo();
 		ME_API void UltraSchreibePlaayerPositionsdaten();

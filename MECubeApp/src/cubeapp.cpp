@@ -23,9 +23,9 @@
 #include "MicroEngine/directorywatcher.h"
 #include "MicroEngine/transformcomponent.h"
 #include "MicroEngine/vertex.h"
-#include "MicroEngine/setupnetwork.h"
+#include "MicroEngine/client.h"
 #include "MicroEngine/MEServer.h"
-//#include "debugwindow.h"
+#include "MicroEngine/debugwindow.h"
 
 
 namespace capp
@@ -40,7 +40,10 @@ namespace capp
 
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
+
 		using namespace me;
+		Debugwindow debugWindow;
+		debugWindow.OpenDebugConsole();
 		network.EstablishConnection();
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
@@ -168,12 +171,12 @@ namespace capp
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
 		using namespace me;
-		network.SendMessageToServer(SendPosition);
-		if (ultimativedebugflag == false) {
-			system("cls");
-			ultimativedebugflag = true;
-		}
-		network.ReadData();
+		//network.SendMessageToServer(SendPosition);
+		//if (ultimativedebugflag == false) {
+		//	system("cls");
+		//	ultimativedebugflag = true;
+		//}
+		//network.ReadData();
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
 			SetCapture(m_Window->GetHWnd());
