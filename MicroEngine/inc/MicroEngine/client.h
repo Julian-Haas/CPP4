@@ -26,7 +26,7 @@ namespace me {
 		ME_API Client();
 		ME_API ~Client() = default;
 		ME_API bool ReadData();
-		ME_API void UltraDebugFunktionOderSo(float daten[5]);
+		ME_API void UltraDebugFunktionOderSo();
 		ME_API void UltraSchreibePlaayerPositionsdaten();
 		ME_API bool SearchForServer();
 		ME_API void SendPositionToServer(float x, float y, float z);

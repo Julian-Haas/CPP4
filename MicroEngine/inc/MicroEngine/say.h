@@ -3,6 +3,12 @@
 #include <iostream>
 #include <chrono>
 
+template <typename T>
+static void Say(const T& output) {
+	std::cout << output << std::endl;
+}
+
+
 class Helper {
 public:
 	template <typename T>

@@ -172,12 +172,6 @@ namespace capp
 	void CubeApp::UpdateLogic(float deltaTime)
 	{
 		using namespace me;
-		client.SendPositionToServer(1.0f, 1.0f, 1.0f);
-		//if (ultimativedebugflag == false) {
-		//	system("cls");
-		//	ultimativedebugflag = true;
-		//}
-		//network.ReadData();
 		//Allow capturing mouse when the left button is held and it moves outside the window
 		if (Input::GetInstance()->IsKeyDown(VK_LBUTTON))
 			SetCapture(m_Window->GetHWnd());
@@ -193,10 +187,50 @@ namespace capp
 		//Control selected entity
 		const auto entity = m_EntityManager.GetEntity(m_ControlledEntityID).lock();
 		auto controlledEntity = entity ? entity->GetComponent<TransformComponent>().lock() : std::shared_ptr<TransformComponent>();
+
+		DirectX::XMVECTOR positionData = controlledEntity->GetPosition();
+		float x = DirectX::XMVectorGetX(positionData);
+		float y = DirectX::XMVectorGetY(positionData);
+		float z = DirectX::XMVectorGetZ(positionData);
+		client.SendPositionToServer(x, y, z);
+		client.ReadData();
+		//if (ultimativedebugflag == false) {
+		//	system("cls");
+		//	ultimativedebugflag = true;
+		//}
+		//network.ReadData();
+
+
+
 		if (controlledEntity)
 		{
-			testfloat += deltaTime;
-			controlledEntity->SetPosition(0.0f, 0.0f, testfloat);
+			//testfloat += deltaTime;
+			//controlledEntity->SetPosition(0.0f, 0.0f, testfloat);
+
+
+
+			if (Input::GetInstance()->IsKeyDown('U'))
+			{
+				controlledEntity->Translate(0, 0, 50 * deltaTime);
+			}
+			if (Input::GetInstance()->IsKeyDown('H'))
+			{
+				controlledEntity->Translate(50 * deltaTime, 0, 0);
+			}
+			if (Input::GetInstance()->IsKeyDown('J'))
+			{
+				controlledEntity->Translate(0, 0, -50 * deltaTime);
+			}
+			if (Input::GetInstance()->IsKeyDown('K'))
+			{
+				controlledEntity->Translate(-50 * deltaTime, 0, 0);
+			}
+
+
+
+
+
+
 			if (Input::GetInstance()->IsKeyDown('Z'))
 			{
 				controlledEntity->RotateLocal(0, 0, 50 * deltaTime);

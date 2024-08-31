@@ -34,9 +34,9 @@ enum protocol
 class Server
 {
 private:
-	float receivedFloats[5]; // 3er array; mutmaßlich komplett sparen, datentyp nicht in namen
+	float receivedFloats[3]; // 3er array; mutmaßlich komplett sparen, datentyp nicht in namen
 	char dataToSend[20]; // getrennt halten vom request
-	char request[20]; // größe anpassen aufs maximum was reinkommen kann
+	char request[12]; // größe anpassen aufs maximum was reinkommen kann
 	std::map<SOCKET, Position> playerData; // ok
 	float currentPlayerID; // byte
 	float playerCount; // byte

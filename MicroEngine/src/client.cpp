@@ -24,7 +24,7 @@ namespace me {
 			fd_set reads;
 			FD_ZERO(&reads);
 			FD_SET(serverSocket, &reads);
-
+			UltraDebugFunktionOderSo();
 			timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms
@@ -171,26 +171,29 @@ namespace me {
 		auto now = std::chrono::steady_clock::now();
 		std::chrono::duration<double> elapsed = now - m_StartingTime;
 		if (elapsed.count() >= 1.0) {
-			system("cls");
+			//system("cls");
 			char positionDataFormatted[12];
 			std::memcpy(&positionDataFormatted[0], &x, sizeof(x));
 			std::memcpy(&positionDataFormatted[4], &y, sizeof(y));
 			std::memcpy(&positionDataFormatted[8], &z, sizeof(z));
-			Helper::Say(x);
-			Helper::Say(y);
-			Helper::Say(z);
-			Helper::Say(temp++);
+			//Helper::Say(x);
+			//Helper::Say(y);
+			//Helper::Say(z);
+
 			m_StartingTime = now;
-			//int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
-			//if (bytesSent == SOCKET_ERROR) {
-			//	int error = WSAGetLastError();
-			//	if (error != WSAEWOULDBLOCK) {
-			//	}
-			//}
+			int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
+			//Helper::Say(bytesSent);
+			//Helper::Say(temp++);
+			if (bytesSent == SOCKET_ERROR) {
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK) {
+				}
+			}
 		}
 	}
-	void Client::UltraDebugFunktionOderSo(float daten[5])
+	void Client::UltraDebugFunktionOderSo()
 	{
+		system("cls");
 		std::cout << "ClientReceived: " << std::endl;
 		std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
 		std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;

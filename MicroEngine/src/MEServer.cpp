@@ -8,6 +8,8 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include < conio.h >
+#include "say.h"
+
 void Server::InitServer()
 {
 	InitWinSockLibrary();
@@ -19,23 +21,36 @@ void Server::HandleIncomingRequest(SOCKET i)
 {
 	int bytesReceived = recv(i, request, sizeof(request), 0);
 	memcpy(&receivedFloats, request, sizeof(receivedFloats));
-	int msgCode = static_cast<int>(receivedFloats[0]);
-	if (msgCode != SendPosition) return;
+	//for (int j = 0; j < 3; ++j) {
+	//	std::cout << "Float " << j << ": " << receivedFloats[j] << std::endl;
+	//}
 	currentPlayerSocket = i;
-	currentPlayerID = receivedFloats[1];
-	float posX = receivedFloats[2];
-	float posY = receivedFloats[3];
-	float posZ = receivedFloats[4];
-	playerData[i] = Position(currentPlayerID, posX, posY, posZ);
+	float posX = receivedFloats[0];
+	float posY = receivedFloats[1];
+	float posZ = receivedFloats[2];
+	playerData[i] = Position(playerData[i].playerID, posX, posY, posZ);
+	//std::cout << "x " << playerData[i].x << std::endl;
+	//std::cout << "y " << playerData[i].y << std::endl;
+	//std::cout << "z " << playerData[i].z << std::endl;
+	//system("cls");
 	for (const auto& pair : playerData) {
 		SOCKET otherPlayerSocket = pair.first;
-		if (otherPlayerSocket == currentPlayerSocket) { //needs to be !=
-			SendMessageToClient(i, ProceedData);
+
+		//Say(otherPlayerSocket);
+
+		if (otherPlayerSocket != currentPlayerSocket) {
+
+
+			//Say("senden");
+			//Say(otherPlayerSocket);
+			//Say(currentPlayerSocket);
+			SendMessageToClient(otherPlayerSocket, ProceedData);
 		}
 	}
 }
 void Server::HandleNewConnection()
 {
+
 	SOCKET newSocket = accept(listenerSocket, nullptr, nullptr);
 	if (newSocket == INVALID_SOCKET) WSAError("accept");
 	if (playerCount >= maxPlayerCount)
@@ -50,11 +65,15 @@ void Server::HandleNewConnection()
 	playerNumbers.erase(playerNumbers.begin());
 	playerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
 	++playerCount;
+	currentPlayerSocket = newSocket;
+	currentPlayerID = playerData[newSocket].playerID;
 	SendMessageToClient(newSocket, JoinRequestAccepted);
 	//inform others
+
 }
 void Server::CheckForIncomingData()
 {
+
 	const struct timeval LongTimeout = { 1, 0 };
 	fd_set reads;
 	reads = master;
@@ -145,13 +164,16 @@ Server::Server()
 }
 void Server::SendMessageToClient(SOCKET i, float answerCode)
 {
-	currentPlayerID = playerData[static_cast<int>(i)].playerID;
+
+	currentPlayerID = playerData[static_cast<int>(currentPlayerSocket)].playerID;
 	float x[5];
 	x[0] = answerCode;
 	x[1] = currentPlayerID;
-	x[2] = playerData[static_cast<int>(currentPlayerID)].x;
-	x[3] = playerData[static_cast<int>(currentPlayerID)].y;
-	x[4] = playerData[static_cast<int>(currentPlayerID)].z;
+
+	x[2] = playerData[static_cast<int>(currentPlayerSocket)].x;
+	//Say(playerData[static_cast<int>(currentPlayerSocket)].x);
+	x[3] = playerData[static_cast<int>(currentPlayerSocket)].y;
+	x[4] = playerData[static_cast<int>(currentPlayerSocket)].z;
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 	int result_send = send(i, dataToSend, sizeof(dataToSend), 0);
 	if (result_send == SOCKET_ERROR) WSAError("send");
