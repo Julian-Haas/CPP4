@@ -206,18 +206,15 @@ namespace capp
 
 		if (controlledEntity)
 		{
-			//testfloat += deltaTime;
-			//controlledEntity->SetPosition(0.0f, 0.0f, testfloat);
-
 			if (Input::GetInstance()->IsKeyDown(' '))
 			{
-				m_EntityManager.SetPositionByID(controlledEntity->GetID(), 1.0f, 1.0f, 1.0f);
+				m_EntityManager.SetPositionByID(entity->GetID(), 1.0f, 1.0f, 1.0f);
 			}
-
+			// was wir brauchen: shared ptr auf <TransformComponent>
 
 			if (Input::GetInstance()->IsKeyDown('U'))
 			{
-				Say(((m_EntityManager.GetEntity(controlledEntity->GetID()).lock())->GetComponent<TransformComponent>()).lock());
+				Say(controlledEntity);
 				controlledEntity->Translate(0, 0, 50 * deltaTime);
 			}
 			if (Input::GetInstance()->IsKeyDown('H'))
