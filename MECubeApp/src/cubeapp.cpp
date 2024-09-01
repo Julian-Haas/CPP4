@@ -25,7 +25,6 @@
 #include "MicroEngine/vertex.h"
 #include "MicroEngine/client.h"
 #include "MicroEngine/MEServer.h"
-#include "MicroEngine/debugwindow.h"
 #include "MicroEngine/say.h"
 
 
@@ -37,13 +36,15 @@ namespace capp
 		, m_LightID(me::INVALID_ENTITY_ID)
 		, testfloat(30.0f)
 	{
+		debugWindow.OpenDebugConsole();
+	}
+	CubeApp::~CubeApp()
+	{
+		debugWindow.CloseDebugConsole();
 	}
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
-
 		using namespace me;
-		Debugwindow debugWindow;
-		debugWindow.OpenDebugConsole();
 		client.EstablishConnection();
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 

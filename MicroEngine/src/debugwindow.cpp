@@ -11,4 +11,12 @@ namespace me {
 		freopen_s(&file, "CONOUT$", "w", stderr);
 		freopen_s(&file, "CONIN$", "r", stdin);
 	}
+
+	void Debugwindow::CloseDebugConsole()
+	{
+		fclose(stdout);
+		fclose(stderr);
+		fclose(stdin);
+		FreeConsole();
+	}
 }

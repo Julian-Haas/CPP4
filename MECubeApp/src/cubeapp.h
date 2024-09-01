@@ -11,6 +11,7 @@
 #include "MicroEngine\systemmanager.h"
 #include "MicroEngine/client.h"
 #include "MicroEngine/util.h"
+#include "MicroEngine/debugwindow.h"
 
 namespace me
 {
@@ -33,7 +34,7 @@ namespace capp
 	{
 	public:
 		CubeApp();
-		~CubeApp() = default;
+		~CubeApp();
 		me::EntityID InstantiateNewPlayer();
 		void UpdatePlayerEntitys();
 		ExitCode::Enum Run(HINSTANCE hInst);
@@ -43,7 +44,7 @@ namespace capp
 		//int value is the Player ID 
 		std::map<int, me::Entity*> PlayerTrasforms;
 		float playerID;
-
+		me::Debugwindow debugWindow;
 		float selectedPlayerID;
 		float m_MessageData[20];
 		void UpdateLogic(float deltaTime);

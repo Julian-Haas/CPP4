@@ -6,6 +6,7 @@ namespace me {
 	private:
 	public:
 		ME_API void OpenDebugConsole();
+		ME_API void CloseDebugConsole();
 	};
 }
 

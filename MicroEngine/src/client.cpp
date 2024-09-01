@@ -6,6 +6,7 @@
 #include <iostream>
 #include <thread>
 #include "say.h"
+#include "entitymanager.h"
 
 namespace me {
 	Client::Client() : server()
@@ -24,7 +25,6 @@ namespace me {
 			fd_set reads;
 			FD_ZERO(&reads);
 			FD_SET(serverSocket, &reads);
-			UltraDebugFunktionOderSo();
 			timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms
@@ -54,6 +54,7 @@ namespace me {
 				case 2:
 					return false;
 				case 3:
+					UltraDebugFunktionOderSo();
 					//std::cout << "x[0] = " << x[0] << std::endl;
 					//std::cout << "x[1] = " << x[1] << std::endl;
 					//std::cout << "x[2] = " << x[2] << std::endl;
