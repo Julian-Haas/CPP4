@@ -46,9 +46,8 @@ private:
 	SOCKET listenerSocket;
 	SOCKET maxSocket; // möglicherweise int
 	fd_set master; // ok; der master hat sichts zu sagen! allein der commander hat die macht!
-	//fd_set reads;
 	std::vector<float> playerNumbers; // byte
-	bool isServerRunning; // ok 
+	bool isServerRunning;
 	void PrintMap();
 	void HandleNewConnection();
 	void CheckForIncomingData();

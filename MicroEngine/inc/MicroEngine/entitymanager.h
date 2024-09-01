@@ -28,7 +28,6 @@ namespace me
 		ME_API void SetPositionByID(EntityID object, float x, float y, float z);
 		ME_API void TranslateByID(EntityID object, float x, float y, float z);
 
-
 		template <class T>
 		std::shared_ptr<T> AddComponent(EntityID entityID)
 		{
@@ -46,9 +45,10 @@ namespace me
 	private:
 		ME_MOVE_COPY_NOT_ALLOWED(EntityManager);
 
+		std::map<int, EntityID> m_PlayerEntities;
 		std::map<EntityID, std::shared_ptr<Entity>> m_Entities;
 		EntityID m_IDCounter;
 		ComponentStorer m_ComponentStorer;
-	};
 
+	};
 };		//map is a sorted container, iteration will be in component id order

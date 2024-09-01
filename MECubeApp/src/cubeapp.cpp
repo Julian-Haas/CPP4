@@ -146,9 +146,6 @@ namespace capp
 			const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
 			meshRenderer->SetMesh(mesh);
 		}
-		auto temp = InstantiateNewPlayer();
-		//Say(temp);
-		//m_EntityManager.RemoveEntity(temp);
 
 		//Terrain
 		{
@@ -208,13 +205,13 @@ namespace capp
 		{
 			if (Input::GetInstance()->IsKeyDown(' '))
 			{
-				m_EntityManager.SetPositionByID(entity->GetID(), 1.0f, 1.0f, 1.0f);
+
+				//m_EntityManager.SetPositionByID(entity->GetID(), 1.0f, 1.0f, 1.0f);
+				//m_EntityManager.SetPositionByID(temp > GetID(), 1.0f, 1.0f, 1.0f);
 			}
-			// was wir brauchen: shared ptr auf <TransformComponent>
 
 			if (Input::GetInstance()->IsKeyDown('U'))
 			{
-				Say(controlledEntity);
 				controlledEntity->Translate(0, 0, 50 * deltaTime);
 			}
 			if (Input::GetInstance()->IsKeyDown('H'))

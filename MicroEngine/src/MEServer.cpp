@@ -29,28 +29,20 @@ void Server::HandleIncomingRequest(SOCKET i)
 	float posY = receivedFloats[1];
 	float posZ = receivedFloats[2];
 	playerData[i] = Position(playerData[i].playerID, posX, posY, posZ);
+	//system("cls");
 	//std::cout << "x " << playerData[i].x << std::endl;
 	//std::cout << "y " << playerData[i].y << std::endl;
 	//std::cout << "z " << playerData[i].z << std::endl;
-	//system("cls");
+
 	for (const auto& pair : playerData) {
 		SOCKET otherPlayerSocket = pair.first;
-
-		//Say(otherPlayerSocket);
-
 		if (otherPlayerSocket != currentPlayerSocket) {
-
-
-			//Say("senden");
-			//Say(otherPlayerSocket);
-			//Say(currentPlayerSocket);
 			SendMessageToClient(otherPlayerSocket, ProceedData);
 		}
 	}
 }
 void Server::HandleNewConnection()
 {
-
 	SOCKET newSocket = accept(listenerSocket, nullptr, nullptr);
 	if (newSocket == INVALID_SOCKET) WSAError("accept");
 	if (playerCount >= maxPlayerCount)
@@ -68,8 +60,6 @@ void Server::HandleNewConnection()
 	currentPlayerSocket = newSocket;
 	currentPlayerID = playerData[newSocket].playerID;
 	SendMessageToClient(newSocket, JoinRequestAccepted);
-	//inform others
-
 }
 void Server::CheckForIncomingData()
 {

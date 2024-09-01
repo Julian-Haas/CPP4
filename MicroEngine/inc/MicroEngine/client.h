@@ -17,7 +17,6 @@ namespace me {
 		float _position_y;
 		float _position_z;
 		Server server;
-		//Helper helper;
 		int temp = 0;
 		std::chrono::steady_clock::time_point m_StartingTime;
 
