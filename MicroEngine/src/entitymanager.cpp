@@ -47,30 +47,20 @@ namespace me
 	{
 		m_ComponentStorer.UpdateComponents(dt);
 	}
+
 	void EntityManager::SetPositionByID(EntityID playerCubeID, float x, float y, float z)
 	{
-		//Say(playerCubeID);
-		static float temp = 0.1f;
 		std::weak_ptr<Entity> cube = GetEntity(playerCubeID);
 		std::shared_ptr<Entity> sharedCube = cube.lock();
 		auto transform = sharedCube ? sharedCube->GetComponent<TransformComponent>().lock() : std::shared_ptr<TransformComponent>();
-		/*	Say(sharedCube);
-			auto transform = sharedCube->GetComponent<TransformComponent>().lock();
-			Say(&transform);*/
+		transform->SetPosition(x, y, z);
+	}
 
-			// was wir brauchen: shared ptr auf <TransformComponent>
-
-		transform->Translate(1.0f, 1.0f, 1.0f);;
-
-
-		//&playerCubeID->GetComponent<TransformComponent>();
-		//auto transform = ((sharedCube->GetID()).lock()->GetComponent<TransformComponent>()).lock()
-		//	Say(((m_EntityManager.GetEntity(controlledEntity->GetID()).lock())->GetComponent<TransformComponent>()).lock());
-
-
-
-
-		//temp++;
-		//transform->Translate(0.0f, 0.0f, temp);
+	void EntityManager::TranslateByID(EntityID playerCubeID, float x, float y, float z)
+	{
+		std::weak_ptr<Entity> cube = GetEntity(playerCubeID);
+		std::shared_ptr<Entity> sharedCube = cube.lock();
+		auto transform = sharedCube ? sharedCube->GetComponent<TransformComponent>().lock() : std::shared_ptr<TransformComponent>();
+		transform->Translate(x, y, z);
 	}
 };

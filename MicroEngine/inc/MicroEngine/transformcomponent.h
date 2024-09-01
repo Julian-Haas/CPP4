@@ -28,9 +28,9 @@ namespace me
 
 		float GetScale() const { return m_Scale; }
 
-		void SetPosition(float x, float y, float z) { SetPosition(DirectX::XMVectorSet(x, y, z, 0)); }
+		ME_API void SetPosition(float x, float y, float z) { SetPosition(DirectX::XMVectorSet(x, y, z, 0)); }
 		ME_API void SetPosition(const DirectX::XMVECTOR& position);
-		void SetRotation(float x, float y, float z) { SetRotation(DirectX::XMVectorSet(x, y, z, 0)); }
+		ME_API void SetRotation(float x, float y, float z) { SetRotation(DirectX::XMVectorSet(x, y, z, 0)); }
 		ME_API void SetRotation(const DirectX::XMVECTOR& rotation);
 		ME_API void SetScale(float factor);
 

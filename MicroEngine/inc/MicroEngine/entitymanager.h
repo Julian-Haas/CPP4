@@ -26,6 +26,8 @@ namespace me
 		ME_API void RemoveEntity(EntityID id);
 		ME_API void UpdateEntities(float dt);
 		ME_API void SetPositionByID(EntityID object, float x, float y, float z);
+		ME_API void TranslateByID(EntityID object, float x, float y, float z);
+
 
 		template <class T>
 		std::shared_ptr<T> AddComponent(EntityID entityID)
