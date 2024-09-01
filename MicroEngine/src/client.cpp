@@ -55,7 +55,7 @@ namespace me {
 				case 2:
 					return false;
 				case 3:
-					UltraDebugFunktionOderSo();
+					//UltraDebugFunktionOderSo();
 					m_playerManager.ProcessIncomingPlayerData(receivedMessageInFloat);
 					//std::cout << "x[0] = " << x[0] << std::endl;
 					//std::cout << "x[1] = " << x[1] << std::endl;

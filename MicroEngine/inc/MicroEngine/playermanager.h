@@ -10,6 +10,7 @@ namespace me {
 		ME_API PlayerManager(EntityManager& entityManager);
 		ME_API ~PlayerManager();
 		ME_API void ProcessIncomingPlayerData(float incomingData[5]);
+		ME_API EntityID InstantiateNewPlayer();
 	private:
 		EntityManager& m_entityManagerReference;
 		std::map<int, EntityID> m_PlayerEntities;

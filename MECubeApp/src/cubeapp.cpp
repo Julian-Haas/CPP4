@@ -276,25 +276,4 @@ namespace capp
 		//Update all entities
 		m_EntityManager.UpdateEntities(deltaTime);
 	}
-
-	me::EntityID CubeApp::InstantiateNewPlayer()
-	{
-		using namespace me;
-		const auto cube = m_EntityManager.AddEntity();
-		auto transform = cube->GetComponent<TransformComponent>().lock();
-		transform->Translate(0.0f, 10.0f, 30.0f);
-		auto meshRenderer = m_EntityManager.AddComponent<MeshRendererComponent>(cube->GetID());
-		Material cubeMat;
-		cubeMat.AddShaderProperty(Color::s_White);
-		cubeMat.AddShaderProperty(Color::s_Black);
-		cubeMat.AddShaderProperty(Color::s_White);
-		cubeMat.AddShaderProperty(30.0f);
-		cubeMat.SetTexturePS(0, TextureInfo("assets://colormap.bmp"));
-		cubeMat.SetVertexShader("assets://Mesh.hlsl");
-		cubeMat.SetPixelShader("assets://Mesh.hlsl");
-		const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
-		meshRenderer->SetMesh(mesh);
-
-		return cube->GetID();
-	}
 };
