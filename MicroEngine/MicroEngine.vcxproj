@@ -39,6 +39,7 @@
     <ClCompile Include="src\MEServer.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\meshrenderercomponent.cpp" />
+    <ClCompile Include="src\playermanager.cpp" />
     <ClCompile Include="src\posteffect.cpp" />
     <ClCompile Include="src\primitivemeshes.cpp" />
     <ClCompile Include="src\renderer.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="inc\MicroEngine\mesh.h" />
     <ClInclude Include="inc\MicroEngine\meshrenderercomponent.h" />
     <ClInclude Include="inc\MicroEngine\me_interface.h" />
+    <ClInclude Include="inc\MicroEngine\playermanager.h" />
     <ClInclude Include="inc\MicroEngine\posteffect.h" />
     <ClInclude Include="inc\MicroEngine\primitivemeshes.h" />
     <ClInclude Include="inc\MicroEngine\renderercomponent.h" />

@@ -44,8 +44,6 @@ namespace me
 		std::vector<std::shared_ptr<Component>> GetComponents(EntityID entityID) const { return m_ComponentStorer.GetComponents(entityID); }
 	private:
 		ME_MOVE_COPY_NOT_ALLOWED(EntityManager);
-
-		std::map<int, EntityID> m_PlayerEntities;
 		std::map<EntityID, std::shared_ptr<Entity>> m_Entities;
 		EntityID m_IDCounter;
 		ComponentStorer m_ComponentStorer;

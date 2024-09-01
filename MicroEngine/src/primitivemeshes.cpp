@@ -14,19 +14,19 @@ namespace me
 {
 	void AddVertexLitTextured(Mesh* mesh, float x, float y, float z, float xn, float yn, float zn, float u, float v)
 	{
-		mesh->AddVertex(VertexLitTextured{{x+0.5f, y + 0.5f, z + 0.5f}, {xn, yn, zn}, {u, v}});
+		mesh->AddVertex(VertexLitTextured{ {x + 0.5f, y + 0.5f, z + 0.5f}, {xn, yn, zn}, {u, v} });
 	}
 
 	void AddVertexTextured(Mesh* mesh, float x, float y, float z, float u, float v)
 	{
-		mesh->AddVertex(VertexTextured{{x, y, z}, {u, v}});
+		mesh->AddVertex(VertexTextured{ {x, y, z}, {u, v} });
 	}
 
 	Mesh* CreateCube(float width, float height, float depth, const Material& material)
 	{
-        const float hWidth = width / 2;
-        const float hHeight = height / 2;
-        const float hDepth = depth / 2;
+		const float hWidth = width / 2;
+		const float hHeight = height / 2;
+		const float hDepth = depth / 2;
 
 		Mesh* mesh = new Mesh(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, VertexLitTextured::s_Description);
 

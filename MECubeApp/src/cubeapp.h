@@ -12,6 +12,7 @@
 #include "MicroEngine/client.h"
 #include "MicroEngine/util.h"
 #include "MicroEngine/debugwindow.h"
+#include "MicroEngine/playermanager.h"
 
 namespace me
 {
@@ -40,6 +41,7 @@ namespace capp
 		ExitCode::Enum Run(HINSTANCE hInst);
 
 	private:
+		me::PlayerManager m_PlayerManager;
 		ME_MOVE_COPY_NOT_ALLOWED(CubeApp);
 		//int value is the Player ID 
 		std::map<int, me::Entity*> PlayerTrasforms;

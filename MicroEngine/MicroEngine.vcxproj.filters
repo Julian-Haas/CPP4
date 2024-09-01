@@ -123,6 +123,9 @@
     <ClCompile Include="src\debugwindow.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\playermanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\MicroEngine\component.h" />
@@ -187,5 +190,6 @@
     <ClInclude Include="inc\MicroEngine\debugwindow.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="inc\MicroEngine\say.h" />
+    <ClInclude Include="inc\MicroEngine\playermanager.h" />
   </ItemGroup>
 </Project>

@@ -35,6 +35,8 @@ namespace capp
 		, m_CameraID(me::INVALID_ENTITY_ID)
 		, m_LightID(me::INVALID_ENTITY_ID)
 		, testfloat(30.0f)
+		, m_EntityManager()
+		, m_PlayerManager(m_EntityManager)
 	{
 		debugWindow.OpenDebugConsole();
 	}
