@@ -171,9 +171,11 @@ namespace me {
 	}
 	void Client::SendPositionToServer(float x, float y, float z)
 	{
+
 		auto now = std::chrono::steady_clock::now();
 		std::chrono::duration<double> elapsed = now - m_StartingTime;
-		if (elapsed.count() >= 1.0) {
+		if (elapsed.count() >= 0.1) {
+			Say("Sende Daten");
 			//system("cls");
 			char positionDataFormatted[12];
 			std::memcpy(&positionDataFormatted[0], &x, sizeof(x));

@@ -8,6 +8,7 @@
 #include "util.h"
 #include "component.h"
 #include "me_interface.h"
+#include <iostream>
 
 namespace me
 {

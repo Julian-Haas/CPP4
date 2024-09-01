@@ -20,10 +20,11 @@ namespace me {
 
 	ME_API void PlayerManager::ProcessIncomingPlayerData(float incomingData[5])
 	{
-		system("cls");
-		for (const auto& pair : m_PlayerEntities) {
-			std::cout << "PlayerID: " << pair.first << ", EntityID: " << pair.second << std::endl;
-		}
+		Say("Fire in the hole");
+		//system("cls");
+		//for (const auto& pair : m_PlayerEntities) {
+		//	std::cout << "PlayerID: " << pair.first << ", EntityID: " << pair.second << std::endl;
+		//}
 		int playerID = (int)incomingData[1];
 		int x = (int)incomingData[2];
 		int y = (int)incomingData[3];
@@ -35,7 +36,8 @@ namespace me {
 			return;
 		}
 		EntityID entityID = it->second;
-		//set position
+
+		m_entityManagerReference.SetPositionByID(entityID, (float)x, (float)y, (float)z);
 		return;
 	}
 
