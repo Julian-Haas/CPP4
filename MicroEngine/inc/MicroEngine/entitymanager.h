@@ -25,18 +25,19 @@ namespace me
 		ME_API std::weak_ptr<Entity> GetEntity(EntityID id);
 		ME_API void RemoveEntity(EntityID id);
 		ME_API void UpdateEntities(float dt);
+		ME_API void SetPositionByID(EntityID object, float x, float y, float z);
 
 		template <class T>
 		std::shared_ptr<T> AddComponent(EntityID entityID)
 		{
-            const auto entity = GetEntity(entityID).lock();
+			const auto entity = GetEntity(entityID).lock();
 			if (!entity)
 				return std::shared_ptr<T>();
 			return m_ComponentStorer.AddComponent<T>(entity);
 		}
 		void RemoveComponent(EntityID entityID, ComponentID componentID) { m_ComponentStorer.RemoveComponent(entityID, componentID); }
 
-	    template <class T>
+		template <class T>
 		std::weak_ptr<T> GetComponent(EntityID entityID) const { return std::static_pointer_cast<T>(GetComponent(entityID, T::ID).lock()); }
 		std::weak_ptr<Component> GetComponent(EntityID entityID, ComponentID componentID) const { return m_ComponentStorer.GetComponent(entityID, componentID); }
 		std::vector<std::shared_ptr<Component>> GetComponents(EntityID entityID) const { return m_ComponentStorer.GetComponents(entityID); }

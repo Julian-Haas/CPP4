@@ -38,7 +38,6 @@ namespace capp
 		, testfloat(30.0f)
 	{
 	}
-
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 
@@ -147,6 +146,9 @@ namespace capp
 			const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
 			meshRenderer->SetMesh(mesh);
 		}
+		auto temp = InstantiateNewPlayer();
+		//Say(temp);
+		//m_EntityManager.RemoveEntity(temp);
 
 		//Terrain
 		{
@@ -207,15 +209,20 @@ namespace capp
 			//testfloat += deltaTime;
 			//controlledEntity->SetPosition(0.0f, 0.0f, testfloat);
 
+			if (Input::GetInstance()->IsKeyDown(' '))
+			{
+				m_EntityManager.SetPositionByID(controlledEntity->GetID(), 1.0f, 1.0f, 1.0f);
+			}
 
 
 			if (Input::GetInstance()->IsKeyDown('U'))
 			{
+				Say(((m_EntityManager.GetEntity(controlledEntity->GetID()).lock())->GetComponent<TransformComponent>()).lock());
 				controlledEntity->Translate(0, 0, 50 * deltaTime);
 			}
 			if (Input::GetInstance()->IsKeyDown('H'))
 			{
-				controlledEntity->Translate(50 * deltaTime, 0, 0);
+				controlledEntity->Translate(-50 * deltaTime, 0, 0);
 			}
 			if (Input::GetInstance()->IsKeyDown('J'))
 			{
@@ -223,7 +230,7 @@ namespace capp
 			}
 			if (Input::GetInstance()->IsKeyDown('K'))
 			{
-				controlledEntity->Translate(-50 * deltaTime, 0, 0);
+				controlledEntity->Translate(50 * deltaTime, 0, 0);
 			}
 
 
@@ -270,5 +277,26 @@ namespace capp
 
 		//Update all entities
 		m_EntityManager.UpdateEntities(deltaTime);
+	}
+
+	me::EntityID CubeApp::InstantiateNewPlayer()
+	{
+		using namespace me;
+		const auto cube = m_EntityManager.AddEntity();
+		auto transform = cube->GetComponent<TransformComponent>().lock();
+		transform->Translate(0.0f, 10.0f, 30.0f);
+		auto meshRenderer = m_EntityManager.AddComponent<MeshRendererComponent>(cube->GetID());
+		Material cubeMat;
+		cubeMat.AddShaderProperty(Color::s_White);
+		cubeMat.AddShaderProperty(Color::s_Black);
+		cubeMat.AddShaderProperty(Color::s_White);
+		cubeMat.AddShaderProperty(30.0f);
+		cubeMat.SetTexturePS(0, TextureInfo("assets://colormap.bmp"));
+		cubeMat.SetVertexShader("assets://Mesh.hlsl");
+		cubeMat.SetPixelShader("assets://Mesh.hlsl");
+		const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
+		meshRenderer->SetMesh(mesh);
+
+		return cube->GetID();
 	}
 };

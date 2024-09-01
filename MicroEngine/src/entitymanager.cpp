@@ -6,6 +6,7 @@
 
 #include "entitymanager.h"
 #include "transformcomponent.h"
+#include "say.h"
 
 namespace me
 {
@@ -26,10 +27,10 @@ namespace me
 
 	std::weak_ptr<Entity> EntityManager::GetEntity(EntityID id)
 	{
-        const auto it = m_Entities.find(id);
+		const auto it = m_Entities.find(id);
 		if (it != m_Entities.end())
 			return it->second;
-		
+
 		return std::weak_ptr<Entity>();
 	}
 
@@ -44,5 +45,17 @@ namespace me
 	void EntityManager::UpdateEntities(float dt)
 	{
 		m_ComponentStorer.UpdateComponents(dt);
+	}
+	void EntityManager::SetPositionByID(EntityID playerCubeID, float x, float y, float z)
+	{
+		//Say(playerCubeID);
+		static float temp = 0.1f;
+		std::weak_ptr<Entity> cube = GetEntity(playerCubeID);
+		std::shared_ptr<Entity> sharedCube = cube.lock();
+		//Say(sharedCube);
+		auto transform = sharedCube->GetComponent<TransformComponent>().lock();
+		Say(&transform);
+		//temp++;
+		transform->Translate(0.0f, 0.0f, temp);
 	}
 };

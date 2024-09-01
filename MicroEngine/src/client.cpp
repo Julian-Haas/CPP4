@@ -24,7 +24,7 @@ namespace me {
 			fd_set reads;
 			FD_ZERO(&reads);
 			FD_SET(serverSocket, &reads);
-			UltraDebugFunktionOderSo();
+			//UltraDebugFunktionOderSo();
 			timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms

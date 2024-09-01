@@ -10,6 +10,7 @@
 #include "MicroEngine\renderer.h"
 #include "MicroEngine\systemmanager.h"
 #include "MicroEngine/client.h"
+#include "MicroEngine/util.h"
 
 namespace me
 {
@@ -33,7 +34,7 @@ namespace capp
 	public:
 		CubeApp();
 		~CubeApp() = default;
-		void InstantiateNewPlayer();
+		me::EntityID InstantiateNewPlayer();
 		void UpdatePlayerEntitys();
 		ExitCode::Enum Run(HINSTANCE hInst);
 

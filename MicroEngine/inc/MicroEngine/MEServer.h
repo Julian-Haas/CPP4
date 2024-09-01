@@ -53,7 +53,6 @@ private:
 	void HandleNewConnection();
 	void CheckForIncomingData();
 	void HandleIncomingRequest(SOCKET i);
-	void OpenDebugConsole();
 	void InitWinSockLibrary();
 	void SendMessageToClient(SOCKET i, float answercode);
 	void WSAError(std::string failedprocess);
