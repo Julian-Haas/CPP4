@@ -37,6 +37,7 @@ namespace capp
 		, testfloat(30.0f)
 		, m_EntityManager()
 		, m_PlayerManager(m_EntityManager)
+		, m_Client(m_PlayerManager)
 	{
 		debugWindow.OpenDebugConsole();
 	}
@@ -47,7 +48,7 @@ namespace capp
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
 		using namespace me;
-		client.EstablishConnection();
+		m_Client.EstablishConnection();
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
 
 		m_Renderer = std::make_shared<Renderer>();
@@ -194,8 +195,8 @@ namespace capp
 		float x = DirectX::XMVectorGetX(positionData);
 		float y = DirectX::XMVectorGetY(positionData);
 		float z = DirectX::XMVectorGetZ(positionData);
-		client.SendPositionToServer(x, y, z);
-		client.ReadData();
+		m_Client.SendPositionToServer(x, y, z);
+		m_Client.ReadData();
 		//if (ultimativedebugflag == false) {
 		//	system("cls");
 		//	ultimativedebugflag = true;

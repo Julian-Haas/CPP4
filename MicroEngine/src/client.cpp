@@ -9,12 +9,13 @@
 #include "entitymanager.h"
 
 namespace me {
-	Client::Client() : server()
+	Client::Client(PlayerManager playerManager) : server()
 		, playerID(0)
 		, _position_x(0)
 		, _position_y(0)
 		, _position_z(30)
 		, m_StartingTime(std::chrono::steady_clock::now())
+		, m_playerManager(playerManager)
 	{
 	}
 	bool Client::ReadData()
@@ -55,6 +56,7 @@ namespace me {
 					return false;
 				case 3:
 					UltraDebugFunktionOderSo();
+					m_playerManager.ProcessIncomingPlayerData(receivedMessageInFloat);
 					//std::cout << "x[0] = " << x[0] << std::endl;
 					//std::cout << "x[1] = " << x[1] << std::endl;
 					//std::cout << "x[2] = " << x[2] << std::endl;

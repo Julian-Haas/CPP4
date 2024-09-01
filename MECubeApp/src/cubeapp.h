@@ -53,7 +53,7 @@ namespace capp
 		void InitEntities();
 		void UpdateEntities();
 		float a = 1.0f;
-		me::Client client;
+		me::Client m_Client;
 		me::EntityID m_ControlledEntityID;
 		me::EntityID m_CameraID;
 		me::EntityID m_LightID;

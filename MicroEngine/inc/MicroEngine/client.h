@@ -4,6 +4,7 @@
 #include "MEServer.h"
 #include <chrono>
 #include "say.h"
+#include "playermanager.h"
 
 namespace me {
 	class Client {
@@ -19,10 +20,11 @@ namespace me {
 		Server server;
 		int temp = 0;
 		std::chrono::steady_clock::time_point m_StartingTime;
+		PlayerManager m_playerManager;
 
 	public:
 		std::map<int, Position> m_PlayerData;
-		ME_API Client();
+		ME_API Client(PlayerManager playerManager);
 		ME_API ~Client() = default;
 		ME_API bool ReadData();
 		ME_API void UltraDebugFunktionOderSo();
