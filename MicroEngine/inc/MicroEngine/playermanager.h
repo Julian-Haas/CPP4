@@ -3,12 +3,13 @@
 #include "util.h"
 #include "entitymanager.h"
 
-namespace me {
+namespace me
+{
 	class PlayerManager
 	{
 	public:
 		ME_API PlayerManager(EntityManager& entityManager);
-		ME_API ~PlayerManager();
+		ME_API ~PlayerManager() = default;
 		ME_API void ProcessIncomingPlayerData(float incomingData[5]);
 		ME_API EntityID InstantiateNewPlayer();
 	private:

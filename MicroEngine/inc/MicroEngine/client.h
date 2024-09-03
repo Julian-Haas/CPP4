@@ -6,8 +6,19 @@
 #include "say.h"
 #include "playermanager.h"
 
-namespace me {
+namespace me
+{
 	class Client {
+	public:
+		ME_API Client(PlayerManager playerManager);
+		ME_API ~Client();
+		ME_API bool ReadData();
+		ME_API void UltraDebugFunktionOderSo();
+		ME_API void UltraSchreibePlaayerPositionsdaten();
+		ME_API bool SearchForServer();
+		ME_API void SendPositionToServer(float x, float y, float z);
+		ME_API void EstablishConnection();
+		std::map<int, Position> m_PlayerData;
 	private:
 		bool _debugFlag = false;
 		SOCKET serverSocket;
@@ -21,16 +32,5 @@ namespace me {
 		int temp = 0;
 		std::chrono::steady_clock::time_point m_StartingTime;
 		PlayerManager m_playerManager;
-
-	public:
-		std::map<int, Position> m_PlayerData;
-		ME_API Client(PlayerManager playerManager);
-		ME_API ~Client();
-		ME_API bool ReadData();
-		ME_API void UltraDebugFunktionOderSo();
-		ME_API void UltraSchreibePlaayerPositionsdaten();
-		ME_API bool SearchForServer();
-		ME_API void SendPositionToServer(float x, float y, float z);
-		ME_API void EstablishConnection();
 	};
 }

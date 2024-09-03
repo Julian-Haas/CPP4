@@ -7,40 +7,29 @@
 #include "say.h"
 #include "mesh.h"
 
-namespace me {
-
+namespace me
+{
 	PlayerManager::PlayerManager(EntityManager& entityManager)
 		: m_entityManagerReference(entityManager)
 	{
-
 	}
-
-	PlayerManager::~PlayerManager()
-	{
-	}
-
 	ME_API void PlayerManager::ProcessIncomingPlayerData(float incomingData[5])
 	{
-		//system("cls");
-		//for (const auto& pair : m_PlayerEntities) {
-		//	std::cout << "PlayerID: " << pair.first << ", EntityID: " << pair.second << std::endl;
-		//}
 		int playerID = (int)incomingData[1];
 		int x = (int)incomingData[2];
 		int y = (int)incomingData[3];
 		int z = (int)incomingData[4];
 		auto it = m_PlayerEntities.find(playerID);
-		if (it == m_PlayerEntities.end()) {
+		if (it == m_PlayerEntities.end())
+		{
 			EntityID entityID = InstantiateNewPlayer();
 			m_PlayerEntities[playerID] = entityID;
 			return;
 		}
 		EntityID entityID = it->second;
-
 		m_entityManagerReference.SetPositionByID(entityID, (float)x, (float)y, (float)z);
 		return;
 	}
-
 	EntityID PlayerManager::InstantiateNewPlayer()
 	{
 		using namespace me;
@@ -56,11 +45,8 @@ namespace me {
 		cubeMat.SetTexturePS(0, TextureInfo("assets://colormap.bmp"));
 		cubeMat.SetVertexShader("assets://Mesh.hlsl");
 		cubeMat.SetPixelShader("assets://Mesh.hlsl");
-
 		const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
-
 		meshRenderer->SetMesh(mesh);
-
 		return cube->GetID();
 	}
 }

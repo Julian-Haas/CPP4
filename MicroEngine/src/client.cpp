@@ -8,7 +8,8 @@
 #include "say.h"
 #include "entitymanager.h"
 
-namespace me {
+namespace me
+{
 	Client::Client(PlayerManager playerManager) : server()
 		, playerID(0)
 		, _position_x(0)
@@ -20,10 +21,12 @@ namespace me {
 	}
 	Client::~Client()
 	{
-		if (serverSocket != INVALID_SOCKET) {
+		if (serverSocket != INVALID_SOCKET)
+		{
 			char closeConnection[3] = { 0, 0, 0 };
 			int bytesSent = send(serverSocket, closeConnection, sizeof(closeConnection), 0);
-			if (bytesSent == SOCKET_ERROR) {
+			if (bytesSent == SOCKET_ERROR)
+			{
 				std::cerr << "Error sending disconnect message. Error code: " << WSAGetLastError() << std::endl;
 			}
 			if (closesocket(serverSocket) == SOCKET_ERROR) {
@@ -47,12 +50,13 @@ namespace me {
 			int selectResult = select(static_cast<int>(serverSocket + 1), &reads, NULL, NULL, &timeout);
 			int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 			memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
-			if (selectResult == -1) {
+			if (selectResult == -1)
+			{
 				std::cout << "select failed\n";
 				return false;
 			}
-			if (selectResult == 0) {
-				//std::cout << "result 0";
+			if (selectResult == 0)
+			{
 				return false;
 			}
 			if (selectResult > 0 && FD_ISSET(serverSocket, &reads))
@@ -61,7 +65,6 @@ namespace me {
 				{
 					return false;
 				}
-				//UltraDebugFunktionOderSo();
 				switch ((int)receivedMessageInFloat[0])
 				{
 				case JoinRequestAccepted:
@@ -70,16 +73,7 @@ namespace me {
 				case 2:
 					return false;
 				case 3:
-					//UltraDebugFunktionOderSo();
 					m_playerManager.ProcessIncomingPlayerData(receivedMessageInFloat);
-					//std::cout << "x[0] = " << x[0] << std::endl;
-					//std::cout << "x[1] = " << x[1] << std::endl;
-					//std::cout << "x[2] = " << x[2] << std::endl;
-					//std::cout << "x[3] = " << x[3] << std::endl;
-					//std::cout << "x[4] = " << x[4] << std::endl;
-					//UltraDebugFunktionOderSo();
-					//UltraSchreibePlaayerPositionsdaten();
-					//std::cout << m_PlayerData[0].z << std::endl;
 					break;
 				default:
 					return false;  // Ungültige Nachricht empfangen, Schleife abbrechen
@@ -204,9 +198,11 @@ namespace me {
 			int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
 			//Helper::Say(bytesSent);
 			//Helper::Say(temp++);
-			if (bytesSent == SOCKET_ERROR) {
+			if (bytesSent == SOCKET_ERROR)
+			{
 				int error = WSAGetLastError();
-				if (error != WSAEWOULDBLOCK) {
+				if (error != WSAEWOULDBLOCK)
+				{
 				}
 			}
 		}
