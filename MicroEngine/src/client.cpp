@@ -76,12 +76,12 @@ namespace me
 					m_playerManager.ProcessIncomingPlayerData(receivedMessageInFloat);
 					break;
 				default:
-					return false;  // Ungültige Nachricht empfangen, Schleife abbrechen
+					return false;
 				}
 			}
 			else
 			{
-				return false;  // Timeout ohne Daten, Schleife abbrechen
+				return false;
 			}
 		}
 		return true;
@@ -95,16 +95,13 @@ namespace me
 	{
 		const char* serverIP = "127.0.0.1";
 		const char* serverPort = "8080";
-
 		bool sucess = false;
-
 		WSAData d;
 		if (WSAStartup(MAKEWORD(2, 2), &d))
 		{
 			printf("WinSocket failed to initialize\n");
 			return false;
 		}
-		//printf("Configuring remote address\n");
 		addrinfo hints;
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_INET;
@@ -115,23 +112,16 @@ namespace me
 			fprintf(stderr, "getaddrinfo() failed. (%d)\n", WSAGetLastError());
 			return false;
 		}
-		//printf("Remote address is :\n");
 		PCHAR addressBuffer = nullptr;
 		getnameinfo(serverAddrInfo->ai_addr, (socklen_t)serverAddrInfo->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
-		//printf("%s\n", addressBuffer);
-		//printf("Creating socket...\n");
 		serverSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
 		if (serverSocket == INVALID_SOCKET)
 		{
 			fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 			return false;
 		}
-
-		// Set non-blocking mode
 		u_long mode = 1;
 		ioctlsocket(serverSocket, FIONBIO, &mode);
-
-		//printf("Connecting to server...\n");
 		int connectResult = connect(serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
 		if (connectResult == SOCKET_ERROR)
 		{
@@ -173,31 +163,20 @@ namespace me
 	{
 		if (!SearchForServer()) {
 			std::thread serverThread(&Server::InitServer, &server);
-			//server.InitServer();
 			serverThread.detach();
-			//SearchForServer();
 		}
 	}
 	void Client::SendPositionToServer(float x, float y, float z)
 	{
-
 		auto now = std::chrono::steady_clock::now();
 		std::chrono::duration<double> elapsed = now - m_StartingTime;
 		if (elapsed.count() >= 0.1) {
-			//Say("Sende Daten");
-			//system("cls");
 			char positionDataFormatted[12];
 			std::memcpy(&positionDataFormatted[0], &x, sizeof(x));
 			std::memcpy(&positionDataFormatted[4], &y, sizeof(y));
 			std::memcpy(&positionDataFormatted[8], &z, sizeof(z));
-			//Helper::Say(x);
-			//Helper::Say(y);
-			//Helper::Say(z);
-
 			m_StartingTime = now;
 			int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
-			//Helper::Say(bytesSent);
-			//Helper::Say(temp++);
 			if (bytesSent == SOCKET_ERROR)
 			{
 				int error = WSAGetLastError();

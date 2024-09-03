@@ -1,7 +1,7 @@
 #pragma once
 #include "me_interface.h"
 #include <winsock2.h>
-#include "MEServer.h"
+#include "server.h"
 #include <chrono>
 #include "say.h"
 #include "playermanager.h"

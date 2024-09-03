@@ -36,7 +36,7 @@
     <ClCompile Include="src\lightcomponent.cpp" />
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\memath.cpp" />
-    <ClCompile Include="src\MEServer.cpp" />
+    <ClCompile Include="src\server.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\meshrenderercomponent.cpp" />
     <ClCompile Include="src\playermanager.cpp" />
@@ -87,7 +87,7 @@
     <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
     <ClInclude Include="inc\MicroEngine\material.h" />
     <ClInclude Include="inc\MicroEngine\memath.h" />
-    <ClInclude Include="inc\MicroEngine\MEServer.h" />
+    <ClInclude Include="inc\MicroEngine\server.h" />
     <ClInclude Include="inc\MicroEngine\mesh.h" />
     <ClInclude Include="inc\MicroEngine\meshrenderercomponent.h" />
     <ClInclude Include="inc\MicroEngine\me_interface.h" />

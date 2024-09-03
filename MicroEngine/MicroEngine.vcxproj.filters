@@ -117,7 +117,7 @@
     <ClCompile Include="src\test.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\MEServer.cpp">
+    <ClCompile Include="src\server.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\debugwindow.cpp">
@@ -184,7 +184,7 @@
     <ClInclude Include="inc\MicroEngine\lightcomponent.h" />
     <ClInclude Include="inc\MicroEngine\posteffect.h" />
     <ClInclude Include="inc\MicroEngine\client.h" />
-    <ClInclude Include="inc\MicroEngine\MEServer.h" />
+    <ClInclude Include="inc\MicroEngine\server.h" />
     <ClInclude Include="inc\MicroEngine\test.h" />
     <ClInclude Include="inc\MicroEngine\debugwindow.h" />
     <ClInclude Include="Header.h" />
