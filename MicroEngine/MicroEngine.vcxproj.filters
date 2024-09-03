@@ -185,7 +185,6 @@
     <ClInclude Include="inc\MicroEngine\posteffect.h" />
     <ClInclude Include="inc\MicroEngine\client.h" />
     <ClInclude Include="inc\MicroEngine\MEServer.h" />
-    <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
     <ClInclude Include="inc\MicroEngine\test.h" />
     <ClInclude Include="inc\MicroEngine\debugwindow.h" />
     <ClInclude Include="Header.h" />

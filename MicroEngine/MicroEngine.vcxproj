@@ -88,7 +88,6 @@
     <ClInclude Include="inc\MicroEngine\material.h" />
     <ClInclude Include="inc\MicroEngine\memath.h" />
     <ClInclude Include="inc\MicroEngine\MEServer.h" />
-    <ClInclude Include="inc\MicroEngine\MEServerHelper.h" />
     <ClInclude Include="inc\MicroEngine\mesh.h" />
     <ClInclude Include="inc\MicroEngine\meshrenderercomponent.h" />
     <ClInclude Include="inc\MicroEngine\me_interface.h" />
