@@ -24,7 +24,7 @@
 #include "MicroEngine/transformcomponent.h"
 #include "MicroEngine/vertex.h"
 #include "MicroEngine/client.h"
-#include "MicroEngine/MEServer.h"
+#include "MicroEngine/server.h"
 #include "MicroEngine/say.h"
 
 

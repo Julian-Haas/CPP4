@@ -17,6 +17,7 @@ namespace me
 		, _position_z(30)
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
+		, m_IsConnectedToServer(false)
 	{
 	}
 	Client::~Client()
@@ -35,7 +36,6 @@ namespace me
 			serverSocket = INVALID_SOCKET;
 		}
 	}
-
 	bool Client::ReadData()
 	{
 		bool readAllData = false;
@@ -46,7 +46,7 @@ namespace me
 			FD_SET(serverSocket, &reads);
 			timeval timeout;
 			timeout.tv_sec = 0;
-			timeout.tv_usec = 50000;  // Erhöhe den Timeout-Wert auf 50ms
+			timeout.tv_usec = 50000;
 			int selectResult = select(static_cast<int>(serverSocket + 1), &reads, NULL, NULL, &timeout);
 			int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 			memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
@@ -161,27 +161,31 @@ namespace me
 	}
 	void Client::EstablishConnection()
 	{
-		if (!SearchForServer()) {
+		if (!SearchForServer())
+		{
 			std::thread serverThread(&Server::InitServer, &server);
 			serverThread.detach();
 		}
 	}
 	void Client::SendPositionToServer(float x, float y, float z)
 	{
-		auto now = std::chrono::steady_clock::now();
-		std::chrono::duration<double> elapsed = now - m_StartingTime;
-		if (elapsed.count() >= 0.1) {
-			char positionDataFormatted[12];
-			std::memcpy(&positionDataFormatted[0], &x, sizeof(x));
-			std::memcpy(&positionDataFormatted[4], &y, sizeof(y));
-			std::memcpy(&positionDataFormatted[8], &z, sizeof(z));
-			m_StartingTime = now;
-			int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
-			if (bytesSent == SOCKET_ERROR)
+		if (m_IsConnectedToServer) {
+			auto now = std::chrono::steady_clock::now();
+			std::chrono::duration<double> elapsed = now - m_StartingTime;
+			if (elapsed.count() >= 0.1)
 			{
-				int error = WSAGetLastError();
-				if (error != WSAEWOULDBLOCK)
+				char positionDataFormatted[12];
+				std::memcpy(&positionDataFormatted[0], &x, sizeof(x));
+				std::memcpy(&positionDataFormatted[4], &y, sizeof(y));
+				std::memcpy(&positionDataFormatted[8], &z, sizeof(z));
+				m_StartingTime = now;
+				int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
+				if (bytesSent == SOCKET_ERROR)
 				{
+					int error = WSAGetLastError();
+					if (error != WSAEWOULDBLOCK)
+					{
+					}
 				}
 			}
 		}

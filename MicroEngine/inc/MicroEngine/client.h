@@ -20,7 +20,7 @@ namespace me
 		ME_API void EstablishConnection();
 		std::map<int, Position> m_PlayerData;
 	private:
-		bool _debugFlag = false;
+		bool m_IsConnectedToServer;
 		SOCKET serverSocket;
 		float receivedMessageInFloat[5];
 		char receivedMessage[20];

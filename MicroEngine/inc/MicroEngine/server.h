@@ -40,23 +40,21 @@ namespace me
 		float receivedFloats[3]; // 3er array; mutmaßlich komplett sparen, datentyp nicht in namen
 		char dataToSend[20]; // getrennt halten vom request
 		char request[12]; // größe anpassen aufs maximum was reinkommen kann
-		std::map<SOCKET, Position> playerData; // ok
-		float currentPlayerID; // byte
 		float playerCount; // byte
 		float maxPlayerCount; // byte
-		std::vector<SOCKET> sockets; // name nicht erklärend
-		SOCKET currentPlayerSocket; // int und eventuell lokal
+		std::vector<float> m_playerNumbers; // byte
+		std::vector<SOCKET> m_ClientSockets;
+		std::map<SOCKET, Position> playerData;
 		SOCKET listenerSocket;
-		SOCKET maxSocket; // möglicherweise int
+		int maxSocket;
 		fd_set master;
-		std::vector<float> playerNumbers; // byte
-		bool isServerRunning;
+		bool m_IsServerRunning;
 		void PrintMap();
 		void HandleNewConnection();
 		void CheckForIncomingData();
 		void HandleIncomingRequest(SOCKET i);
 		void InitWinSockLibrary();
-		void SendMessageToClient(SOCKET i, float answercode);
+		void SendMessageToClient(SOCKET dataPlayerSocket, SOCKET targetPlayerSocket, float answerCode);
 		void WSAError(std::string failedprocess);
 		void InitListenerSocket();
 		void InitNonBlockingMode(SOCKET socket);

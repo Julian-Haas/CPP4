@@ -15,29 +15,28 @@ namespace me {
 	{
 		InitWinSockLibrary();
 		InitListenerSocket();
-		isServerRunning = true;
-		while (isServerRunning) CheckForIncomingData();
+		m_IsServerRunning = true;
+		while (m_IsServerRunning) CheckForIncomingData();
 	}
-	void Server::HandleIncomingRequest(SOCKET i)
+	void Server::HandleIncomingRequest(SOCKET currentPlayerSocket)
 	{
-		int bytesReceived = recv(i, request, sizeof(request), 0);
+		int bytesReceived = recv(currentPlayerSocket, request, sizeof(request), 0);
 		if (bytesReceived == -1)
 		{
-			HandleDisconnectedPlayer(i);
+			HandleDisconnectedPlayer(currentPlayerSocket);
 			return;
 		}
 		memcpy(&receivedFloats, request, sizeof(receivedFloats));
-		currentPlayerSocket = i;
 		float posX = receivedFloats[0];
 		float posY = receivedFloats[1];
 		float posZ = receivedFloats[2];
-		playerData[i] = Position(playerData[i].playerID, posX, posY, posZ);
+		playerData[currentPlayerSocket] = Position(playerData[currentPlayerSocket].playerID, posX, posY, posZ);
 		for (const auto& pair : playerData)
 		{
 			SOCKET otherPlayerSocket = pair.first;
 			if (otherPlayerSocket != currentPlayerSocket)
 			{
-				SendMessageToClient(otherPlayerSocket, ProceedData);
+				SendMessageToClient(otherPlayerSocket, currentPlayerSocket, ProceedData);
 			}
 		}
 	}
@@ -47,28 +46,26 @@ namespace me {
 		if (newSocket == INVALID_SOCKET) WSAError("accept");
 		if (playerCount >= maxPlayerCount)
 		{
-			SendMessageToClient(newSocket, JoinRequestDenied);
+			SendMessageToClient(newSocket, newSocket, JoinRequestDenied);
 			closesocket(newSocket);
 			return;
 		}
 		FD_SET(newSocket, &master);
-		sockets.push_back(newSocket);
-		float newPlayerID = playerNumbers.front();
-		playerNumbers.erase(playerNumbers.begin());
+		m_ClientSockets.push_back(newSocket);
+		float newPlayerID = m_playerNumbers.front();
+		m_playerNumbers.erase(m_playerNumbers.begin());
 		playerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
 		++playerCount;
-		currentPlayerSocket = newSocket;
-		currentPlayerID = playerData[newSocket].playerID;
-		SendMessageToClient(newSocket, JoinRequestAccepted);
+		SendMessageToClient(newSocket, newSocket, JoinRequestAccepted);
 	}
 	void Server::CheckForIncomingData()
 	{
 		const struct timeval LongTimeout = { 1, 0 };
 		fd_set reads;
 		reads = master;
-		int result_select = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
+		int result_select = select(maxSocket + 1, &reads, nullptr, nullptr, &LongTimeout);
 		if (result_select < 0) WSAError("select");
-		for (SOCKET s : sockets) {
+		for (SOCKET s : m_ClientSockets) {
 			if (!FD_ISSET(s, &reads)) continue;
 			if (s == listenerSocket)
 			{
@@ -112,9 +109,9 @@ namespace me {
 		int result_listen = listen(listenerSocket, 20);
 		if (result_listen == SOCKET_ERROR) WSAError("listen");
 		InitNonBlockingMode(listenerSocket);
-		maxSocket = listenerSocket;
+		maxSocket = static_cast<int>(listenerSocket);
 		FD_SET(listenerSocket, &master);
-		sockets.push_back(listenerSocket);
+		m_ClientSockets.push_back(listenerSocket);
 	}
 	void Server::InitNonBlockingMode(SOCKET socket)
 	{
@@ -133,11 +130,11 @@ namespace me {
 		{
 			std::cerr << "Error: Attempted to handle a disconnected player that is not in playerData." << std::endl;
 		}
-		playerNumbers.push_back(it->second.playerID);
-		auto vecIt = std::remove(sockets.begin(), sockets.end(), i);
-		if (vecIt != sockets.end())
+		m_playerNumbers.push_back(it->second.playerID);
+		auto vecIt = std::remove(m_ClientSockets.begin(), m_ClientSockets.end(), i);
+		if (vecIt != m_ClientSockets.end())
 		{
-			sockets.erase(vecIt, sockets.end());
+			m_ClientSockets.erase(vecIt, m_ClientSockets.end());
 		}
 		else
 		{
@@ -169,28 +166,28 @@ namespace me {
 	}
 	Server::Server()
 		: playerCount(0)
-		, currentPlayerID(0)
 		, maxPlayerCount(8)
+		, m_IsServerRunning(false)
 	{
-		playerNumbers.reserve(static_cast<int>(maxPlayerCount));
+		m_playerNumbers.reserve(static_cast<int>(maxPlayerCount));
 		for (float i = 0.0f; i < maxPlayerCount; ++i)
 		{
-			playerNumbers.push_back(i);
+			m_playerNumbers.push_back(i);
 		}
 		playerData.clear();
 		FD_ZERO(&master);
 	}
-	void Server::SendMessageToClient(SOCKET i, float answerCode)
+	void Server::SendMessageToClient(SOCKET dataPlayerSocket, SOCKET targetPlayerSocket, float answerCode)
 	{
-		currentPlayerID = playerData[static_cast<int>(currentPlayerSocket)].playerID;
+		int dataPlayerID = static_cast<int>(playerData[static_cast<int>(dataPlayerSocket)].playerID);
 		float x[5];
 		x[0] = answerCode;
-		x[1] = currentPlayerID;
-		x[2] = playerData[static_cast<int>(currentPlayerSocket)].x;
-		x[3] = playerData[static_cast<int>(currentPlayerSocket)].y;
-		x[4] = playerData[static_cast<int>(currentPlayerSocket)].z;
+		x[1] = (float)dataPlayerID;
+		x[2] = playerData[static_cast<int>(dataPlayerSocket)].x;
+		x[3] = playerData[static_cast<int>(dataPlayerSocket)].y;
+		x[4] = playerData[static_cast<int>(dataPlayerSocket)].z;
 		memcpy(&dataToSend, x, sizeof(dataToSend));
-		int result_send = send(i, dataToSend, sizeof(dataToSend), 0);
+		int result_send = send(targetPlayerSocket, dataToSend, sizeof(dataToSend), 0);
 		if (result_send == SOCKET_ERROR) WSAError("send");
 	}
 	void Server::PrintMap()
