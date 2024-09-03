@@ -18,6 +18,21 @@ namespace me {
 		, m_playerManager(playerManager)
 	{
 	}
+	Client::~Client()
+	{
+		if (serverSocket != INVALID_SOCKET) {
+			char closeConnection[3] = { 0, 0, 0 };
+			int bytesSent = send(serverSocket, closeConnection, sizeof(closeConnection), 0);
+			if (bytesSent == SOCKET_ERROR) {
+				std::cerr << "Error sending disconnect message. Error code: " << WSAGetLastError() << std::endl;
+			}
+			if (closesocket(serverSocket) == SOCKET_ERROR) {
+				std::cerr << "Error closing socket. Error code: " << WSAGetLastError() << std::endl;
+			}
+			serverSocket = INVALID_SOCKET;
+		}
+	}
+
 	bool Client::ReadData()
 	{
 		bool readAllData = false;
@@ -123,8 +138,8 @@ namespace me {
 		ioctlsocket(serverSocket, FIONBIO, &mode);
 
 		//printf("Connecting to server...\n");
-		int result = connect(serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
-		if (result == SOCKET_ERROR)
+		int connectResult = connect(serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
+		if (connectResult == SOCKET_ERROR)
 		{
 			int error = WSAGetLastError();
 			if (error == WSAEWOULDBLOCK)
@@ -137,13 +152,13 @@ namespace me {
 				timeout.tv_sec = 1;
 				timeout.tv_usec = 0;
 
-				result = select(0, NULL, &writeSet, NULL, &timeout);
-				if (result > 0)
+				connectResult = select(0, NULL, &writeSet, NULL, &timeout);
+				if (connectResult > 0)
 				{
 					printf("Connected!\n");
 					sucess = true;
 				}
-				else if (result == 0)
+				else if (connectResult == 0)
 				{
 					printf("Connection timed out.\n");
 				}
@@ -175,7 +190,7 @@ namespace me {
 		auto now = std::chrono::steady_clock::now();
 		std::chrono::duration<double> elapsed = now - m_StartingTime;
 		if (elapsed.count() >= 0.1) {
-			Say("Sende Daten");
+			//Say("Sende Daten");
 			//system("cls");
 			char positionDataFormatted[12];
 			std::memcpy(&positionDataFormatted[0], &x, sizeof(x));

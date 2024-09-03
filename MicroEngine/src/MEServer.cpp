@@ -20,20 +20,18 @@ void Server::InitServer()
 void Server::HandleIncomingRequest(SOCKET i)
 {
 	int bytesReceived = recv(i, request, sizeof(request), 0);
+	if (bytesReceived == -1) {
+		HandleDisconnectedPlayer(i);
+		return;
+	}
 	memcpy(&receivedFloats, request, sizeof(receivedFloats));
-	//for (int j = 0; j < 3; ++j) {
-	//	std::cout << "Float " << j << ": " << receivedFloats[j] << std::endl;
-	//}
 	currentPlayerSocket = i;
+	//abschlieﬂen A
 	float posX = receivedFloats[0];
 	float posY = receivedFloats[1];
 	float posZ = receivedFloats[2];
+	//aufschlieﬂen A
 	playerData[i] = Position(playerData[i].playerID, posX, posY, posZ);
-	//system("cls");
-	//std::cout << "x " << playerData[i].x << std::endl;
-	//std::cout << "y " << playerData[i].y << std::endl;
-	//std::cout << "z " << playerData[i].z << std::endl;
-
 	for (const auto& pair : playerData) {
 		SOCKET otherPlayerSocket = pair.first;
 		if (otherPlayerSocket != currentPlayerSocket) {
@@ -63,17 +61,17 @@ void Server::HandleNewConnection()
 }
 void Server::CheckForIncomingData()
 {
-
 	const struct timeval LongTimeout = { 1, 0 };
 	fd_set reads;
 	reads = master;
-	int selectResult = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
-	if (selectResult < 0) WSAError("select");
+	int result_select = select(static_cast<int>(maxSocket + 1), &reads, nullptr, nullptr, &LongTimeout);
+	if (result_select < 0) WSAError("select");
 	for (SOCKET s : sockets) {
 		if (!FD_ISSET(s, &reads)) continue;
 		if (s == listenerSocket) {
 			HandleNewConnection();
 		}
+
 		else {
 			HandleIncomingRequest(s);
 		}
@@ -109,7 +107,6 @@ void Server::InitListenerSocket()
 	if (result_listen == SOCKET_ERROR) WSAError("listen");
 	InitNonBlockingMode(listenerSocket);
 	maxSocket = listenerSocket;
-	FD_ZERO(&master);
 	FD_SET(listenerSocket, &master);
 	sockets.push_back(listenerSocket);
 }
@@ -120,8 +117,27 @@ void Server::InitNonBlockingMode(SOCKET socket)
 		return;
 	}
 	u_long mode = 1;
-	int result = ioctlsocket(socket, FIONBIO, &mode);
-	if (result != 0) WSAError("ioctlsocket");
+	int result_ioctlsocket = ioctlsocket(socket, FIONBIO, &mode);
+	if (result_ioctlsocket != 0) WSAError("ioctlsocket");
+}
+void Server::HandleDisconnectedPlayer(SOCKET i)
+{
+	auto it = playerData.find(i);
+	if (it == playerData.end()) {
+		std::cerr << "Error: Attempted to handle a disconnected player that is not in playerData." << std::endl;
+	}
+	playerNumbers.push_back(it->second.playerID);
+	auto vecIt = std::remove(sockets.begin(), sockets.end(), i);
+	if (vecIt != sockets.end()) {
+		sockets.erase(vecIt, sockets.end());
+	}
+	else {
+		std::cerr << "Warning: Socket not found in sockets vector." << std::endl;
+	}
+	FD_CLR(i, &master);
+	playerData.erase(i);
+	if (closesocket(i) == SOCKET_ERROR) WSAError("closesocket");
+	Say("jsdzgfbusdzfgsduzfgsduzfgsdfzugsdf");
 }
 void Server::WSAError(std::string failedprocess)
 {
@@ -138,8 +154,8 @@ void Server::WSAError(std::string failedprocess)
 }
 void Server::InitWinSockLibrary() {
 	WSADATA wsaData;
-	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (result != 0) WSAError("WSAStartup");
+	int result_WSAStartup = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (result_WSAStartup != 0) WSAError("WSAStartup");
 }
 Server::Server()
 	: playerCount(0)
@@ -151,19 +167,19 @@ Server::Server()
 		playerNumbers.push_back(i);
 	}
 	playerData.clear();
+	FD_ZERO(&master);
 }
 void Server::SendMessageToClient(SOCKET i, float answerCode)
 {
-
 	currentPlayerID = playerData[static_cast<int>(currentPlayerSocket)].playerID;
 	float x[5];
+	//abschlieﬂen A
 	x[0] = answerCode;
 	x[1] = currentPlayerID;
-
 	x[2] = playerData[static_cast<int>(currentPlayerSocket)].x;
-	//Say(playerData[static_cast<int>(currentPlayerSocket)].x);
 	x[3] = playerData[static_cast<int>(currentPlayerSocket)].y;
 	x[4] = playerData[static_cast<int>(currentPlayerSocket)].z;
+	//aufschlieﬂen A
 	memcpy(&dataToSend, x, sizeof(dataToSend));
 	int result_send = send(i, dataToSend, sizeof(dataToSend), 0);
 	if (result_send == SOCKET_ERROR) WSAError("send");

@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "debugwindow.h"
-#include <Windows.h>   // For AllocConsole
-#include <cstdio>      // For freopen_s
+#include <Windows.h>
+#include <cstdio>
+
 namespace me {
 	void Debugwindow::OpenDebugConsole()
 	{

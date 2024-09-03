@@ -25,7 +25,7 @@ namespace me {
 	public:
 		std::map<int, Position> m_PlayerData;
 		ME_API Client(PlayerManager playerManager);
-		ME_API ~Client() = default;
+		ME_API ~Client();
 		ME_API bool ReadData();
 		ME_API void UltraDebugFunktionOderSo();
 		ME_API void UltraSchreibePlaayerPositionsdaten();

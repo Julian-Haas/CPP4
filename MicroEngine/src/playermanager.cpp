@@ -5,6 +5,7 @@
 #include "material.h"
 #include "primitivemeshes.h"
 #include "say.h"
+#include "mesh.h"
 
 namespace me {
 
@@ -20,7 +21,6 @@ namespace me {
 
 	ME_API void PlayerManager::ProcessIncomingPlayerData(float incomingData[5])
 	{
-		Say("Fire in the hole");
 		//system("cls");
 		//for (const auto& pair : m_PlayerEntities) {
 		//	std::cout << "PlayerID: " << pair.first << ", EntityID: " << pair.second << std::endl;
@@ -57,11 +57,8 @@ namespace me {
 		cubeMat.SetVertexShader("assets://Mesh.hlsl");
 		cubeMat.SetPixelShader("assets://Mesh.hlsl");
 
-#pragma warning(push)
-#pragma warning(disable: 4150)
 		const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
-#pragma warning(pop)
-		//const auto mesh = std::shared_ptr<Mesh>(CreateCube(10, 10, 10, cubeMat));
+
 		meshRenderer->SetMesh(mesh);
 
 		return cube->GetID();

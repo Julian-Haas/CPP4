@@ -45,7 +45,7 @@ private:
 	SOCKET currentPlayerSocket; // int und eventuell lokal
 	SOCKET listenerSocket;
 	SOCKET maxSocket; // möglicherweise int
-	fd_set master; // ok; der master hat sichts zu sagen! allein der commander hat die macht!
+	fd_set master;
 	std::vector<float> playerNumbers; // byte
 	bool isServerRunning;
 	void PrintMap();
@@ -57,6 +57,7 @@ private:
 	void WSAError(std::string failedprocess);
 	void InitListenerSocket();
 	void InitNonBlockingMode(SOCKET socket);
+	void HandleDisconnectedPlayer(SOCKET i);
 public:
 	ME_API ~Server() = default;
 	ME_API void InitServer();
