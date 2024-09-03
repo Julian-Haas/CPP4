@@ -130,7 +130,7 @@ namespace me {
 		{
 			std::cerr << "Error: Attempted to handle a disconnected player that is not in playerData." << std::endl;
 		}
-		m_playerNumbers.push_back(it->second.playerID);
+		m_playerNumbers.push_back(static_cast<uint8_t>(it->second.playerID));
 		auto vecIt = std::remove(m_ClientSockets.begin(), m_ClientSockets.end(), i);
 		if (vecIt != m_ClientSockets.end())
 		{
@@ -168,11 +168,13 @@ namespace me {
 		: playerCount(0)
 		, maxPlayerCount(8)
 		, m_IsServerRunning(false)
+		, listenerSocket(INVALID_SOCKET)
+		, maxSocket(0)
 	{
-		m_playerNumbers.reserve(static_cast<int>(maxPlayerCount));
-		for (float i = 0.0f; i < maxPlayerCount; ++i)
+		m_playerNumbers.reserve(maxPlayerCount);
+		for (uint8_t i = 0; i < maxPlayerCount; i++)
 		{
-			m_playerNumbers.push_back(i);
+			m_playerNumbers.push_back(static_cast<uint8_t>(i));
 		}
 		playerData.clear();
 		FD_ZERO(&master);
