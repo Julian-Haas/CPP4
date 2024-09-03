@@ -10,7 +10,11 @@
 #include <conio.h>
 #include "say.h"
 
-namespace me {
+
+#include <bitset>
+
+namespace me
+{
 	void Server::InitServer()
 	{
 		InitWinSockLibrary();
@@ -20,54 +24,79 @@ namespace me {
 	}
 	void Server::HandleIncomingRequest(SOCKET currentPlayerSocket)
 	{
-		int bytesReceived = recv(currentPlayerSocket, request, sizeof(request), 0);
-		if (bytesReceived == -1)
+		char dataToProcess[1024];
+		int bytesToProcess = recv(currentPlayerSocket, dataToProcess, sizeof(dataToProcess), 0);
+		if (bytesToProcess == -1)
 		{
 			HandleDisconnectedPlayer(currentPlayerSocket);
 			return;
 		}
-		memcpy(&receivedFloats, request, sizeof(receivedFloats));
-		float posX = receivedFloats[0];
-		float posY = receivedFloats[1];
-		float posZ = receivedFloats[2];
-		playerData[currentPlayerSocket] = Position(playerData[currentPlayerSocket].playerID, posX, posY, posZ);
-		for (const auto& pair : playerData)
+		int positionToRead = 0;
+		while (bytesToProcess > positionToRead)
 		{
-			SOCKET otherPlayerSocket = pair.first;
-			if (otherPlayerSocket != currentPlayerSocket)
-			{
-				SendMessageToClient(otherPlayerSocket, currentPlayerSocket, ProceedData);
+			uint8_t protocolCode = dataToProcess[positionToRead++];
+
+			switch (protocolCode) {
+			case SendPosition:
+				if (bytesToProcess >= (positionToRead + sizeof(float) * 3))
+				{
+					float posX = *reinterpret_cast<float*>(&dataToProcess[positionToRead]);
+					positionToRead += sizeof(float);
+					float posY = *reinterpret_cast<float*>(&dataToProcess[positionToRead]);
+					positionToRead += sizeof(float);
+					float posZ = *reinterpret_cast<float*>(&dataToProcess[positionToRead]);
+					positionToRead += sizeof(float);
+					m_PlayerData[currentPlayerSocket] = Position(m_PlayerData[currentPlayerSocket].playerID, posX, posY, posZ);
+					for (const auto& pair : m_PlayerData)
+					{
+						SOCKET otherPlayerSocket = pair.first;
+						if (otherPlayerSocket != currentPlayerSocket)
+						{
+							SendMessageToClient(otherPlayerSocket, currentPlayerSocket, ProceedData);
+						}
+					}
+				}
+				break;
+			case JoinRequest:
+				//ignore this. will be implemented later
+				break;
+			case SendLogOut:
+				//ignore this. will be implemented later
+				break;
+			default:
+				break;
 			}
 		}
 	}
 	void Server::HandleNewConnection()
 	{
-		SOCKET newSocket = accept(listenerSocket, nullptr, nullptr);
+		SOCKET newSocket = accept(m_ListenerSocket, nullptr, nullptr);
 		if (newSocket == INVALID_SOCKET) WSAError("accept");
-		if (playerCount >= maxPlayerCount)
+		if (m_PlayerCount >= m_MaxPlayerCount)
 		{
 			SendMessageToClient(newSocket, newSocket, JoinRequestDenied);
 			closesocket(newSocket);
 			return;
 		}
-		FD_SET(newSocket, &master);
+		FD_SET(newSocket, &m_Master);
 		m_ClientSockets.push_back(newSocket);
 		float newPlayerID = m_playerNumbers.front();
 		m_playerNumbers.erase(m_playerNumbers.begin());
-		playerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
-		++playerCount;
+		m_PlayerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
+		++m_PlayerCount;
 		SendMessageToClient(newSocket, newSocket, JoinRequestAccepted);
 	}
 	void Server::CheckForIncomingData()
 	{
 		const struct timeval LongTimeout = { 1, 0 };
 		fd_set reads;
-		reads = master;
-		int result_select = select(maxSocket + 1, &reads, nullptr, nullptr, &LongTimeout);
+		reads = m_Master;
+		int result_select = select(m_MaxSocket + 1, &reads, nullptr, nullptr, &LongTimeout);
 		if (result_select < 0) WSAError("select");
-		for (SOCKET s : m_ClientSockets) {
+		for (SOCKET s : m_ClientSockets)
+		{
 			if (!FD_ISSET(s, &reads)) continue;
-			if (s == listenerSocket)
+			if (s == m_ListenerSocket)
 			{
 				HandleNewConnection();
 			}
@@ -93,25 +122,25 @@ namespace me {
 			freeaddrinfo(bindAddress);
 			WSAError("getaddrinfo");
 		}
-		listenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
-		if (listenerSocket == INVALID_SOCKET)
+		m_ListenerSocket = socket(bindAddress->ai_family, bindAddress->ai_socktype, bindAddress->ai_protocol);
+		if (m_ListenerSocket == INVALID_SOCKET)
 		{
 			freeaddrinfo(bindAddress);
 			WSAError("socket");
 		}
-		int result_bind = bind(listenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen));
+		int result_bind = bind(m_ListenerSocket, bindAddress->ai_addr, static_cast<int>(bindAddress->ai_addrlen));
 		if (result_bind != 0)
 		{
 			freeaddrinfo(bindAddress);
 			WSAError("bind");
 		}
 		freeaddrinfo(bindAddress);
-		int result_listen = listen(listenerSocket, 20);
+		int result_listen = listen(m_ListenerSocket, 20);
 		if (result_listen == SOCKET_ERROR) WSAError("listen");
-		InitNonBlockingMode(listenerSocket);
-		maxSocket = static_cast<int>(listenerSocket);
-		FD_SET(listenerSocket, &master);
-		m_ClientSockets.push_back(listenerSocket);
+		InitNonBlockingMode(m_ListenerSocket);
+		m_MaxSocket = static_cast<int>(m_ListenerSocket);
+		FD_SET(m_ListenerSocket, &m_Master);
+		m_ClientSockets.push_back(m_ListenerSocket);
 	}
 	void Server::InitNonBlockingMode(SOCKET socket)
 	{
@@ -125,8 +154,8 @@ namespace me {
 		if (result_ioctlsocket != 0) WSAError("ioctlsocket");
 	}
 	void Server::HandleDisconnectedPlayer(SOCKET i) {
-		auto it = playerData.find(i);
-		if (it == playerData.end())
+		auto it = m_PlayerData.find(i);
+		if (it == m_PlayerData.end())
 		{
 			std::cerr << "Error: Attempted to handle a disconnected player that is not in playerData." << std::endl;
 		}
@@ -140,18 +169,18 @@ namespace me {
 		{
 			std::cerr << "Warning: Socket not found in sockets vector." << std::endl;
 		}
-		FD_CLR(i, &master);
-		playerData.erase(i);
+		FD_CLR(i, &m_Master);
+		m_PlayerData.erase(i);
 		if (closesocket(i) == SOCKET_ERROR) WSAError("closesocket");
 	}
 	void Server::WSAError(std::string failedprocess)
 	{
 		std::cerr << failedprocess << " failed. WSA-Error-Code: ";
 		std::cerr << WSAGetLastError() << std::endl;
-		if (listenerSocket != INVALID_SOCKET)
+		if (m_ListenerSocket != INVALID_SOCKET)
 		{
-			closesocket(listenerSocket);
-			listenerSocket = INVALID_SOCKET;
+			closesocket(m_ListenerSocket);
+			m_ListenerSocket = INVALID_SOCKET;
 		}
 		WSACleanup();
 		std::cerr << "This Error is critical, the application will close. Please press any key.";
@@ -165,36 +194,36 @@ namespace me {
 		if (result_WSAStartup != 0) WSAError("WSAStartup");
 	}
 	Server::Server()
-		: playerCount(0)
-		, maxPlayerCount(8)
+		: m_PlayerCount(0)
+		, m_MaxPlayerCount(8)
 		, m_IsServerRunning(false)
-		, listenerSocket(INVALID_SOCKET)
-		, maxSocket(0)
+		, m_ListenerSocket(INVALID_SOCKET)
+		, m_MaxSocket(0)
 	{
-		m_playerNumbers.reserve(maxPlayerCount);
-		for (uint8_t i = 0; i < maxPlayerCount; i++)
+		m_playerNumbers.reserve(m_MaxPlayerCount);
+		for (uint8_t i = 0; i < m_MaxPlayerCount; i++)
 		{
 			m_playerNumbers.push_back(static_cast<uint8_t>(i));
 		}
-		playerData.clear();
-		FD_ZERO(&master);
+		m_PlayerData.clear();
+		FD_ZERO(&m_Master);
 	}
 	void Server::SendMessageToClient(SOCKET dataPlayerSocket, SOCKET targetPlayerSocket, float answerCode)
 	{
-		int dataPlayerID = static_cast<int>(playerData[static_cast<int>(dataPlayerSocket)].playerID);
+		int dataPlayerID = static_cast<int>(m_PlayerData[static_cast<int>(dataPlayerSocket)].playerID);
 		float x[5];
 		x[0] = answerCode;
 		x[1] = (float)dataPlayerID;
-		x[2] = playerData[static_cast<int>(dataPlayerSocket)].x;
-		x[3] = playerData[static_cast<int>(dataPlayerSocket)].y;
-		x[4] = playerData[static_cast<int>(dataPlayerSocket)].z;
+		x[2] = m_PlayerData[static_cast<int>(dataPlayerSocket)].x;
+		x[3] = m_PlayerData[static_cast<int>(dataPlayerSocket)].y;
+		x[4] = m_PlayerData[static_cast<int>(dataPlayerSocket)].z;
 		memcpy(&dataToSend, x, sizeof(dataToSend));
 		int result_send = send(targetPlayerSocket, dataToSend, sizeof(dataToSend), 0);
 		if (result_send == SOCKET_ERROR) WSAError("send");
 	}
 	void Server::PrintMap()
 	{
-		for (const auto& pair : playerData)
+		for (const auto& pair : m_PlayerData)
 		{
 			SOCKET socket = pair.first;
 			const Position& position = pair.second;

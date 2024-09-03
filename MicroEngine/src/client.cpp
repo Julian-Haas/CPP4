@@ -17,7 +17,7 @@ namespace me
 		, _position_z(30)
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
-		, m_IsConnectedToServer(false)
+		, m_IsConnectedToServer(true)
 	{
 	}
 	Client::~Client()
@@ -174,10 +174,17 @@ namespace me
 			std::chrono::duration<double> elapsed = now - m_StartingTime;
 			if (elapsed.count() >= 0.1)
 			{
-				char positionDataFormatted[12];
-				std::memcpy(&positionDataFormatted[0], &x, sizeof(x));
-				std::memcpy(&positionDataFormatted[4], &y, sizeof(y));
-				std::memcpy(&positionDataFormatted[8], &z, sizeof(z));
+				//system("cls");
+				char positionDataFormatted[13] = {};
+				positionDataFormatted[0] = SendPosition;
+				//Say(static_cast<int>(positionDataFormatted[0]));
+				std::memcpy(&positionDataFormatted[1], &x, sizeof(x));
+				//Say(*reinterpret_cast<float*>(&positionDataFormatted[1]));
+				std::memcpy(&positionDataFormatted[5], &y, sizeof(y));
+				//Say(*reinterpret_cast<float*>(&positionDataFormatted[5]));
+				std::memcpy(&positionDataFormatted[9], &z, sizeof(z));
+				//Say(*reinterpret_cast<float*>(&positionDataFormatted[9]));
+
 				m_StartingTime = now;
 				int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
 				if (bytesSent == SOCKET_ERROR)

@@ -40,14 +40,14 @@ namespace me
 		float receivedFloats[3]; // 3er array; mutmaßlich komplett sparen, datentyp nicht in namen
 		char dataToSend[20]; // getrennt halten vom request
 		char request[12]; // größe anpassen aufs maximum was reinkommen kann
-		uint8_t playerCount;
-		uint8_t maxPlayerCount;
+		uint8_t m_PlayerCount;
+		uint8_t m_MaxPlayerCount;
 		std::vector<uint8_t> m_playerNumbers;
 		std::vector<SOCKET> m_ClientSockets;
-		std::map<SOCKET, Position> playerData;
-		SOCKET listenerSocket;
-		int maxSocket;
-		fd_set master;
+		std::map<SOCKET, Position> m_PlayerData;
+		SOCKET m_ListenerSocket;
+		fd_set m_Master;
+		int m_MaxSocket;
 		bool m_IsServerRunning;
 		void PrintMap();
 		void HandleNewConnection();
