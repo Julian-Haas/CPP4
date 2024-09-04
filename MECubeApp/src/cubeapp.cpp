@@ -47,6 +47,45 @@ namespace capp
 	}
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
+
+
+
+
+
+
+
+
+
+		std::cout << "Main program started." << std::endl;
+
+		// Command to run the batch file
+		std::string batchFilePath = "\"F:\\Projects\\CPP4\\Server\\rebuild_server.bat\"";
+
+		// Execute the batch file
+		if (system(batchFilePath.c_str()) == 0) {
+			std::cout << "Server rebuilt successfully." << std::endl;
+
+			// Command to run Server.exe
+			std::string runCommand = "start \"\" \"F:\\Projects\\CPP4\\Server\\Debug\\Server.exe\"";
+			system(runCommand.c_str());
+
+			std::cout << "Server is running in a separate window." << std::endl;
+		}
+		else {
+			std::cerr << "Failed to rebuild the Server." << std::endl;
+		}
+
+
+
+
+
+
+
+
+
+
+
+
 		using namespace me;
 		m_Client.EstablishConnection();
 		m_Window = std::make_unique<Window>("CubeApp", hInst);
