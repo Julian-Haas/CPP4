@@ -17,7 +17,6 @@ namespace me
 		, _position_z(30)
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
-		, m_IsConnectedToServer(true)
 	{
 	}
 	Client::~Client()
@@ -85,11 +84,6 @@ namespace me
 			}
 		}
 		return true;
-	}
-	void Client::UltraSchreibePlaayerPositionsdaten()
-	{
-		m_PlayerData.insert(std::make_pair<int, Position>((int)receivedMessageInFloat[1], Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4])));
-		m_PlayerData[(int)receivedMessageInFloat[1]] = Position(1, receivedMessageInFloat[2], receivedMessageInFloat[3], receivedMessageInFloat[4]);
 	}
 	bool Client::SearchForServer()
 	{
@@ -169,42 +163,25 @@ namespace me
 	}
 	void Client::SendPositionToServer(float x, float y, float z)
 	{
-		if (m_IsConnectedToServer) {
-			auto now = std::chrono::steady_clock::now();
-			std::chrono::duration<double> elapsed = now - m_StartingTime;
-			if (elapsed.count() >= 0.1)
+		auto now = std::chrono::steady_clock::now();
+		std::chrono::duration<double> elapsed = now - m_StartingTime;
+		if (elapsed.count() >= 0.1)
+		{
+			char positionDataFormatted[13] = {};
+			positionDataFormatted[0] = SendPosition;
+			std::memcpy(&positionDataFormatted[1], &x, sizeof(x));
+			std::memcpy(&positionDataFormatted[5], &y, sizeof(y));
+			std::memcpy(&positionDataFormatted[9], &z, sizeof(z));
+			m_StartingTime = now;
+			int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
+			if (bytesSent == SOCKET_ERROR)
 			{
-				//system("cls");
-				char positionDataFormatted[13] = {};
-				positionDataFormatted[0] = SendPosition;
-				//Say(static_cast<int>(positionDataFormatted[0]));
-				std::memcpy(&positionDataFormatted[1], &x, sizeof(x));
-				//Say(*reinterpret_cast<float*>(&positionDataFormatted[1]));
-				std::memcpy(&positionDataFormatted[5], &y, sizeof(y));
-				//Say(*reinterpret_cast<float*>(&positionDataFormatted[5]));
-				std::memcpy(&positionDataFormatted[9], &z, sizeof(z));
-				//Say(*reinterpret_cast<float*>(&positionDataFormatted[9]));
-
-				m_StartingTime = now;
-				int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
-				if (bytesSent == SOCKET_ERROR)
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK)
 				{
-					int error = WSAGetLastError();
-					if (error != WSAEWOULDBLOCK)
-					{
-					}
 				}
 			}
 		}
 	}
-	void Client::UltraDebugFunktionOderSo()
-	{
-		system("cls");
-		std::cout << "ClientReceived: " << std::endl;
-		std::cout << "Code: " << receivedMessageInFloat[0] << std::endl;
-		std::cout << "Player-ID: " << receivedMessageInFloat[1] << std::endl;
-		std::cout << "X: " << receivedMessageInFloat[2] << std::endl;
-		std::cout << "Y: " << receivedMessageInFloat[3] << std::endl;
-		std::cout << "Z: " << receivedMessageInFloat[4] << std::endl;
-	}
+
 }
