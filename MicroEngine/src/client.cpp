@@ -11,10 +11,6 @@
 namespace me
 {
 	Client::Client(PlayerManager playerManager) : server()
-		, playerID(0)
-		, _position_x(0)
-		, _position_y(0)
-		, _position_z(30)
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
 	{
@@ -67,7 +63,6 @@ namespace me
 				switch ((int)receivedMessageInFloat[0])
 				{
 				case JoinRequestAccepted:
-					playerID = receivedMessageInFloat[1];
 					break;
 				case 2:
 					return false;

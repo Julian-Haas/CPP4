@@ -14,19 +14,14 @@ namespace me
 		ME_API Client(PlayerManager playerManager);
 		ME_API ~Client();
 		ME_API bool ReadData();
-		ME_API bool SearchForServer();
 		ME_API void SendPositionToServer(float x, float y, float z);
 		ME_API void EstablishConnection();
 	private:
+		bool SearchForServer();
 		std::map<int, Position> m_PlayerData;
-		bool m_IsConnectedToServer;
 		SOCKET serverSocket;
 		float receivedMessageInFloat[5];
 		char receivedMessage[20];
-		float playerID;
-		float _position_x;
-		float _position_y;
-		float _position_z;
 		Server server;
 		int temp = 0;
 		std::chrono::steady_clock::time_point m_StartingTime;
