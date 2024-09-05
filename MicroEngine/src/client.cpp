@@ -10,26 +10,26 @@
 
 namespace me
 {
-	Client::Client(PlayerManager playerManager) : m_server()
+	Client::Client(PlayerManager playerManager) : m_Server()
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
-		, m_serverSocket(INVALID_SOCKET)
+		, m_ServerSocket(INVALID_SOCKET)
 	{
 	}
 	Client::~Client()
 	{
-		if (m_serverSocket != INVALID_SOCKET)
+		if (m_ServerSocket != INVALID_SOCKET)
 		{
 			char closeConnection[3] = { 0, 0, 0 };
-			int bytesSent = send(m_serverSocket, closeConnection, sizeof(closeConnection), 0);
+			int bytesSent = send(m_ServerSocket, closeConnection, sizeof(closeConnection), 0);
 			if (bytesSent == SOCKET_ERROR)
 			{
 				std::cerr << "Error sending disconnect message. Error code: " << WSAGetLastError() << std::endl;
 			}
-			if (closesocket(m_serverSocket) == SOCKET_ERROR) {
+			if (closesocket(m_ServerSocket) == SOCKET_ERROR) {
 				std::cerr << "Error closing socket. Error code: " << WSAGetLastError() << std::endl;
 			}
-			m_serverSocket = INVALID_SOCKET;
+			m_ServerSocket = INVALID_SOCKET;
 		}
 	}
 	bool Client::ReadData()
@@ -39,13 +39,13 @@ namespace me
 		{
 			fd_set reads;
 			FD_ZERO(&reads);
-			FD_SET(m_serverSocket, &reads);
+			FD_SET(m_ServerSocket, &reads);
 			timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 50000;
-			int selectResult = select(static_cast<int>(m_serverSocket + 1), &reads, NULL, NULL, &timeout);
-			int bytesReceived = recv(m_serverSocket, receivedMessage, sizeof(receivedMessage), 0);
-			memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
+			int selectResult = select(static_cast<int>(m_ServerSocket + 1), &reads, NULL, NULL, &timeout);
+			int bytesReceived = recv(m_ServerSocket, m_MessageBuffer, sizeof(m_MessageBuffer), 0);
+			memcpy(&m_ReceivedMessage, m_MessageBuffer, sizeof(m_ReceivedMessage));
 			if (selectResult == -1)
 			{
 				std::cout << "select failed\n";
@@ -55,20 +55,20 @@ namespace me
 			{
 				return false;
 			}
-			if (selectResult > 0 && FD_ISSET(m_serverSocket, &reads))
+			if (selectResult > 0 && FD_ISSET(m_ServerSocket, &reads))
 			{
 				if (bytesReceived <= 0)
 				{
 					return false;
 				}
-				switch ((int)receivedMessageInFloat[0])
+				switch ((int)m_ReceivedMessage[0])
 				{
 				case JoinRequestAccepted:
 					break;
 				case 2:
 					return false;
 				case 3:
-					m_playerManager.ProcessIncomingPlayerData(receivedMessageInFloat);
+					m_playerManager.ProcessIncomingPlayerData(m_ReceivedMessage);
 					break;
 				default:
 					return false;
@@ -104,15 +104,15 @@ namespace me
 		}
 		PCHAR addressBuffer = nullptr;
 		getnameinfo(serverAddrInfo->ai_addr, (socklen_t)serverAddrInfo->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
-		m_serverSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
-		if (m_serverSocket == INVALID_SOCKET)
+		m_ServerSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
+		if (m_ServerSocket == INVALID_SOCKET)
 		{
 			fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 			return false;
 		}
 		u_long mode = 1;
-		ioctlsocket(m_serverSocket, FIONBIO, &mode);
-		int connectResult = connect(m_serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
+		ioctlsocket(m_ServerSocket, FIONBIO, &mode);
+		int connectResult = connect(m_ServerSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
 		if (connectResult == SOCKET_ERROR)
 		{
 			int error = WSAGetLastError();
@@ -120,7 +120,7 @@ namespace me
 			{
 				fd_set writeSet;
 				FD_ZERO(&writeSet);
-				FD_SET(m_serverSocket, &writeSet);
+				FD_SET(m_ServerSocket, &writeSet);
 
 				timeval timeout;
 				timeout.tv_sec = 1;
@@ -153,7 +153,7 @@ namespace me
 	{
 		if (!SearchForServer())
 		{
-			std::thread serverThread(&Server::InitServer, &m_server);
+			std::thread serverThread(&Server::InitServer, &m_Server);
 			serverThread.detach();
 		}
 	}
@@ -169,7 +169,7 @@ namespace me
 			std::memcpy(&positionDataFormatted[5], &y, sizeof(y));
 			std::memcpy(&positionDataFormatted[9], &z, sizeof(z));
 			m_StartingTime = now;
-			int bytesSent = send(m_serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
+			int bytesSent = send(m_ServerSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
 			if (bytesSent == SOCKET_ERROR)
 			{
 				int error = WSAGetLastError();

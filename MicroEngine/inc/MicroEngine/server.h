@@ -35,22 +35,19 @@ namespace me
 	{
 	public:
 		ME_API Server();
-		ME_API ~Server() = default;
+		ME_API ~Server();
 		ME_API void InitServer();
 	private:
-		float receivedFloats[3]; // 3er array; mutmaßlich komplett sparen, datentyp nicht in namen
-		char dataToSend[20]; // getrennt halten vom request
-		char request[12]; // größe anpassen aufs maximum was reinkommen kann
+		char m_DataToSend[20];
 		uint8_t m_PlayerCount;
 		uint8_t m_MaxPlayerCount;
-		std::vector<uint8_t> m_playerNumbers;
+		std::vector<uint8_t> m_PlayerNumbers;
 		std::vector<SOCKET> m_ClientSockets;
 		std::map<SOCKET, Position> m_PlayerData;
 		SOCKET m_ListenerSocket;
 		fd_set m_Master;
 		int m_MaxSocket;
 		bool m_IsServerRunning;
-		void PrintMap();
 		void HandleNewConnection();
 		void CheckForIncomingData();
 		void HandleIncomingRequest(SOCKET i);

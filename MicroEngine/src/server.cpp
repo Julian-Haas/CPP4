@@ -7,11 +7,7 @@
 #include <cstdio>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include <conio.h>
 #include "say.h"
-
-
-#include <bitset>
 
 namespace me
 {
@@ -57,12 +53,6 @@ namespace me
 					}
 				}
 				break;
-			case JoinRequest:
-				//ignore this. will be implemented later
-				break;
-			case SendLogOut:
-				//ignore this. will be implemented later
-				break;
 			default:
 				break;
 			}
@@ -80,8 +70,8 @@ namespace me
 		}
 		FD_SET(newSocket, &m_Master);
 		m_ClientSockets.push_back(newSocket);
-		float newPlayerID = m_playerNumbers.front();
-		m_playerNumbers.erase(m_playerNumbers.begin());
+		float newPlayerID = m_PlayerNumbers.front();
+		m_PlayerNumbers.erase(m_PlayerNumbers.begin());
 		m_PlayerData.insert(std::make_pair(newSocket, Position(newPlayerID, 0, 0, 30)));
 		++m_PlayerCount;
 		SendMessageToClient(newSocket, newSocket, JoinRequestAccepted);
@@ -159,7 +149,7 @@ namespace me
 		{
 			std::cerr << "Error: Attempted to handle a disconnected player that is not in playerData." << std::endl;
 		}
-		m_playerNumbers.push_back(static_cast<uint8_t>(it->second.playerID));
+		m_PlayerNumbers.push_back(static_cast<uint8_t>(it->second.playerID));
 		auto vecIt = std::remove(m_ClientSockets.begin(), m_ClientSockets.end(), i);
 		if (vecIt != m_ClientSockets.end())
 		{
@@ -182,9 +172,15 @@ namespace me
 			closesocket(m_ListenerSocket);
 			m_ListenerSocket = INVALID_SOCKET;
 		}
+		for (SOCKET s : m_ClientSockets)
+		{
+			if (s != INVALID_SOCKET)
+			{
+				closesocket(s);
+			}
+		}
 		WSACleanup();
-		std::cerr << "This Error is critical, the application will close. Please press any key.";
-		_getch();
+		std::cerr << "This Error is critical, the application will close.";
 		exit(1);
 	}
 	void Server::InitWinSockLibrary()
@@ -200,39 +196,41 @@ namespace me
 		, m_ListenerSocket(INVALID_SOCKET)
 		, m_MaxSocket(0)
 	{
-		m_playerNumbers.reserve(m_MaxPlayerCount);
+		m_PlayerNumbers.reserve(m_MaxPlayerCount);
 		for (uint8_t i = 0; i < m_MaxPlayerCount; i++)
 		{
-			m_playerNumbers.push_back(static_cast<uint8_t>(i));
+			m_PlayerNumbers.push_back(static_cast<uint8_t>(i));
 		}
 		m_PlayerData.clear();
 		FD_ZERO(&m_Master);
+	}
+	Server::~Server()
+	{
+		if (m_ListenerSocket != INVALID_SOCKET)
+		{
+			closesocket(m_ListenerSocket);
+			m_ListenerSocket = INVALID_SOCKET;
+		}
+		for (SOCKET s : m_ClientSockets)
+		{
+			if (s != INVALID_SOCKET)
+			{
+				closesocket(s);
+			}
+		}
+		WSACleanup();
 	}
 	void Server::SendMessageToClient(SOCKET dataPlayerSocket, SOCKET targetPlayerSocket, float answerCode)
 	{
 		int dataPlayerID = static_cast<int>(m_PlayerData[static_cast<int>(dataPlayerSocket)].playerID);
 		float x[5];
 		x[0] = answerCode;
-		x[1] = (float)dataPlayerID;
+		x[1] = static_cast<float>(dataPlayerID);
 		x[2] = m_PlayerData[static_cast<int>(dataPlayerSocket)].x;
 		x[3] = m_PlayerData[static_cast<int>(dataPlayerSocket)].y;
 		x[4] = m_PlayerData[static_cast<int>(dataPlayerSocket)].z;
-		memcpy(&dataToSend, x, sizeof(dataToSend));
-		int result_send = send(targetPlayerSocket, dataToSend, sizeof(dataToSend), 0);
+		memcpy(&m_DataToSend, x, sizeof(m_DataToSend));
+		int result_send = send(targetPlayerSocket, m_DataToSend, sizeof(m_DataToSend), 0);
 		if (result_send == SOCKET_ERROR) WSAError("send");
-	}
-	void Server::PrintMap()
-	{
-		for (const auto& pair : m_PlayerData)
-		{
-			SOCKET socket = pair.first;
-			const Position& position = pair.second;
-			std::cout << "Socket: " << socket << std::endl;
-			std::cout << "Player ID: " << position.playerID << std::endl;
-			std::cout << "X: " << position.x << std::endl;
-			std::cout << "Y: " << position.y << std::endl;
-			std::cout << "Z: " << position.z << std::endl;
-			std::cout << std::endl;
-		}
 	}
 }

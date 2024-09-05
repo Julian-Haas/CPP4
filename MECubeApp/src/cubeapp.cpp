@@ -24,9 +24,6 @@
 #include "MicroEngine/transformcomponent.h"
 #include "MicroEngine/vertex.h"
 #include "MicroEngine/client.h"
-#include "MicroEngine/server.h"
-#include "MicroEngine/say.h"
-
 
 namespace capp
 {
@@ -34,16 +31,15 @@ namespace capp
 		: m_ControlledEntityID(me::INVALID_ENTITY_ID)
 		, m_CameraID(me::INVALID_ENTITY_ID)
 		, m_LightID(me::INVALID_ENTITY_ID)
-		, testfloat(30.0f)
 		, m_EntityManager()
 		, m_PlayerManager(m_EntityManager)
 		, m_Client(m_PlayerManager)
 	{
-		debugWindow.OpenDebugConsole();
+		m_DebugWindow.OpenDebugConsole();
 	}
 	CubeApp::~CubeApp()
 	{
-		debugWindow.CloseDebugConsole();
+		m_DebugWindow.CloseDebugConsole();
 	}
 	ExitCode::Enum CubeApp::Run(HINSTANCE hInst)
 	{
@@ -197,23 +193,8 @@ namespace capp
 		float z = DirectX::XMVectorGetZ(positionData);
 		m_Client.SendPositionToServer(x, y, z);
 		m_Client.ReadData();
-		//if (ultimativedebugflag == false) {
-		//	system("cls");
-		//	ultimativedebugflag = true;
-		//}
-		//network.ReadData();
-
-
-
 		if (controlledEntity)
 		{
-			if (Input::GetInstance()->IsKeyDown(' '))
-			{
-
-				//m_EntityManager.SetPositionByID(entity->GetID(), 1.0f, 1.0f, 1.0f);
-				//m_EntityManager.SetPositionByID(temp > GetID(), 1.0f, 1.0f, 1.0f);
-			}
-
 			if (Input::GetInstance()->IsKeyDown('U'))
 			{
 				controlledEntity->Translate(0, 0, 50 * deltaTime);
@@ -230,47 +211,34 @@ namespace capp
 			{
 				controlledEntity->Translate(50 * deltaTime, 0, 0);
 			}
-
-
-
-
-
-
 			if (Input::GetInstance()->IsKeyDown('Z'))
 			{
 				controlledEntity->RotateLocal(0, 0, 50 * deltaTime);
 			}
-
 			if (Input::GetInstance()->IsKeyDown('X'))
 			{
 				controlledEntity->RotateLocal(50 * deltaTime, 0, 0);
 			}
-
 			if (Input::GetInstance()->IsKeyDown('Y'))
 			{
 				controlledEntity->RotateLocal(0, 50 * deltaTime, 0);
 			}
-
 			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD8))
 			{
 				controlledEntity->TranslateLocal(0, 0, 10 * deltaTime);
 			}
-
 			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD6))
 			{
 				controlledEntity->TranslateLocal(10 * deltaTime, 0, 0);
 			}
-
 			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD2))
 			{
 				controlledEntity->TranslateLocal(0, 0, -10 * deltaTime);
 			}
-
 			if (Input::GetInstance()->IsKeyDown(VK_NUMPAD4))
 			{
 				controlledEntity->TranslateLocal(-10 * deltaTime, 0, 0);
 			}
-
 		}
 
 		//Update all entities

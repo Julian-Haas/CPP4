@@ -36,23 +36,15 @@ namespace capp
 	public:
 		CubeApp();
 		~CubeApp();
-		me::EntityID InstantiateNewPlayer();
-		void UpdatePlayerEntitys();
 		ExitCode::Enum Run(HINSTANCE hInst);
 
 	private:
 		me::PlayerManager m_PlayerManager;
 		ME_MOVE_COPY_NOT_ALLOWED(CubeApp);
 		//int value is the Player ID 
-		std::map<int, me::Entity*> PlayerTrasforms;
-		float playerID;
-		me::Debugwindow debugWindow;
-		float selectedPlayerID;
-		float m_MessageData[20];
+		me::Debugwindow m_DebugWindow;
 		void UpdateLogic(float deltaTime);
 		void InitEntities();
-		void UpdateEntities();
-		float a = 1.0f;
 		me::Client m_Client;
 		me::EntityID m_ControlledEntityID;
 		me::EntityID m_CameraID;
@@ -61,9 +53,6 @@ namespace capp
 		me::SystemManager m_SystemManager;
 		std::unique_ptr<me::Window> m_Window;
 		std::shared_ptr<me::Renderer> m_Renderer;
-
-		float testfloat;
-		bool ultimativedebugflag = false;
 	};
 
 }

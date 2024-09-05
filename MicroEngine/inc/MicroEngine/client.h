@@ -18,10 +18,10 @@ namespace me
 	private:
 		bool SearchForServer();
 		std::map<int, Position> m_PlayerData;
-		SOCKET m_serverSocket;
-		float receivedMessageInFloat[5];
-		char receivedMessage[20];
-		Server m_server;
+		SOCKET m_ServerSocket;
+		float m_ReceivedMessage[5];
+		char m_MessageBuffer[20];
+		Server m_Server;
 		std::chrono::steady_clock::time_point m_StartingTime;
 		PlayerManager m_playerManager;
 	};
