@@ -10,25 +10,26 @@
 
 namespace me
 {
-	Client::Client(PlayerManager playerManager) : server()
+	Client::Client(PlayerManager playerManager) : m_server()
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
+		, m_serverSocket(INVALID_SOCKET)
 	{
 	}
 	Client::~Client()
 	{
-		if (serverSocket != INVALID_SOCKET)
+		if (m_serverSocket != INVALID_SOCKET)
 		{
 			char closeConnection[3] = { 0, 0, 0 };
-			int bytesSent = send(serverSocket, closeConnection, sizeof(closeConnection), 0);
+			int bytesSent = send(m_serverSocket, closeConnection, sizeof(closeConnection), 0);
 			if (bytesSent == SOCKET_ERROR)
 			{
 				std::cerr << "Error sending disconnect message. Error code: " << WSAGetLastError() << std::endl;
 			}
-			if (closesocket(serverSocket) == SOCKET_ERROR) {
+			if (closesocket(m_serverSocket) == SOCKET_ERROR) {
 				std::cerr << "Error closing socket. Error code: " << WSAGetLastError() << std::endl;
 			}
-			serverSocket = INVALID_SOCKET;
+			m_serverSocket = INVALID_SOCKET;
 		}
 	}
 	bool Client::ReadData()
@@ -38,12 +39,12 @@ namespace me
 		{
 			fd_set reads;
 			FD_ZERO(&reads);
-			FD_SET(serverSocket, &reads);
+			FD_SET(m_serverSocket, &reads);
 			timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 50000;
-			int selectResult = select(static_cast<int>(serverSocket + 1), &reads, NULL, NULL, &timeout);
-			int bytesReceived = recv(serverSocket, receivedMessage, sizeof(receivedMessage), 0);
+			int selectResult = select(static_cast<int>(m_serverSocket + 1), &reads, NULL, NULL, &timeout);
+			int bytesReceived = recv(m_serverSocket, receivedMessage, sizeof(receivedMessage), 0);
 			memcpy(&receivedMessageInFloat, receivedMessage, sizeof(receivedMessageInFloat));
 			if (selectResult == -1)
 			{
@@ -54,7 +55,7 @@ namespace me
 			{
 				return false;
 			}
-			if (selectResult > 0 && FD_ISSET(serverSocket, &reads))
+			if (selectResult > 0 && FD_ISSET(m_serverSocket, &reads))
 			{
 				if (bytesReceived <= 0)
 				{
@@ -103,15 +104,15 @@ namespace me
 		}
 		PCHAR addressBuffer = nullptr;
 		getnameinfo(serverAddrInfo->ai_addr, (socklen_t)serverAddrInfo->ai_addrlen, addressBuffer, sizeof(addressBuffer), 0, 0, NI_NUMERICHOST);
-		serverSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
-		if (serverSocket == INVALID_SOCKET)
+		m_serverSocket = socket(serverAddrInfo->ai_family, serverAddrInfo->ai_socktype, serverAddrInfo->ai_protocol);
+		if (m_serverSocket == INVALID_SOCKET)
 		{
 			fprintf(stderr, "socket() failed. (%d)\n", WSAGetLastError());
 			return false;
 		}
 		u_long mode = 1;
-		ioctlsocket(serverSocket, FIONBIO, &mode);
-		int connectResult = connect(serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
+		ioctlsocket(m_serverSocket, FIONBIO, &mode);
+		int connectResult = connect(m_serverSocket, serverAddrInfo->ai_addr, (int)serverAddrInfo->ai_addrlen);
 		if (connectResult == SOCKET_ERROR)
 		{
 			int error = WSAGetLastError();
@@ -119,7 +120,7 @@ namespace me
 			{
 				fd_set writeSet;
 				FD_ZERO(&writeSet);
-				FD_SET(serverSocket, &writeSet);
+				FD_SET(m_serverSocket, &writeSet);
 
 				timeval timeout;
 				timeout.tv_sec = 1;
@@ -152,7 +153,7 @@ namespace me
 	{
 		if (!SearchForServer())
 		{
-			std::thread serverThread(&Server::InitServer, &server);
+			std::thread serverThread(&Server::InitServer, &m_server);
 			serverThread.detach();
 		}
 	}
@@ -168,7 +169,7 @@ namespace me
 			std::memcpy(&positionDataFormatted[5], &y, sizeof(y));
 			std::memcpy(&positionDataFormatted[9], &z, sizeof(z));
 			m_StartingTime = now;
-			int bytesSent = send(serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
+			int bytesSent = send(m_serverSocket, positionDataFormatted, sizeof(positionDataFormatted), 0);
 			if (bytesSent == SOCKET_ERROR)
 			{
 				int error = WSAGetLastError();
@@ -178,5 +179,4 @@ namespace me
 			}
 		}
 	}
-
 }

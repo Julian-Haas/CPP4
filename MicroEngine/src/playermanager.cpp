@@ -13,7 +13,7 @@ namespace me
 		: m_entityManagerReference(entityManager)
 	{
 	}
-	ME_API void PlayerManager::ProcessIncomingPlayerData(float incomingData[5])
+	void PlayerManager::ProcessIncomingPlayerData(float incomingData[5])
 	{
 		int playerID = (int)incomingData[1];
 		int x = (int)incomingData[2];

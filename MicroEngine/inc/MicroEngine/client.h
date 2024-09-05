@@ -4,7 +4,6 @@
 #include <winsock2.h>
 #include "server.h"
 #include <chrono>
-#include "say.h"
 #include "playermanager.h"
 
 namespace me
@@ -19,11 +18,10 @@ namespace me
 	private:
 		bool SearchForServer();
 		std::map<int, Position> m_PlayerData;
-		SOCKET serverSocket;
+		SOCKET m_serverSocket;
 		float receivedMessageInFloat[5];
 		char receivedMessage[20];
-		Server server;
-		int temp = 0;
+		Server m_server;
 		std::chrono::steady_clock::time_point m_StartingTime;
 		PlayerManager m_playerManager;
 	};
