@@ -31,7 +31,6 @@ namespace me
 		while (bytesToProcess > positionToRead)
 		{
 			uint8_t protocolCode = dataToProcess[positionToRead++];
-
 			switch (protocolCode) {
 			case SendPosition:
 				if (bytesToProcess >= (positionToRead + sizeof(float) * 3))
@@ -195,6 +194,7 @@ namespace me
 		, m_IsServerRunning(false)
 		, m_ListenerSocket(INVALID_SOCKET)
 		, m_MaxSocket(0)
+		, m_DataToSend{}
 	{
 		m_PlayerNumbers.reserve(m_MaxPlayerCount);
 		for (uint8_t i = 0; i < m_MaxPlayerCount; i++)

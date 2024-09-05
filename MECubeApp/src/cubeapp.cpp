@@ -3,11 +3,7 @@
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
-
 #include "cubeapp.h"
-
-
-
 #include "MicroEngine/d3d11util.h"
 #include "MicroEngine/lightcomponent.h"
 #include "MicroEngine/window.h"
@@ -16,7 +12,6 @@
 #include "MicroEngine/cameracomponent.h"
 #include "MicroEngine/meshrenderercomponent.h"
 #include "MicroEngine/primitivemeshes.h"
-
 #include "MicroEngine/mesh.h"
 #include "MicroEngine/input.h"
 #include "MicroEngine/firstpersoncontrollercomponent.h"
@@ -72,7 +67,6 @@ namespace capp
 
 			Input::GetInstance()->OnFrameEnd();
 		}
-
 		return ExitCode::Success;
 	}
 

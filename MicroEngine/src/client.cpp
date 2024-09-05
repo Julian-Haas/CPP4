@@ -14,6 +14,8 @@ namespace me
 		, m_StartingTime(std::chrono::steady_clock::now())
 		, m_playerManager(playerManager)
 		, m_ServerSocket(INVALID_SOCKET)
+		, m_ReceivedMessage{}
+		, m_MessageBuffer{}
 	{
 	}
 	Client::~Client()
